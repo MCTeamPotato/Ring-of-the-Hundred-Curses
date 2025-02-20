@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.kaleblangley.ring_of_the_hundred_curses.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "RingOfTheHundredCurses.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
