@@ -6,6 +6,7 @@ import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetHealthPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -75,7 +76,7 @@ public class CursedRing extends Item implements ICurioItem {
         HashMultimap<Attribute, AttributeModifier> attributes = HashMultimap.create();
         AttributeModifier modifier = new AttributeModifier(UUID.fromString("3f2c4a78-91b5-4d3f-9e8a-7c6e5f1b2d4a"), "reducesHealth", -ModConfigManager.getConfig().reducesHealth, AttributeModifier.Operation.ADDITION);
 
-//        attributes.put(Attributes.MAX_HEALTH, modifier);
+        attributes.put(Attributes.MAX_HEALTH, modifier);
         return attributes;
     }
 
