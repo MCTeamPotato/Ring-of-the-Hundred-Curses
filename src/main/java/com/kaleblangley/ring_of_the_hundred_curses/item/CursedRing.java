@@ -86,7 +86,8 @@ public class CursedRing extends Item implements ICurioItem {
     }
 
     @Override
-    public void appendHoverText(@NotNull ItemStack itemStack, @Nullable Level level, @NotNull List<Component> componentList, @NotNull TooltipFlag tooltipFlag) {
+    public void appendHoverText(@NotNull ItemStack itemStack, @Nullable Level level, @NotNull List<Component> componentList, @NotNull TooltipFlag tooltipFlag) {}
 
-    }
+    @Override
+    public List<Component> getAttributesTooltip(List<Component> tooltips, ItemStack stack) {return new ArrayList<>();}
 }

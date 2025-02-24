@@ -1,26 +1,28 @@
 package com.kaleblangley.ring_of_the_hundred_curses.event;
 
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
-import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfig;
-import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
-import com.kaleblangley.ring_of_the_hundred_curses.init.ModItem;
 import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import top.theillusivec4.curios.api.event.CurioAttributeModifierEvent;
 
 import java.util.List;
+
 
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeEvent {
@@ -37,7 +39,12 @@ public class ForgeEvent {
     }
 
     @SubscribeEvent
-    public static void attributeModify(CurioAttributeModifierEvent event){
-
+    public static void entitySpawn(EntityJoinLevelEvent event){
+        if (event.getEntity() instanceof LivingEntity livingEntity){
+            if (livingEntity instanceof PathfinderMob mob) {
+                mob.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(mob, Player.class, 10, true, true, entity -> entity instanceof Player player && RingUtil.isEquipRing(player)));
+                mob.goalSelector.addGoal(1, new MeleeAttackGoal(mob, 1.2D, true));
+            }
+        }
     }
 }
