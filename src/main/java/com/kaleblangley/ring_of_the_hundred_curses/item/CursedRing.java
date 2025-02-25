@@ -76,7 +76,7 @@ public class CursedRing extends Item implements ICurioItem {
         HashMultimap<Attribute, AttributeModifier> attributes = HashMultimap.create();
         AttributeModifier modifier = new AttributeModifier(UUID.fromString("3f2c4a78-91b5-4d3f-9e8a-7c6e5f1b2d4a"), "reducesHealth", -ModConfigManager.getConfig().reducesHealth, AttributeModifier.Operation.ADDITION);
 
-        attributes.put(Attributes.MAX_HEALTH, modifier);
+        if (ModConfigManager.getConfig().enableFragileLife) attributes.put(Attributes.MAX_HEALTH, modifier);
         return attributes;
     }
 

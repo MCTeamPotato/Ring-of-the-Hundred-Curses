@@ -17,6 +17,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
+import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -46,5 +49,10 @@ public class ForgeEvent {
                 mob.goalSelector.addGoal(1, new MeleeAttackGoal(mob, 1.2D, true));
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void sleepEvent(SleepingTimeCheckEvent event){
+        event.setResult(Event.Result.DENY);
     }
 }
