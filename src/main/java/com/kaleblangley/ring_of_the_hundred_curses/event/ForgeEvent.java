@@ -1,6 +1,7 @@
 package com.kaleblangley.ring_of_the_hundred_curses.event;
 
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
+import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.ChatFormatting;
@@ -44,9 +45,9 @@ public class ForgeEvent {
     @SubscribeEvent
     public static void entitySpawn(EntityJoinLevelEvent event){
         if (event.getEntity() instanceof LivingEntity livingEntity){
-            if (livingEntity instanceof PathfinderMob mob) {
+            if (livingEntity instanceof PathfinderMob mob && ModConfigManager.getConfig().enableWorldAgainst) {
                 mob.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(mob, Player.class, 10, true, true, entity -> entity instanceof Player player && RingUtil.isEquipRing(player)));
-                mob.goalSelector.addGoal(1, new MeleeAttackGoal(mob, 1.2D, true));
+                mob.goalSelector.addGoal(1, new MeleeAttackGoal(mob, ModConfigManager.getConfig().entityAttackSpeed, true));
             }
         }
     }
