@@ -14,9 +14,7 @@ public class ModEvent {
     public static void addAttribute(EntityAttributeModificationEvent event) {
         event.getTypes().forEach(entityType -> {
             if (!event.has(entityType, ATTACK_DAMAGE)) {
-                event.add(entityType, ATTACK_DAMAGE, ModConfigManager.getConfig().entityAttackDamage);
-            } else {
-                event.add(entityType, ATTACK_DAMAGE, ModConfigManager.getConfig().entityAttackDamage-1);
+                event.add(entityType, ATTACK_DAMAGE, 1d);
             }
         });
     }

@@ -19,14 +19,14 @@ public class ModConfig implements ConfigData {
      */
     public boolean enableWorldAgainst = true;
     public double entityAttackSpeed = 1.2d;
-    public double entityAttackDamage = 1d;
+    public int entityAttackChange = 50;
 
     /*
      * 贪婪吃食：减少食物获得的饥饿值
      * Greedy Eating: Reduces the hunger restoration from food.
      */
     public boolean enableGreedyEating = true;
-    
+    public float hungerReductionPercent = 0.5f;
     /*
      * 背包受限：堆叠上限减少
      * Backpack Limit: Reduces the stack limit of items.

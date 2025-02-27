@@ -46,7 +46,7 @@ public class ForgeEvent {
     public static void entitySpawn(EntityJoinLevelEvent event){
         if (event.getEntity() instanceof LivingEntity livingEntity){
             if (livingEntity instanceof PathfinderMob mob && ModConfigManager.getConfig().enableWorldAgainst) {
-                mob.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(mob, Player.class, 10, true, true, entity -> entity instanceof Player player && RingUtil.isEquipRing(player)));
+                mob.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(mob, Player.class, ModConfigManager.getConfig().entityAttackChange, true, true, entity -> entity instanceof Player player && RingUtil.isEquipRing(player)));
                 mob.goalSelector.addGoal(1, new MeleeAttackGoal(mob, ModConfigManager.getConfig().entityAttackSpeed, true));
             }
         }
