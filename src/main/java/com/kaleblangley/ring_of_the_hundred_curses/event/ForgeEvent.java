@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -31,29 +32,36 @@ import java.util.List;
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeEvent {
     @SubscribeEvent(priority = EventPriority.LOW)
-    public static void ringTooltip(ItemTooltipEvent event){
+    public static void ringTooltip(ItemTooltipEvent event) {
         List<Component> toolTips = event.getToolTip();
         MutableComponent slot = Component.translatable("curios.tooltip.slot").withStyle(ChatFormatting.GOLD);
         MutableComponent identifier = Component.translatable("curios.identifier.ring").withStyle(ChatFormatting.YELLOW);
 
-        if (event.getItemStack().getItem() instanceof CursedRing){
+        if (event.getItemStack().getItem() instanceof CursedRing) {
             toolTips.add(Component.translatable("message.ring_of_the_hundred_curses.description_1"));
             toolTips.add(slot.append(" ").append(identifier));
         }
     }
 
     @SubscribeEvent
-    public static void entitySpawn(EntityJoinLevelEvent event){
-        if (event.getEntity() instanceof LivingEntity livingEntity){
+    public static void entitySpawn(EntityJoinLevelEvent event) {
+        if (event.getEntity() instanceof LivingEntity livingEntity) {
             if (livingEntity instanceof PathfinderMob mob && ModConfigManager.getConfig().enableWorldAgainst) {
-                mob.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(mob, Player.class, ModConfigManager.getConfig().entityAttackChange, true, true, entity -> entity instanceof Player player && RingUtil.isEquipRing(player)));
+                mob.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(mob, Player.class, ModConfigManager.getConfig().entityAttackChange, true, false, entity -> entity instanceof Player player && RingUtil.isEquipRing(player)));
                 mob.goalSelector.addGoal(1, new MeleeAttackGoal(mob, ModConfigManager.getConfig().entityAttackSpeed, true));
             }
         }
     }
 
     @SubscribeEvent
-    public static void sleepEvent(SleepingTimeCheckEvent event){
-        event.setResult(Event.Result.DENY);
+    public static void sleepEvent(SleepingTimeCheckEvent event) {
+        if (RingUtil.isEquipRing(event.getEntity()) && ModConfigManager.getConfig().enableSleeplessNights) {
+            event.setResult(Event.Result.DENY);
+        }
+    }
+
+    @SubscribeEvent
+    public static void pickItemEvent(PlayerEvent.ItemPickupEvent event){
+        event.getStack();
     }
 }

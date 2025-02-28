@@ -7,6 +7,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import static net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE;
+import static net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE;
 
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModEvent {
@@ -16,6 +17,7 @@ public class ModEvent {
             if (!event.has(entityType, ATTACK_DAMAGE)) {
                 event.add(entityType, ATTACK_DAMAGE, 1d);
             }
+            event.add(entityType, FOLLOW_RANGE, ModConfigManager.getConfig().entityFollowRange);
         });
     }
 }

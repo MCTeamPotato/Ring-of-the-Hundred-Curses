@@ -5,9 +5,11 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "RingOfTheHundredCurses.refmap.json",
   "mixins": [
-    "FoodPropertiesMixin",
+    "FoodDataMixin",
     "ForgeGuiMixin",
-    "PropertiesMixin"
+    "ItemMixin",
+    "PlayerMixin",
+    "accessor.FoodPropertiesAccessor"
   ],
   "client": [
   ],
