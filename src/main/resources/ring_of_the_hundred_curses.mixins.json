@@ -9,7 +9,10 @@
     "ForgeGuiMixin",
     "ItemMixin",
     "PlayerMixin",
-    "accessor.FoodPropertiesAccessor"
+    "accessor.FoodPropertiesAccessor",
+    "inventory.AbstractContainerMenuMixin",
+    "inventory.InventoryMixin",
+    "inventory.SlotMixin"
   ],
   "client": [
   ],
