@@ -15,6 +15,7 @@
     "inventory.SlotMixin"
   ],
   "client": [
+    "inventory.CreativeModeInventoryScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

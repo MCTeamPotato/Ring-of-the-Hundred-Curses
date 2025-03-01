@@ -34,7 +34,7 @@ public class ModConfig implements ConfigData {
      * Backpack Limit: Reduces the stack limit of items.
      */
     public boolean enableBackpackLimit = true;
-    
+    public int maxStackSize = 24;
     /*
      * 竭尽全力：武器必须满蓄力才能使用
      * Full Power: Weapons can only be used when fully charged.
