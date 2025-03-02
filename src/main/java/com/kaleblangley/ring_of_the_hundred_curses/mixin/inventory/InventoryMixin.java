@@ -17,7 +17,7 @@ public class InventoryMixin {
 
     @Redirect(method = "*", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getMaxStackSize()I"))
     public int redirectItemStackStack(ItemStack instance){
-        if (RingUtil.isEquipRing(this.player) || ModConfigManager.getConfig().enableBackpackLimit){
+        if (RingUtil.isEquipRing(this.player) && ModConfigManager.getConfig().enableBackpackLimit){
             return ModConfigManager.getConfig().maxStackSize;
         }
         return instance.getMaxStackSize();

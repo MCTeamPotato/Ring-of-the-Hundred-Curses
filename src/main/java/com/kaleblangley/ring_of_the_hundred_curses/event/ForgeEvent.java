@@ -68,7 +68,7 @@ public class ForgeEvent {
 
     @SubscribeEvent
     public static void stackItem(ItemStackedOnOtherEvent event){
-        if (!RingUtil.isEquipRing(event.getPlayer()) || ModConfigManager.getConfig().enableBackpackLimit) return;
+        if (!RingUtil.isEquipRing(event.getPlayer()) || !ModConfigManager.getConfig().enableBackpackLimit) return;
         ItemStack carryItem = event.getCarriedItem();
         ItemStack stackedOnItem = event.getStackedOnItem();
         int carryCount = carryItem.getCount();

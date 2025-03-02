@@ -5,16 +5,15 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "RingOfTheHundredCurses.refmap.json",
   "mixins": [
+    "BowMixin",
     "FoodDataMixin",
     "ForgeGuiMixin",
-    "ItemMixin",
     "PlayerMixin",
     "accessor.FoodPropertiesAccessor",
-    "inventory.AbstractContainerMenuMixin",
-    "inventory.InventoryMixin",
-    "inventory.SlotMixin"
+    "inventory.InventoryMixin"
   ],
   "client": [
+    "MinecraftMixin",
     "inventory.CreativeModeInventoryScreenMixin"
   ],
   "injectors": {
