@@ -3,7 +3,8 @@ package com.kaleblangley.ring_of_the_hundred_curses.config;
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
-import me.shedaniel.autoconfig.annotation.ConfigEntry;
+
+import java.util.Map;
 
 @Config(name = RingOfTheHundredCurses.MODID)
 public class ModConfig implements ConfigData {
@@ -21,7 +22,7 @@ public class ModConfig implements ConfigData {
     public boolean enableWorldAgainst = true;
     public double entityAttackSpeed = 1.2d;
     public int entityAttackChange = 50;
-    public double entityFollowRange = 32.0d;
+    public Map<String, Double> entityFollowRange = Map.of();
 
     /*
      * 贪婪吃食：减少食物获得的饥饿值

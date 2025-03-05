@@ -14,11 +14,15 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.living.LivingSwapItemsEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
@@ -48,7 +52,7 @@ public class ForgeEvent {
     @SubscribeEvent
     public static void entitySpawn(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
-            if (livingEntity instanceof PathfinderMob mob && ModConfigManager.getConfig().enableWorldAgainst) {
+            if (livingEntity instanceof PathfinderMob mob && !(mob instanceof RangedAttackMob) && ModConfigManager.getConfig().enableWorldAgainst) {
                 mob.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(mob, Player.class, ModConfigManager.getConfig().entityAttackChange, true, false, entity -> entity instanceof Player player && RingUtil.isEquipRing(player)));
                 mob.goalSelector.addGoal(1, new MeleeAttackGoal(mob, ModConfigManager.getConfig().entityAttackSpeed, true));
             }
@@ -63,28 +67,35 @@ public class ForgeEvent {
     }
 
     @SubscribeEvent
-    public static void pickItemEvent(PlayerEvent.ItemPickupEvent event){
-    }
-
-    @SubscribeEvent
-    public static void stackItem(ItemStackedOnOtherEvent event){
-        if (!RingUtil.isEquipRing(event.getPlayer()) || !ModConfigManager.getConfig().enableBackpackLimit) return;
+    public static void stackItem(ItemStackedOnOtherEvent event) {
+        if (!RingUtil.isEquipRing(event.getPlayer())) return;
         ItemStack carryItem = event.getCarriedItem();
         ItemStack stackedOnItem = event.getStackedOnItem();
         int carryCount = carryItem.getCount();
         int stackedOnCount = stackedOnItem.getCount();
-        int totalCount = carryItem.getCount() + stackedOnItem.getCount();
+        int totalCount = carryCount + stackedOnCount;
 
-        if (ItemStack.isSameItemSameTags(carryItem, stackedOnItem)){
-            if (totalCount == ModConfigManager.getConfig().maxStackSize * 2){
+        if (ItemStack.isSameItemSameTags(carryItem, stackedOnItem) && ModConfigManager.getConfig().enableBackpackLimit) {
+            if (totalCount == ModConfigManager.getConfig().maxStackSize * 2) {
                 event.setCanceled(true);
-            } else if (totalCount > ModConfigManager.getConfig().maxStackSize){
-                if (carryCount < stackedOnCount){
+            } else if (totalCount > ModConfigManager.getConfig().maxStackSize) {
+                if (carryCount < stackedOnCount) {
                     carryItem.setCount(stackedOnCount);
                     stackedOnItem.setCount(carryCount);
                 }
                 event.setCanceled(true);
             }
+        }
+
+        if (stackedOnItem.is(Items.SHIELD) && event.getSlot().getContainerSlot() == 40 && ModConfigManager.getConfig().enableShieldOnTheRight){
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void livingSwapItem(LivingSwapItemsEvent.Hands event) {
+        if (event.getEntity() instanceof Player && event.getItemSwappedToOffHand().is(Items.SHIELD)) {
+            event.setCanceled(true);
         }
     }
 }
