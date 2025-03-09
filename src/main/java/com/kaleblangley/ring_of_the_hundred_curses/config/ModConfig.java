@@ -1,10 +1,9 @@
 package com.kaleblangley.ring_of_the_hundred_curses.config;
 
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
+import com.mojang.datafixers.util.Pair;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
-
-import java.util.Map;
 
 @Config(name = RingOfTheHundredCurses.MODID)
 public class ModConfig implements ConfigData {
@@ -22,7 +21,7 @@ public class ModConfig implements ConfigData {
     public boolean enableWorldAgainst = true;
     public double entityAttackSpeed = 1.2d;
     public int entityAttackChange = 50;
-    public Map<String, Double> entityFollowRange = Map.of();
+    public Pair<String, Double>[] entityFollowRange = new Pair[]{new Pair("minecraft:pig", 16.0d), new Pair("minecraft:sheep", 16.0d)};
 
     /*
      * 贪婪吃食：减少食物获得的饥饿值
@@ -305,4 +304,172 @@ public class ModConfig implements ConfigData {
      * Worm Hoard: Mining stone has a chance to spawn Silverfish.
      */
     public boolean enableWormHoard = true;
+
+    /*
+     * 虚伪身躯：玩家的无敌帧减少
+     * Hypocrisy Body: Reduces player's invincibility frames
+     */
+    public boolean enableHypocrisyBody = true;
+
+    /*
+     * 贪婪之书：附魔台需要的经验翻倍
+     * Greedy Tome: Doubles the experience cost for the enchantment table
+     */
+    public boolean enableGreedyTome = true;
+
+    /*
+     * 打磨损耗：砂轮会折损耐久值
+     * Grinding Wear: Grindstone consumes durability
+     */
+    public boolean enableGrindingWear = true;
+
+    /*
+     * 水中束缚：下水减速
+     * Water Shackles: Slows movement speed in water
+     */
+    public boolean enableWaterShackles = true;
+
+    /*
+     * 失足之险：潜行不能阻止走到边缘时坠落
+     * Misstep Peril: Sneaking no longer prevents falling off edges
+     */
+    public boolean enableMisstepPeril = true;
+
+    /*
+     * 爱好奢靡：只有打上盔甲纹饰的盔甲才能被使用
+     * Lavish Taste: Only armor with trims can be worn
+     */
+    public boolean enableLavishTaste = true;
+
+    /*
+     * 碎碎平安：末影之眼一定会碎
+     * Shattered Eye: Ender Eyes always break upon use
+     */
+    public boolean enableShatteredEye = true;
+
+    /*
+     * 龙阳之好：末影龙释放龙息时，玩家脚下一定会出现龙息
+     * Draconic Favor: When the Ender Dragon breathes fire, a dragon breath area appears under the player's feet
+     */
+    public boolean enableDraconicFavor = true;
+
+    /*
+     * 无良卖家：猪灵有概率会取走黄金却不以物易物
+     * Unfair Trader: Piglins may take gold without bartering
+     */
+    public boolean enableUnfairTrader = true;
+
+    /*
+     * 被刺高手：玩家潜行时，受到的伤害翻倍
+     * Exposed Weakness: Player takes more damage while sneaking
+     */
+    public boolean enableExposedWeakness = true;
+
+    /*
+     * 师出有名：玩家不能攻击未攻击自己的生物
+     * Justified Combat: Player cannot attack non-hostile creatures first
+     */
+    public boolean enableJustifiedCombat = true;
+
+    /*
+     * 劲霸男装：吃东西有后摇，在此期间不能进行操作
+     * Food Coma: Eating has a delay, during which no actions can be performed
+     */
+    public boolean enableFoodComa = true;
+
+    /*
+     * 颗粒无收：作物的掉落概率改为掉落枯萎的灌木
+     * Barren Harvest: Crops now have a chance to drop dead bushes instead
+     */
+    public boolean enableBarrenHarvest = true;
+
+    /*
+     * 滑雪冒险：在寒冷群系，所有方块上施加冰块效果
+     * Slippery Adventure: All blocks in cold biomes apply ice physics
+     */
+    public boolean enableSlipperyAdventure = true;
+
+    /*
+     * 疯狂植物：会被植物扎
+     * Hostile Flora: Plants can deal damage to the player
+     */
+    public boolean enableHostileFlora = true;
+
+    /*
+     * 深海纠缠：游泳有时间限制，时间过后会下沉
+     * Deep Sea Entanglement: Swimming has a time limit; after which the player starts sinking
+     */
+    public boolean enableDeepSeaEntanglement = true;
+
+    /*
+     * 均衡饮食：某一食物食用过多会减少饥饿值回复
+     * Balanced Diet: Overconsuming a single type of food reduces its hunger restoration
+     */
+    public boolean enableBalancedDiet = true;
+
+    /*
+     * 狼狈为奸：附近对玩家有仇恨的生物越多，玩家受到的伤害越高
+     * United Adversaries: The more hostile mobs nearby, the more damage the player takes
+     */
+    public boolean enableUnitedAdversaries = true;
+
+    /*
+     * 创伤开口：受到伤害概率持续掉血
+     * Bleeding Wound: Taking damage has a chance to cause continuous health loss
+     */
+    public boolean enableBleedingWound = true;
+
+    /*
+     * 饥荒盛世：饱食度低于或高于一定值都会获得debuff
+     * Feast or Famine: Having too low or too high saturation applies debuffs
+     */
+    public boolean enableFeastOrFamine = true;
+
+    /*
+     * 肺纤维化：氧气值减少
+     * Pulmonary Fibrosis: Reduces maximum oxygen
+     */
+    public boolean enablePulmonaryFibrosis = true;
+
+    /*
+     * 以理服人：交易生物血量越高价格越贵
+     * Bargaining Power: The higher the health of a trading entity, the more expensive its trades
+     */
+    public boolean enableBargainingPower = true;
+
+    /*
+     * 饥肠辘辘：减少饱食度上限
+     * Hollow Stomach: Reduces maximum saturation
+     */
+    public boolean enableHollowStomach = true;
+
+    /*
+     * 远域挡招：为任意添加限伤和远程保护机制
+     * Distant Deflection: Introduces universal damage cap and ranged damage resistance
+     */
+    public boolean enableDistantDeflection = true;
+
+    /*
+     * 创伤应激：如果被一种生物打死了复活之后再遇见这种生物会有debuff
+     * PTSD: If the player was previously killed by a mob, encountering it again causes a debuff
+     */
+    public boolean enablePTSD = true;
+
+    /*
+     * 厄运诅咒：玩家造成的掉落物计算会多次判定，取更差的结果
+     *
+     */
+    public boolean enable = true;
+
+    /*
+     * 乳糖不耐：你无法通过牛奶解除负面效果
+     *
+     */
+    public boolean enable = true;
+
+    /*
+     * 深水炸弹：钓鱼有概率钓上来坏东西
+     *
+     */
+    public boolean enable = true;
 }

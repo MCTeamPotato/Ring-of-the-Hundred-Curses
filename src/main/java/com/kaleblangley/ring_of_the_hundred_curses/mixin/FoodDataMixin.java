@@ -21,7 +21,7 @@ public abstract class FoodDataMixin {
 
     @Inject(method = "eat(Lnet/minecraft/world/item/Item;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/food/FoodData;eat(IF)V"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
     public void modifyNutrition(Item pItem, ItemStack pStack, LivingEntity entity, CallbackInfo ci, FoodProperties foodproperties){
-        if (RingUtil.isEquipRing(entity) && ModConfigManager.getConfig().enableGreedyEating){
+        if (RingUtil.configAndRing(entity, ModConfigManager.getConfig().enableGreedyEating)){
             int newNutrition = (int) (foodproperties.getNutrition() * (ModConfigManager.getConfig().hungerReductionPercent));
             this.eat(newNutrition, foodproperties.getSaturationModifier());
             ci.cancel();

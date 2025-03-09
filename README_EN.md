@@ -63,7 +63,7 @@ Format: (Curse Name + Curse Effect + Designer)
 47. [ ] Reborn Wrath: Every time you die to a boss, the boss not only recovers full health but becomes stronger. MCMostWolf
 48. [ ] Oxygen Deprivation: Running depletes oxygen. 赤麦RedWheat
 49. [ ] Worm Hoard: Mining stone has a chance to spawn Silverfish. 赤麦RedWheat
-50. [ ] Fragile Body: Reduces player's invincibility frames kl
+50. [ ] Hypocrisy Body: Reduces player's invincibility frames kl
 51. [ ] Greedy Tome: Doubles the experience cost for the enchantment table 妖月
 52. [ ] Grinding Wear: Grindstone consumes durability 妖月
 53. [ ] Water Shackles: Slows movement speed in water awei
@@ -72,24 +72,22 @@ Format: (Curse Name + Curse Effect + Designer)
 56. [ ] Shattered Eye: Ender Eyes always break upon use 暮雨雨
 57. [ ] Draconic Favor: When the Ender Dragon breathes fire, a dragon breath area appears under the player's feet 暮雨雨
 58. [ ] Unfair Trader: Piglins may take gold without bartering 暮雨雨
-59. [ ] Exposed Weakness: Player takes double damage while sneaking 暮雨雨
+59. [ ] Exposed Weakness: Player takes more damage while sneaking 暮雨雨
 60. [ ] Justified Combat: Player cannot attack non-hostile creatures first 暮雨雨
-61. [ ] Iron Will: Monsters now have significantly higher armor 筍
-62. [ ] Food Coma: Eating has a delay, during which no actions can be performed cos45
-63. [ ] Barren Harvest: Crops now have a chance to drop dead bushes instead 筍
-64. [ ] Slippery Adventure: All blocks in cold biomes apply ice physics 苦来兮归去
-65. [ ] Hostile Flora: Plants can deal damage to the player Christen
-66. [ ] Deep Sea Entanglement: Swimming has a time limit; after which the player starts sinking Christen
-67. [ ] Balanced Diet: Overconsuming a single type of food reduces its hunger restoration Christen
-68. [ ] Gloomy Soul: Losing a percentage of health when in low light Christen
-69. [ ] United Adversaries: The more hostile mobs nearby, the more damage the player takes Christen
-70. [ ] Bleeding Wound: Taking damage has a chance to cause continuous health loss Christen
-71. [ ] Feast or Famine: Having too low or too high saturation applies debuffs Christen
-72. [ ] Pulmonary Fibrosis: Reduces maximum oxygen Christen
-73. [ ] Bargaining Power: The higher the health of a trading entity, the more expensive its trades Christen
-74. [ ] Hollow Stomach: Reduces maximum saturation kl
-75. [ ] Distant Deflection: Introduces universal damage cap and ranged damage resistance rinko
-76. [ ] PTSD: If the player was previously killed by a mob, encountering it again causes a debuff Textrue
+61. [ ] Food Coma: Eating has a delay, during which no actions can be performed cos45
+62. [ ] Barren Harvest: Crops now have a chance to drop dead bushes instead 筍
+63. [ ] Slippery Adventure: All blocks in cold biomes apply ice physics 苦来兮归去
+64. [ ] Hostile Flora: Plants can deal damage to the player Christen
+65. [ ] Deep Sea Entanglement: Swimming has a time limit; after which the player starts sinking Christen
+66. [ ] Balanced Diet: Overconsuming a single type of food reduces its hunger restoration Christen
+67. [ ] United Adversaries: The more hostile mobs nearby, the more damage the player takes Christen
+68. [ ] Bleeding Wound: Taking damage has a chance to cause continuous health loss Christen
+69. [ ] Feast or Famine: Having too low or too high saturation applies debuffs Christen
+70. [ ] Pulmonary Fibrosis: Reduces maximum oxygen Christen
+71. [ ] Bargaining Power: The higher the health of a trading entity, the more expensive its trades Christen
+72. [ ] Hollow Stomach: Reduces maximum saturation kl
+73. [ ] Distant Deflection: Introduces universal damage cap and ranged damage resistance rinko
+74. [ ] PTSD: If the player was previously killed by a mob, encountering it again causes a debuff Textrue
 
 ---
 

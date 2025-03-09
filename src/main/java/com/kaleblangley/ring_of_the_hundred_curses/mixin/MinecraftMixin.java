@@ -20,7 +20,7 @@ public class MinecraftMixin {
 
     @Inject(method = "startAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;attack(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/entity/Entity;)V"), cancellable = true)
     private void cancelAttack(CallbackInfoReturnable<Boolean> cir) {
-        if (player != null && player.getAttackStrengthScale(0.0F) < 1.0F && ModConfigManager.getConfig().enableFullPower && RingUtil.isEquipRing(player)) {
+        if (player != null && player.getAttackStrengthScale(0.0F) < 1.0F && RingUtil.configAndRing(player, ModConfigManager.getConfig().enableFullPower)) {
             cir.cancel();
         }
     }

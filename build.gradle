@@ -1,21 +1,7 @@
-buildscript {
-    repositories {
-        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
-    }
-}
-
 plugins {
-    id 'eclipse'
     id 'idea'
-    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'net.neoforged.moddev.legacyforge' version '2.0.78'
 }
-
-apply plugin: 'org.spongepowered.mixin'
 
 group = mod_group_id
 version = mod_version
@@ -28,79 +14,64 @@ java {
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
-minecraft {
-    mappings channel: mapping_channel, version: mapping_version
+legacyForge {
+    version = "${minecraft_version}-${forge_version}"
 
-    copyIdeResources = true
+    if (Boolean.getBoolean(enableAccessTransformers)){
+        accessTransformers = [file('src/main/resources/META-INF/accesstransformer.cfg')]
+    }
+
+    if (mapping_channel=="parchment"){
+        parchment {
+            minecraftVersion = '1.20.1'
+            mappingsVersion = '2023.09.03'
+        }
+    }
 
     runs {
-        configureEach {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-
-
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
-
         client {
-            property 'forge.enabledGameTestNamespaces', mod_id
+            client()
         }
-
-        server {
-            property 'forge.enabledGameTestNamespaces', mod_id
-            args '--nogui'
-        }
-
-        gameTestServer {
-            property 'forge.enabledGameTestNamespaces', mod_id
-        }
-
         data {
-            workingDirectory project.file('run-data')
+            data()
+        }
+        server {
+            server()
+        }
+    }
 
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+    mods {
+        testproject {
+            sourceSet sourceSets.main
         }
     }
 }
 
 mixin {
     add sourceSets.main, "${mod_id}.refmap.json"
-
     config "${mod_id}.mixins.json"
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    maven {
-        name = "Illusive Soulworks maven"
-        url = "https://maven.theillusivec4.top/"
-    }
+    maven { url = "https://maven.theillusivec4.top/" }
     maven { url "https://maven.shedaniel.me/" }
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-
-    implementation("me.shedaniel.cloth:cloth-config-forge:${cloth_version}")
-    compileOnly(fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}:api"))
-    runtimeOnly(fg.deobf("top.theillusivec4.curios:curios-forge:${curios_version}"))
+    modImplementation("me.shedaniel.cloth:cloth-config-forge:${cloth_version}")
+    modCompileOnly("top.theillusivec4.curios:curios-forge:${curios_version}:api")
+    modRuntimeOnly("top.theillusivec4.curios:curios-forge:${curios_version}")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixinextras_version}"))
-    implementation(jarJar("io.github.llamalad7:mixinextras-forge:${mixinextras_version}")) {
-        jarJar.ranged(it, "[${mixinextras_version},)")
-    }
+    modImplementation(jarJar("io.github.llamalad7:mixinextras-forge:${mixinextras_version}"))
+
+    compileOnly 'org.jetbrains:annotations:24.0.1'
 }
 
-tasks.named('processResources', ProcessResources).configure {
+processResources {
     var replaceProperties = [
             minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
             forge_version: forge_version, forge_version_range: forge_version_range,
@@ -115,7 +86,7 @@ tasks.named('processResources', ProcessResources).configure {
         expand replaceProperties + [project: project]
     }}
 
-tasks.named('jar', Jar).configure {
+jar {
     manifest {
         attributes([
                 "Specification-Title": mod_id,

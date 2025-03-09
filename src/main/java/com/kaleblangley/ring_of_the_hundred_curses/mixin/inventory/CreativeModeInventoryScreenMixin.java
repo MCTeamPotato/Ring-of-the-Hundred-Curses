@@ -23,7 +23,7 @@ public class CreativeModeInventoryScreenMixin {
     }
     @Redirect(method = "slotClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getMaxStackSize()I", ordinal = 2))
     public int modifyCreateMax(ItemStack instance){
-        if (RingUtil.isEquipRing(this.player) && ModConfigManager.getConfig().enableBackpackLimit){
+        if (RingUtil.configAndRing(this.player, ModConfigManager.getConfig().enableBackpackLimit)){
             return ModConfigManager.getConfig().maxStackSize;
         }
         return instance.getMaxStackSize();
