@@ -21,7 +21,7 @@ public class ModConfig implements ConfigData {
     public boolean enableWorldAgainst = true;
     public double entityAttackSpeed = 1.2d;
     public int entityAttackChange = 50;
-    public Pair<String, Double>[] entityFollowRange = new Pair[]{new Pair("minecraft:pig", 16.0d), new Pair("minecraft:sheep", 16.0d)};
+    public Pair<String, Double>[] entityFollowRange = new Pair[]{};
 
     /*
      * 贪婪吃食：减少食物获得的饥饿值
@@ -48,10 +48,15 @@ public class ModConfig implements ConfigData {
     public boolean enableShieldOnTheRight = true;
 
     /*
-     * 氧气不足：地下会造成缺氧
-     * Lack of Oxygen: Suffocation effect occurs underground.
+     * 氧气不足：很多地方会造成缺氧
+     * Lack of Oxygen: Suffocation effect occurs in many place.
      */
     public boolean enableLackOfOxygen = true;
+    public double minimumBreathY = 30.0d;
+    public double maximumBreathY = 130.0d;
+    public boolean endCanBreath = false;
+    public boolean netherCanBreath = false;
+
 
     /*
      * 彻夜难眠：无法在床上睡觉
@@ -457,19 +462,19 @@ public class ModConfig implements ConfigData {
 
     /*
      * 厄运诅咒：玩家造成的掉落物计算会多次判定，取更差的结果
-     *
+     * Curse of Misfortune: The player's dropped items are calculated multiple times, taking the worst result
      */
-    public boolean enable = true;
+    public boolean enableCurseOfMisfortune = true;
 
     /*
      * 乳糖不耐：你无法通过牛奶解除负面效果
-     *
+     * Lactose Intolerance: You cannot remove negative effects with milk
      */
-    public boolean enable = true;
+    public boolean enableLactoseIntolerance = true;
 
     /*
-     * 深水炸弹：钓鱼有概率钓上来坏东西
-     *
+     * 雷霆引誓：更高概率被雷击中
+     * Thunderbound Oath: Significantly increases the chance of being struck by lightning
      */
-    public boolean enable = true;
+    public boolean enableThunderboundOath = true;
 }

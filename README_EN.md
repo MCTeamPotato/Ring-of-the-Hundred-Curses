@@ -18,9 +18,9 @@ Format: (Curse Name + Curse Effect + Designer)
 2. [x] The World Against You: All creatures become hostile towards you. kl
 3. [x] Greedy Eating: Reduces the hunger restoration from food. kl
 4. [x] Backpack Limit: Reduces the stack limit of items. kl
-5. [ ] Full Power: Weapons can only be used when fully charged. kl
-6. [ ] Shield on the Right: Cannot use a shield in the off-hand. kl
-7. [ ] Lack of Oxygen: Suffocation effect occurs underground. kl
+5. [x] Full Power: Weapons can only be used when fully charged. kl
+6. [x] Shield on the Right: Cannot use a shield in the off-hand. kl
+7. [x] Lack of Oxygen: Suffocation effect occurs in many place. kl
 8. [x] Sleepless Nights: Cannot sleep in beds. kl
 9. [ ] Weak Stomach: Raw meat gives debuffs. kl
 10. [ ] Weaponless: Cannot mine hard blocks. kl
@@ -63,31 +63,37 @@ Format: (Curse Name + Curse Effect + Designer)
 47. [ ] Reborn Wrath: Every time you die to a boss, the boss not only recovers full health but becomes stronger. MCMostWolf
 48. [ ] Oxygen Deprivation: Running depletes oxygen. 赤麦RedWheat
 49. [ ] Worm Hoard: Mining stone has a chance to spawn Silverfish. 赤麦RedWheat
-50. [ ] Hypocrisy Body: Reduces player's invincibility frames kl
-51. [ ] Greedy Tome: Doubles the experience cost for the enchantment table 妖月
-52. [ ] Grinding Wear: Grindstone consumes durability 妖月
-53. [ ] Water Shackles: Slows movement speed in water awei
-54. [ ] Misstep Peril: Sneaking no longer prevents falling off edges Susanlynna
-55. [ ] Lavish Taste: Only armor with trims can be worn 暮雨雨
-56. [ ] Shattered Eye: Ender Eyes always break upon use 暮雨雨
-57. [ ] Draconic Favor: When the Ender Dragon breathes fire, a dragon breath area appears under the player's feet 暮雨雨
-58. [ ] Unfair Trader: Piglins may take gold without bartering 暮雨雨
-59. [ ] Exposed Weakness: Player takes more damage while sneaking 暮雨雨
-60. [ ] Justified Combat: Player cannot attack non-hostile creatures first 暮雨雨
-61. [ ] Food Coma: Eating has a delay, during which no actions can be performed cos45
-62. [ ] Barren Harvest: Crops now have a chance to drop dead bushes instead 筍
-63. [ ] Slippery Adventure: All blocks in cold biomes apply ice physics 苦来兮归去
-64. [ ] Hostile Flora: Plants can deal damage to the player Christen
-65. [ ] Deep Sea Entanglement: Swimming has a time limit; after which the player starts sinking Christen
-66. [ ] Balanced Diet: Overconsuming a single type of food reduces its hunger restoration Christen
-67. [ ] United Adversaries: The more hostile mobs nearby, the more damage the player takes Christen
-68. [ ] Bleeding Wound: Taking damage has a chance to cause continuous health loss Christen
-69. [ ] Feast or Famine: Having too low or too high saturation applies debuffs Christen
-70. [ ] Pulmonary Fibrosis: Reduces maximum oxygen Christen
-71. [ ] Bargaining Power: The higher the health of a trading entity, the more expensive its trades Christen
-72. [ ] Hollow Stomach: Reduces maximum saturation kl
-73. [ ] Distant Deflection: Introduces universal damage cap and ranged damage resistance rinko
-74. [ ] PTSD: If the player was previously killed by a mob, encountering it again causes a debuff Textrue
+50. [ ] Hypocrisy Body: Reduces player's invincibility frames. kl
+51. [ ] Greedy Tome: Doubles the experience cost for the enchantment table. 妖月
+52. [ ] Grinding Wear: Grindstone consumes durability. 妖月
+53. [ ] Water Shackles: Slows movement speed in water. awei
+54. [ ] Misstep Peril: Sneaking no longer prevents falling off edges. Susanlynna
+55. [ ] Lavish Taste: Only armor with trims can be worn. 暮雨雨
+56. [ ] Shattered Eye: Ender Eyes always break upon use. 暮雨雨
+57. [ ] Draconic Favor: When the Ender Dragon breathes fire, a dragon breath area appears under the player's feet. 暮雨雨
+58. [ ] Unfair Trader: Piglins may take gold without bartering. 暮雨雨
+59. [ ] Exposed Weakness: Player takes more damage while sneaking. 暮雨雨
+60. [ ] Justified Combat: Player cannot attack non-hostile creatures first. 暮雨雨
+61. [ ] Food Coma: Eating has a delay, during which no actions can be performed. cos45
+62. [ ] Barren Harvest: Crops now have a chance to drop dead bushes instead. 筍
+63. [ ] Slippery Adventure: All blocks in cold biomes apply ice physics. 苦来兮归去
+64. [ ] Hostile Flora: Plants can deal damage to the player. Christen
+65. [ ] Deep Sea Entanglement: Swimming has a time limit; after which the player starts sinking. Christen
+66. [ ] Balanced Diet: Overconsuming a single type of food reduces its hunger restoration. Christen
+67. [ ] United Adversaries: The more hostile mobs nearby, the more damage the player takes. Christen
+68. [ ] Bleeding Wound: Taking damage has a chance to cause continuous health loss. Christen
+69. [ ] Feast or Famine: Having too low or too high saturation applies debuffs. Christen
+70. [ ] Pulmonary Fibrosis: Reduces maximum oxygen. Christen
+71. [ ] Bargaining Power: The higher the health of a trading entity, the more expensive its trades. Christen
+72. [ ] Hollow Stomach: Reduces maximum saturation. kl
+73. [ ] Distant Deflection: Introduces universal damage cap and ranged damage resistance. rinko
+74. [ ] PTSD: If the player was previously killed by a mob, encountering it again causes a debuff. Textrue
+75. [ ] Curse of Misfortune: The player's dropped items are calculated multiple times, taking the worst result. 咒神灰
+76. [ ] Lactose Intolerance: You cannot remove negative effects with milk. rinko
+77. [ ] Depth Charge: Fishing has a chance to catch something bad. 咒神灰
+78. [ ] Thunderbound Oath: Significantly increases the chance of being struck by lightning. kl
+
+
 
 ---
 

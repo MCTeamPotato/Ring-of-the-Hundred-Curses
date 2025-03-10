@@ -1,7 +1,16 @@
 package com.kaleblangley.ring_of_the_hundred_curses.event;
 
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
+import com.kaleblangley.ring_of_the_hundred_curses.capability.CurseMaxSizeProvider;
+import com.kaleblangley.ring_of_the_hundred_curses.capability.ICurseMaxSize;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -28,6 +37,6 @@ public class ModEvent {
                     .findFirst()
                     .ifPresent(pair -> event.add(entityType, FOLLOW_RANGE, pair.getSecond()));
         });
-
     }
+
 }

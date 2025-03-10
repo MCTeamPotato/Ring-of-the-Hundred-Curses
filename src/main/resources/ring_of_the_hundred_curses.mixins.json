@@ -8,9 +8,9 @@
     "BowMixin",
     "FoodDataMixin",
     "ForgeGuiMixin",
+    "ItemStackMixin",
     "PlayerMixin",
-    "accessor.FoodPropertiesAccessor",
-    "inventory.InventoryMixin"
+    "inventory.InventoryMenuMixin"
   ],
   "client": [
     "MinecraftMixin",

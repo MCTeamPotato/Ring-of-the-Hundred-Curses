@@ -1,7 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin;
 
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
-import com.kaleblangley.ring_of_the_hundred_curses.mixin.accessor.FoodPropertiesAccessor;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.food.FoodData;
