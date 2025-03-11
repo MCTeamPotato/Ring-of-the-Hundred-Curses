@@ -92,7 +92,7 @@ Format: (Curse Name + Curse Effect + Designer)
 76. [ ] Lactose Intolerance: You cannot remove negative effects with milk. rinko
 77. [ ] Depth Charge: Fishing has a chance to catch something bad. 咒神灰
 78. [ ] Thunderbound Oath: Significantly increases the chance of being struck by lightning. kl
-
+79. 
 
 
 ---
