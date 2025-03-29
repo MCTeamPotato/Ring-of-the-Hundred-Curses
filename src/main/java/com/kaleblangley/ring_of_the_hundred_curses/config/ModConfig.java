@@ -5,6 +5,8 @@ import com.mojang.datafixers.util.Pair;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 
+import java.util.List;
+
 @Config(name = RingOfTheHundredCurses.MODID)
 public class ModConfig implements ConfigData {
     /*
@@ -69,6 +71,9 @@ public class ModConfig implements ConfigData {
      * Weak Stomach: Raw meat gives debuffs.
      */
     public boolean enableWeakStomach = true;
+    public String rawMeatDebuffId = "minecraft:hunger";
+    public int rawMeatDebuffDuration = 40;
+    public int rawMeatDebuffAmplifier = 1;
 
     /*
      * 手无寸铁：手不能撸坚硬的方块
