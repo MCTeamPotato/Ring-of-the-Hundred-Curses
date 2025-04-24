@@ -72,7 +72,7 @@ public class ModConfig implements ConfigData {
      */
     public boolean enableWeakStomach = true;
     public String rawMeatDebuffId = "minecraft:hunger";
-    public int rawMeatDebuffDuration = 40;
+    public int rawMeatDebuffDuration = 1200;
     public int rawMeatDebuffAmplifier = 1;
 
     /*
