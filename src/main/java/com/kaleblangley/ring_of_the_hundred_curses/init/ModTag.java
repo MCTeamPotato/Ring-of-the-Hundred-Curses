@@ -6,16 +6,16 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
-public class ModTag {
-    public static final TagKey<Item> RAW_FOOD = bindItem("raw_food");
-    public static final TagKey<Block> ALWAYS_DIG = bindBlock("always_dig");
+public final class ModTag {
+    public static final TagKey<Item> RAW_FOOD = createItem("raw_food");
+    public static final TagKey<Block> ALWAYS_DIG = createBlock("always_dig");
 
 
-    private static TagKey<Item> bindItem(String name) {
+    private static TagKey<Item> createItem(String name) {
         return TagKey.create(Registries.ITEM, ResourceUtil.ringResource(name));
     }
 
-    private static TagKey<Block> bindBlock(String name) {
+    private static TagKey<Block> createBlock(String name) {
         return TagKey.create(Registries.BLOCK, ResourceUtil.ringResource(name));
     }
 }

@@ -160,12 +160,13 @@ public class ForgeEvent {
         if (RingUtil.configAndRing(player, getConfig().enableSluggishHands)){
             originalSpeed *= getConfig().multiplyRawSpeed;
         }
+        BuiltInRegistries.BLOCK.forEach(block -> {
+            if (block.defaultBlockState().is(ModTag.ALWAYS_DIG)) {
+                RingOfTheHundredCurses.LOGGER.info(block.getName().toString());
+            }
+        });
         if (RingUtil.configAndRing(player, getConfig().enableWeaponless) && !player.getMainHandItem().is(Tags.Items.TOOLS)){
-            BuiltInRegistries.BLOCK.forEach(block -> {
-                if (block.defaultBlockState().is(ModTag.ALWAYS_DIG)) {
-                    RingOfTheHundredCurses.LOGGER.info(block.getName().toString());
-                }
-            });
+
             originalSpeed = 0;
         }
         event.setNewSpeed(originalSpeed);
