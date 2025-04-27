@@ -7,6 +7,7 @@ import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -23,6 +24,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
@@ -31,6 +33,7 @@ import net.minecraftforge.event.entity.living.LivingSwapItemsEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -148,5 +151,23 @@ public class ForgeEvent {
             MobEffectInstance effectInstance = new MobEffectInstance(effect, getConfig().rawMeatDebuffDuration, getConfig().rawMeatDebuffAmplifier);
             entity.addEffect(effectInstance);
         }
+    }
+
+    @SubscribeEvent
+    public static void breakSpeed(PlayerEvent.BreakSpeed event){
+        Player player = event.getEntity();
+        float originalSpeed = event.getOriginalSpeed();
+        if (RingUtil.configAndRing(player, getConfig().enableSluggishHands)){
+            originalSpeed *= getConfig().multiplyRawSpeed;
+        }
+        if (RingUtil.configAndRing(player, getConfig().enableWeaponless) && !player.getMainHandItem().is(Tags.Items.TOOLS)){
+            BuiltInRegistries.BLOCK.forEach(block -> {
+                if (block.defaultBlockState().is(ModTag.ALWAYS_DIG)) {
+                    RingOfTheHundredCurses.LOGGER.info(block.getName().toString());
+                }
+            });
+            originalSpeed = 0;
+        }
+        event.setNewSpeed(originalSpeed);
     }
 }

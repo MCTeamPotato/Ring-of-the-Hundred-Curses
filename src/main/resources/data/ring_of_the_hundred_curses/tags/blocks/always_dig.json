@@ -1,0 +1,13 @@
+{
+  "values": [
+    "#minecraft:logs",
+    "#minecraft:sand",
+    "#minecraft:dirt",
+    "#minecraft:snow",
+    "#minecraft:leaves",
+    "#minecraft:flowers",
+    "#minecraft:gravel",
+    "minecraft:grass",
+    "minecraft:clay"
+  ]
+}
