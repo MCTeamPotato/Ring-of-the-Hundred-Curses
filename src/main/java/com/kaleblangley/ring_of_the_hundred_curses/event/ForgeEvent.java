@@ -7,10 +7,12 @@ import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -24,6 +26,9 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
@@ -146,7 +151,7 @@ public class ForgeEvent {
             event.setNutrition(newNutrition);
         }
 
-        if (itemStack.is(ModTag.RAW_FOOD) && RingUtil.configAndRing(entity, getConfig().enableWeakStomach)){
+        if (itemStack.is(ModTag.RAW_FOOD) && RingUtil.configAndRing(entity, getConfig().enableWeakStomach)) {
             MobEffect effect = ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(getConfig().rawMeatDebuffId));
             MobEffectInstance effectInstance = new MobEffectInstance(effect, getConfig().rawMeatDebuffDuration, getConfig().rawMeatDebuffAmplifier);
             entity.addEffect(effectInstance);
@@ -154,21 +159,29 @@ public class ForgeEvent {
     }
 
     @SubscribeEvent
-    public static void breakSpeed(PlayerEvent.BreakSpeed event){
+    public static void breakSpeed(PlayerEvent.BreakSpeed event) {
         Player player = event.getEntity();
         float originalSpeed = event.getOriginalSpeed();
-        if (RingUtil.configAndRing(player, getConfig().enableSluggishHands)){
+        BlockState state = event.getState();
+        ItemStack handItem = player.getMainHandItem();
+
+        event.setNewSpeed(breakSpeedGet(player, originalSpeed, state, handItem));
+    }
+
+    private static float breakSpeedGet(Player player, float originalSpeed, BlockState state, ItemStack handItem) {
+        if (!RingUtil.isEquipRing(player)) return originalSpeed;
+
+        if (getConfig().enableSluggishHands) {
             originalSpeed *= getConfig().multiplyRawSpeed;
         }
-        BuiltInRegistries.BLOCK.forEach(block -> {
-            if (block.defaultBlockState().is(ModTag.ALWAYS_DIG)) {
-                RingOfTheHundredCurses.LOGGER.info(block.getName().toString());
-            }
-        });
-        if (RingUtil.configAndRing(player, getConfig().enableWeaponless) && !player.getMainHandItem().is(Tags.Items.TOOLS)){
-
-            originalSpeed = 0;
+        if (getConfig().enableWeaponless && state.is(ModTag.ALWAYS_DIG)) {
+            return originalSpeed;
         }
-        event.setNewSpeed(originalSpeed);
+        if (!getConfig().enableSinglePurposeTools) return originalSpeed;
+        if (state.is(ModTag.AXE_DIG) && handItem.is(ItemTags.AXES)) return originalSpeed;
+        if (state.is(ModTag.HOE_DIG) && handItem.is(ItemTags.HOES)) return originalSpeed;
+        if (state.is(ModTag.PICKAXE_DIG) && handItem.is(ItemTags.PICKAXES)) return originalSpeed;
+        if (state.is(ModTag.SHOVEL_DIG) && handItem.is(ItemTags.SHOVELS)) return originalSpeed;
+        return 0;
     }
 }

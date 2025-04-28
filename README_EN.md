@@ -92,8 +92,28 @@ Format: (Curse Name + Curse Effect + Designer)
 76. [ ] Lactose Intolerance: You cannot remove negative effects with milk. rinko
 77. [ ] Depth Charge: Fishing has a chance to catch something bad. 咒神灰
 78. [ ] Thunderbound Oath: Significantly increases the chance of being struck by lightning. kl
-79. 
-
+79. [ ] Lava Sacrifice: While in the Nether, being attacked will set you on fire. kl
+80. [ ] Dilapidated Warrior: The lower your equipment’s durability, the less armor protection it provides. kl
+81. [ ] Dodgy Merchant: After completing a trade with a villager, there’s a chance the item you receive will be swapped for something else. kl
+82. [ ] Fresh Weapon: The lower a weapon’s durability, the less damage it deals. kl
+83. [ ] Befuddled Artisan: Crafted items have a chance to spawn with reduced durability or in reduced quantity. kl
+84. [ ] Overburdened: When your inventory holds too many items, your movement speed is reduced and fall damage is increased. kl
+85. [ ] Shattered Portal: Portals become one-time use; they explode after being used. kl
+86. [ ] Unbalanced Weapon: Each time you attack, there’s a chance your weapon’s attack power will decrease. kl
+87. [ ] Customs Clearance: Advanced villager trades require waiting several Minecraft days before the items become available. kl
+88. [ ] Overzealous Growth: When fertilizing crops, there’s a chance their growth stage will regress—and the more fertilizer you apply, the higher the chance. kl
+89. [ ] Clumsy Farmer: There’s a chance to trample and break farmland when walking over tilled soil. 咒神灰
+90. [ ] Mirage: You may occasionally see distant structures that aren’t actually there. kl
+91. [ ] Single-Purpose Tools: Tools can only perform their designated function. kl
+92. [ ] Muscle Weakness: When blocking damage with a shield, there’s a chance your shield will break. 咒神灰
+93. [ ] Rotting Hunger: Food stored in your inventory for too long will spoil into rotten flesh. kl
+94. [ ] Overhealing: Using a healing item may cause you to be unable to heal again for a short time. kl
+95. [ ] Patterned Assault: You must alternate different attack methods to damage certain creatures. kl
+96. [ ] Unlit Objects: Placed torches and campfires must be manually lit. kl
+97. [ ] Ice Rink: During rain, block friction is reduced, making surfaces slippery. kl
+98. [ ] Terrible Cook: Cooked meals have a chance to turn into mysterious stew that inflicts a debuff. kl
+99. [ ] Deafening: You don’t always need a Sculk Shrieker to summon the Warden. kl
+100. [ ] Chatterbox Ring: Occasionally you’ll hear the ring itself speaking to you. kl
 
 ---
 

@@ -485,4 +485,141 @@ public class ModConfig implements ConfigData {
      * Thunderbound Oath: Significantly increases the chance of being struck by lightning
      */
     public boolean enableThunderboundOath = true;
+
+    /**
+     * 熔岩献祭：处于下界被攻击会使自身着火
+     * Lava Sacrifice: While in the Nether, being attacked will set you on fire
+     */
+    public boolean enableLavaSacrifice = true;
+
+    /**
+     * 破败战士：穿戴装备的耐久值越低，提供的护甲值越少
+     * Dilapidated Warrior: The lower your equipment’s durability, the less armor protection it provides
+     */
+    public boolean enableDilapidatedWarrior = true;
+
+    /**
+     * 掉包奸商：与村民交易完物品后概率被换成其他物品
+     * Dodgy Merchant: After completing a trade with a villager, there’s a chance the item you receive will be swapped for something else
+     */
+    public boolean enableDodgyMerchant = true;
+
+    /**
+     * 新鲜武器：武器耐久越低伤害越低
+     * Fresh Weapon: The lower a weapon’s durability, the less damage it deals
+     */
+    public boolean enableFreshWeapon = true;
+
+    /**
+     * 迷糊工匠：合成的物品概率减少耐久或数量
+     * Befuddled Artisan: Crafted items have a chance to spawn with reduced durability or in reduced quantity
+     */
+    public boolean enableBefuddledArtisan = true;
+
+    /**
+     * 溢出负重：玩家背包内存放的物品超过一定数量，移动速度会降低，摔落伤害增加
+     * Overburdened: When your inventory holds too many items, your movement speed is reduced and fall damage is increased
+     */
+    public boolean enableOverburdened = true;
+
+    /**
+     * 破裂之门：传送门是一次性的，使用了之后会炸裂
+     * Shattered Portal: Portals become one-time use; they explode after being used
+     */
+    public boolean enableShatteredPortal = true;
+
+    /**
+     * 失衡武器：武器的攻击力在每次攻击时概率减少
+     * Unbalanced Weapon: Each time you attack, there’s a chance your weapon’s attack power will decrease
+     */
+    public boolean enableUnbalancedWeapon = true;
+
+    /**
+     * 海关过境：村民的高级交易需要等待几个 Minecraft 日后才给你交易的物品
+     * Customs Clearance: Advanced villager trades require waiting several Minecraft days before the items become available
+     */
+    public boolean enableCustomsClearance = true;
+
+    /**
+     * 拔苗助长：作物施肥时概率降低生长阶段，施肥越多降低概率越大
+     * Overzealous Growth: When fertilizing crops, there’s a chance their growth stage will regress—and the more fertilizer you apply, the higher the chance
+     */
+    public boolean enableOverzealousGrowth = true;
+
+    /**
+     * 笨拙农夫：玩家在耕地上走有几率踩坏田
+     * Clumsy Farmer: There’s a chance to trample and break farmland when walking over tilled soil
+     */
+    public boolean enableClumsyFarmer = true;
+
+    /**
+     * 海市蜃楼：概率看到远处出现结构，但并不是真的
+     * Mirage: You may occasionally see distant structures that aren’t actually there
+     */
+    public boolean enableMirage = true;
+
+    /**
+     * 专事专办：工具只能干对应的事情
+     * Single-Purpose Tools: Tools can only perform their designated function
+     * @see tags/blocks/axe_dig.json
+     * @see tags/blocks/hoe_dig.json
+     * @see tags/blocks/pickaxe_dig.json
+     * @see tags/blocks/shovel_dig.json
+     */
+    public boolean enableSinglePurposeTools = true;
+
+    /**
+     * 肌肉无力：使用盾牌抵挡伤害的时候概率会被破盾
+     * Muscle Weakness: When blocking damage with a shield, there’s a chance your shield will break
+     */
+    public boolean enableMuscleWeakness = true;
+
+    /**
+     * 溃烂饥饿：食物在背包中存放时间过长会变质成腐肉
+     * Rotting Hunger: Food stored in your inventory for too long will spoil into rotten flesh
+     */
+    public boolean enableRottingHunger = true;
+
+    /**
+     * 过度治疗：使用治疗道具时，有概率使玩家短时间内无法再次治疗
+     * Overhealing: Using a healing item may cause you to be unable to heal again for a short time
+     */
+    public boolean enableOverhealing = true;
+
+    /**
+     * 花样出招：玩家要轮流使用不同攻击手段才可对特定生物造成伤害
+     * Patterned Assault: You must alternate different attack methods to damage certain creatures
+     */
+    public boolean enablePatternedAssault = true;
+
+    /**
+     * 不亮之物：放置的火把，营火需要手动点燃
+     * Unlit Objects: Placed torches and campfires must be manually lit
+     */
+    public boolean enableUnlitObjects = true;
+
+    /**
+     * 滑冰赛场：雨天方块阻力减小
+     * Ice Rink: During rain, block friction is reduced, making surfaces slippery
+     */
+    public boolean enableIceRink = true;
+
+    /**
+     * 糟糕厨师：饭菜概率变成迷之炖菜（debuff的）
+     * Terrible Cook: Cooked meals have a chance to turn into mysterious stew that inflicts a debuff
+     */
+    public boolean enableTerribleCook = true;
+
+    /**
+     * 震耳欲聋：不一定需要幽匿尖啸体才能召唤监守者
+     * Deafening: You don’t always need a Sculk Shrieker to summon the Warden
+     */
+    public boolean enableDeafening = true;
+
+    /**
+     * 话痨戒指：偶尔会听到戒指的话语
+     * Chatterbox Ring: Occasionally you’ll hear the ring itself speaking to you
+     */
+    public boolean enableChatterboxRing = true;
+
 }

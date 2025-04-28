@@ -1,13 +1,16 @@
 {
   "values": [
+    "#forge:gravel",
     "#minecraft:logs",
     "#minecraft:sand",
     "#minecraft:dirt",
     "#minecraft:snow",
     "#minecraft:leaves",
     "#minecraft:flowers",
-    "#minecraft:gravel",
     "minecraft:grass",
-    "minecraft:clay"
+    "minecraft:clay",
+    "minecraft:tall_grass",
+    "minecraft:vine",
+    "minecraft:cactus"
   ]
 }
