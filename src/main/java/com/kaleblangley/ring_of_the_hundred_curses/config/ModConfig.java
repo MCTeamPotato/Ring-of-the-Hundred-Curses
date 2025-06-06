@@ -197,6 +197,7 @@ public class ModConfig implements ConfigData {
      * Horde Mind: After killing a mob, there is a chance to spawn the same mob in place.
      */
     public boolean enableHordeMind = true;
+    public double hordeMindSpawnChance = 0.3; // 生成同样怪物的概率 / Chance to spawn the same mob
 
     /**
      * 专注失调：攻击，放置，制作物品概率失败
@@ -247,10 +248,12 @@ public class ModConfig implements ConfigData {
     public boolean enableSlowRecovery = true;
 
     /**
-     * 羸弱之墙：你举盾时会不断消耗盾牌耐久
-     * Weak Wall: Shield durability drains when holding a shield.
+     * 羸弱之墙：长按使用盾牌时持续消耗耐久
+     * Weak Wall: Shield loses durability while being used continuously.
      */
     public boolean enableWeakWall = true;
+    public int shieldDurabilityDrainInterval = 20; // 每隔多少tick消耗一次耐久 / Durability drain interval in ticks
+    public int shieldDurabilityDrainAmount = 1; // 每次消耗的耐久值 / Durability amount consumed each time
 
     /**
      * 再生禁令：你获得的瞬间恢复效果会延迟生效

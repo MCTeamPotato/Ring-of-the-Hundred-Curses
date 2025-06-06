@@ -21,10 +21,13 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.RangedAttackMob;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -35,10 +38,12 @@ import net.minecraftforge.event.ItemStackedOnOtherEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingBreatheEvent;
 import net.minecraftforge.event.entity.living.LivingSwapItemsEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -183,5 +188,36 @@ public class ForgeEvent {
         if (state.is(ModTag.PICKAXE_DIG) && handItem.is(ItemTags.PICKAXES)) return originalSpeed;
         if (state.is(ModTag.SHOVEL_DIG) && handItem.is(ItemTags.SHOVELS)) return originalSpeed;
         return 0;
+    }
+
+    @SubscribeEvent
+    public static void weakwallEffect(LivingEntityUseItemEvent.Tick event) {
+        if (event.getEntity() instanceof Player player && RingUtil.configAndRing(player, getConfig().enableWeakWall)) {
+            ItemStack itemStack = event.getItem();
+            if (itemStack.getItem() instanceof ShieldItem && !itemStack.isEmpty()) {
+                if (player.tickCount % getConfig().shieldDurabilityDrainInterval == 0) {
+                    itemStack.hurtAndBreak(getConfig().shieldDurabilityDrainAmount, player,
+                            (playerEntity) -> playerEntity.broadcastBreakEvent(player.getUsedItemHand()));
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void hordeMindEffect(LivingDeathEvent event) {
+        if (event.getSource().getEntity() instanceof Player player && RingUtil.configAndRing(player, getConfig().enableHordeMind)) {
+            LivingEntity deadEntity = event.getEntity();
+            if (deadEntity instanceof Monster && deadEntity.level().random.nextDouble() < getConfig().hordeMindSpawnChance) {
+                LivingEntity newEntity = (LivingEntity) deadEntity.getType().create(deadEntity.level());
+                CompoundTag nbtData = new CompoundTag();
+                deadEntity.saveWithoutId(nbtData);
+                nbtData.remove("UUID");
+                nbtData.putFloat("Health", newEntity.getMaxHealth());
+                newEntity.load(nbtData);
+                newEntity.setPos(deadEntity.getX(), deadEntity.getY(), deadEntity.getZ());
+
+                deadEntity.level().addFreshEntity(newEntity);
+            }
+        }
     }
 }
