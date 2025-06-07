@@ -134,15 +134,24 @@ public class ForgeEvent {
 
     @SubscribeEvent
     public static void breathEvent(LivingBreatheEvent event) {
-        if (event.getEntity() instanceof Player player && RingUtil.configAndRing(player, getConfig().enableLackOfOxygen)) {
-            if (player.level().dimension() == Level.END && !getConfig().endCanBreath) {
-                event.setCanBreathe(false);
-                event.setConsumeAirAmount(2);
-            } else if (player.level().dimension() == Level.NETHER && !getConfig().netherCanBreath) {
-                event.setCanBreathe(false);
-            } else if ((player.yo < getConfig().minimumBreathY || player.yo > getConfig().maximumBreathY) && !player.hasEffect(MobEffects.WATER_BREATHING)) {
-                event.setCanRefillAir(false);
-                if (player.tickCount % 2 == 0) event.setCanBreathe(false);
+        if (event.getEntity() instanceof Player player) {
+            if (RingUtil.configAndRing(player, getConfig().enableLackOfOxygen)) {
+                if (player.level().dimension() == Level.END && !getConfig().endCanBreath) {
+                    event.setCanBreathe(false);
+                    event.setConsumeAirAmount(2);
+                } else if (player.level().dimension() == Level.NETHER && !getConfig().netherCanBreath) {
+                    event.setCanBreathe(false);
+                } else if ((player.yo < getConfig().minimumBreathY || player.yo > getConfig().maximumBreathY) && !player.hasEffect(MobEffects.WATER_BREATHING)) {
+                    event.setCanRefillAir(false);
+                    if (player.tickCount % 2 == 0) event.setCanBreathe(false);
+                }
+            }
+            
+            if (RingUtil.configAndRing(player, getConfig().enableOxygenDeprivation)) {
+                if (player.isSprinting()) {
+                    event.setCanBreathe(false);
+                    event.setConsumeAirAmount(getConfig().sprintingAirConsumption);
+                }
             }
         }
     }

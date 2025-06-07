@@ -24,7 +24,7 @@ Format: (Curse Name + Curse Effect + Designer)
 8. [x] Sleepless Nights: Cannot sleep in beds. kl
 9. [ ] Weak Stomach: Raw meat gives debuffs. kl
 10. [ ] Weaponless: Cannot mine hard blocks. kl
-11. [x] Starry Path: Cannot run when light levels are too low. kl
+11. [ ] Starry Path: Cannot run when light levels are too low. kl
 12. [ ] End Water Ban: Water cannot be placed in the End. kl
 13. [ ] Greedy Lock: Chests cannot give high-level loot. kl
 14. [ ] Heavy Shackles: Wearing equipment reduces movement speed. kl
@@ -61,7 +61,7 @@ Format: (Curse Name + Curse Effect + Designer)
 45. [ ] Abandoned by Poseidon: The chance of fishing up junk is significantly increased. MCMostWolf
 46. [ ] Outline Master: Archery has a larger arrow deviation. MCMostWolf
 47. [ ] Reborn Wrath: Every time you die to a boss, the boss not only recovers full health but becomes stronger. MCMostWolf
-48. [ ] Oxygen Deprivation: Running depletes oxygen. 赤麦RedWheat
+48. [x] Oxygen Deprivation: Running depletes oxygen. 赤麦RedWheat
 49. [ ] Worm Hoard: Mining stone has a chance to spawn Silverfish. 赤麦RedWheat
 50. [ ] Hypocrisy Body: Reduces player's invincibility frames. kl
 51. [ ] Greedy Tome: Doubles the experience cost for the enchantment table. 妖月

@@ -88,7 +88,7 @@ public class ModConfig implements ConfigData {
      * Starry Path: Cannot run when light levels are too low.
      */
     public boolean enableStarryPath = true;
-    public int starryPathMinimumLightLevel = 7; // 可以跑步的最低光照等级 / Minimum light level to allow sprinting
+    public int starryPathMinimumLightLevel = 8; // 可以跑步的最低光照等级 / Minimum light level to allow sprinting
 
     /**
      * 末水禁令：末地不能放水
@@ -315,6 +315,7 @@ public class ModConfig implements ConfigData {
      * Oxygen Deprivation: Running depletes oxygen.
      */
     public boolean enableOxygenDeprivation = true;
+    public int sprintingAirConsumption = 2; // 跑步时每次呼吸事件消耗的氧气量 / Air consumption per breath event while sprinting
 
     /**
      * 蛀虫秘藏：挖掘原石有概率出蠹虫

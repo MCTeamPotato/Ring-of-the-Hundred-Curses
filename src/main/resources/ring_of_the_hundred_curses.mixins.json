@@ -13,7 +13,6 @@
     "inventory.InventoryMenuMixin"
   ],
   "client": [
-    "LocalPlayerMixin",
     "MinecraftMixin",
     "inventory.CreativeModeInventoryScreenMixin"
   ],
