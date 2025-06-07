@@ -10,9 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -22,23 +20,23 @@ import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.Endermite;
+import net.minecraft.world.entity.projectile.ThrownEnderpearl;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingBreatheEvent;
 import net.minecraftforge.event.entity.living.LivingSwapItemsEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -146,7 +144,7 @@ public class ForgeEvent {
                     if (player.tickCount % 2 == 0) event.setCanBreathe(false);
                 }
             }
-            
+
             if (RingUtil.configAndRing(player, getConfig().enableOxygenDeprivation)) {
                 if (player.isSprinting()) {
                     event.setCanBreathe(false);
@@ -225,9 +223,40 @@ public class ForgeEvent {
                 nbtData.putFloat("Health", newEntity.getMaxHealth());
                 newEntity.load(nbtData);
                 newEntity.setPos(deadEntity.getX(), deadEntity.getY(), deadEntity.getZ());
-
                 deadEntity.level().addFreshEntity(newEntity);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void timeRiftEffect(ProjectileImpactEvent event) {
+        if (event.getProjectile() instanceof ThrownEnderpearl enderpearl) {
+            if (enderpearl.getOwner() instanceof Player player) {
+                if (RingUtil.configAndRing(player, getConfig().enableTimeRift)) {
+                    Level level = enderpearl.level();
+                    if (!level.isClientSide) {
+                        Vec3 impactPos = enderpearl.position();
+                        spawnEndermitesAtPosition(impactPos, level, player);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void spawnEndermitesAtPosition(Vec3 position, Level level, Player player) {
+        double spawnX = position.x;
+        double spawnY = position.y;
+        double spawnZ = position.z;
+        for (int y = 0; y < 5; y++) {
+            double testY = spawnY + y - 2;
+            if (level.getBlockState(new BlockPos((int) spawnX, (int) testY - 1, (int) spawnZ)).isSolid() && !level.getBlockState(new BlockPos((int) spawnX, (int) testY, (int) spawnZ)).isSolid()) {
+                spawnY = testY;
+                break;
+            }
+        }
+        Endermite endermite = new Endermite(EntityType.ENDERMITE, level);
+        endermite.setPos(spawnX, spawnY, spawnZ);
+        endermite.setTarget(player);
+        level.addFreshEntity(endermite);
     }
 }
