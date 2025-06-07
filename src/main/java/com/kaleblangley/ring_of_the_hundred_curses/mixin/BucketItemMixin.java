@@ -13,7 +13,6 @@ import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManage
 
 @Mixin(BucketItem.class)
 public class BucketItemMixin {
-
     @ModifyExpressionValue(method = "emptyContents(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/BlockHitResult;Lnet/minecraft/world/item/ItemStack;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/dimension/DimensionType;ultraWarm()Z"))
     private boolean makeEndBehaveLikeNether(boolean original, Player player, Level level) {
         if (player != null && RingUtil.configAndRing(player, getConfig().enableEndWaterBan) && level.dimension() == Level.END) {
@@ -21,6 +20,4 @@ public class BucketItemMixin {
         }
         return false;
     }
-
-
 } 
