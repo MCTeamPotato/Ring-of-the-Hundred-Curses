@@ -88,6 +88,7 @@ public class ModConfig implements ConfigData {
      * Starry Path: Cannot run when light levels are too low.
      */
     public boolean enableStarryPath = true;
+    public int starryPathMinimumLightLevel = 7; // 可以跑步的最低光照等级 / Minimum light level to allow sprinting
 
     /**
      * 末水禁令：末地不能放水
