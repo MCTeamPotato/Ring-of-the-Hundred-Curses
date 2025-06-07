@@ -25,6 +25,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShieldItem;
@@ -32,6 +33,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
@@ -42,23 +45,13 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
-import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import top.theillusivec4.curios.api.event.CurioChangeEvent;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.level.block.SpongeBlock;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.core.BlockPos;
 
 import java.util.List;
 
@@ -228,34 +221,4 @@ public class ForgeEvent {
             }
         }
     }
-
-//    @SubscribeEvent
-//    public static void endWaterBanEffect(PlayerInteractEvent.RightClickItem event) {
-//        if (event.getEntity() instanceof Player) {
-//            Player player = event.getEntity();
-//            if (RingUtil.configAndRing(player, getConfig().enableEndWaterBan) && player.level().dimension() == Level.END && event.getItemStack().is(Items.WATER_BUCKET)) {
-//                event.setCanceled(true);
-//                player.swing(event.getHand());
-//                if (!player.getAbilities().instabuild) {
-//                    ItemStack itemStack = event.getItemStack();
-//                    itemStack.shrink(1);
-//                    if (itemStack.isEmpty()) {
-//                        player.setItemInHand(event.getHand(), new ItemStack(Items.BUCKET));
-//                    } else {
-//                        if (!player.getInventory().add(new ItemStack(Items.BUCKET))) {
-//                            player.drop(new ItemStack(Items.BUCKET), false);
-//                        }
-//                    }
-//                }
-//                BlockHitResult hitResult = player.level().clip(new ClipContext(player.getEyePosition(), player.getEyePosition().add(player.getViewVector(1.0F).scale(5.0)), ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
-//                BlockPos targetPos = hitResult.getType() == HitResult.Type.BLOCK ? hitResult.getBlockPos() : player.getOnPos();
-//                if (!player.level().isClientSide) {
-//                    player.level().playSound(null, targetPos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (player.level().random.nextFloat() - player.level().random.nextFloat()) * 0.8F);
-//                }
-//                for (int i = 0; i < 8; ++i) {
-//                    player.level().addParticle(ParticleTypes.LARGE_SMOKE, targetPos.getX() + Math.random(), targetPos.getY() + Math.random(), targetPos.getZ() + Math.random(), 0.0D, 0.0D, 0.0D);
-//                }
-//            }
-//        }
-//    }
 }
