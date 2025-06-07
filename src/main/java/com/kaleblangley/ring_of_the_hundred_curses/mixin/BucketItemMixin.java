@@ -31,13 +31,10 @@ public class BucketItemMixin {
                 int i = pos.getX();
                 int j = pos.getY();
                 int k = pos.getZ();
-
                 level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.8F);
-
                 for (int l = 0; l < 8; ++l) {
                     level.addParticle(ParticleTypes.LARGE_SMOKE, (double) i + Math.random(), (double) j + Math.random(), (double) k + Math.random(), 0.0D, 0.0D, 0.0D);
                 }
-
                 cir.setReturnValue(true);
             }
         }
