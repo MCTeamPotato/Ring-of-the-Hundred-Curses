@@ -7,6 +7,7 @@
   "mixins": [
     "AbstractArrowMixin",
     "BowMixin",
+    "items.EyeOfEnderMixin",
     "FoodDataMixin",
     "ForgeGuiMixin",
     "ItemStackMixin",

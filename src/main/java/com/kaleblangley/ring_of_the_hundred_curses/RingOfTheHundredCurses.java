@@ -21,10 +21,8 @@ public class RingOfTheHundredCurses {
 
     public RingOfTheHundredCurses(){
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
         AutoConfig.register(ModConfig.class, Toml4jConfigSerializer::new);
         ModLoadingContext.get().registerExtensionPoint(ModConfigManager.getConfigFactory().getClass(), ModConfigManager::getConfigFactory);
-
         ModItem.ITEMS.register(modEventBus);
         ModTab.TAB.register(modEventBus);
     }
