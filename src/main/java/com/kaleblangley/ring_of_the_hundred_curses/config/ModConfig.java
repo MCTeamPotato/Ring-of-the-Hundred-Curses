@@ -303,6 +303,7 @@ public class ModConfig implements ConfigData {
      * Outline Master: Archery has a larger arrow deviation.
      */
     public boolean enableOutlineMaster = true;
+    public float outlineMasterInaccuracyIncrease = 0.80f; // 增加的偏转角度
 
     /**
      * 复生怒火：每次打boss死了后boss不仅回满血还会变得更强

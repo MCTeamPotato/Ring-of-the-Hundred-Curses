@@ -59,7 +59,7 @@ Format: (Curse Name + Curse Effect + Designer)
 43. [ ] Time Rift: Every time you throw an Ender Pearl, Endermites spawn to attack you. rinko
 44. [ ] Time Distortion: There is a chance to be teleported to a random location near the target when using a portal. 冬香
 45. [ ] Abandoned by Poseidon: The chance of fishing up junk is significantly increased. MCMostWolf
-46. [ ] Outline Master: Archery has a larger arrow deviation. MCMostWolf
+46. [x] Outline Master: Archery has a larger arrow deviation. MCMostWolf
 47. [ ] Reborn Wrath: Every time you die to a boss, the boss not only recovers full health but becomes stronger. MCMostWolf
 48. [x] Oxygen Deprivation: Running depletes oxygen. 赤麦RedWheat
 49. [ ] Worm Hoard: Mining stone has a chance to spawn Silverfish. 赤麦RedWheat
