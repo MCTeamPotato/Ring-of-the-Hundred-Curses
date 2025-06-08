@@ -33,7 +33,7 @@ Format: (Curse Name + Curse Effect + Designer)
 17. [ ] Fragile Body: Fall damage cannot be mitigated. kl
 18. [ ] Fragile Armor: Reduces armor and toughness given by armor. kl
 19. [ ] Sluggish Hands: Reduces mining speed. kl
-20. [ ] Lonely Master: Cannot tame mobs. kl
+20. [x] Lonely Master: Cannot tame mobs. kl
 21. [ ] Lost Direction: Maps and compasses become useless. kl
 22. [ ] Weak Magic Constitution: Cannot use high-level enchantments. kl
 23. [ ] Weak Swimmer: Reduces swimming speed, and drowning damage increases with depth. kl

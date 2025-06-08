@@ -39,6 +39,7 @@ import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingBreatheEvent;
 import net.minecraftforge.event.entity.living.LivingSwapItemsEvent;
+import net.minecraftforge.event.entity.living.AnimalTameEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -258,5 +259,15 @@ public class ForgeEvent {
         endermite.setPos(spawnX, spawnY, spawnZ);
         endermite.setTarget(player);
         level.addFreshEntity(endermite);
+    }
+
+    @SubscribeEvent
+    public static void preventAnimalTaming(AnimalTameEvent event) {
+        if (event.getTamer() instanceof Player) {
+            Player player = (Player) event.getTamer();
+            if (RingUtil.configAndRing(player, getConfig().enableLonelyMaster)) {
+                event.setCanceled(true);
+            }
+        }
     }
 }
