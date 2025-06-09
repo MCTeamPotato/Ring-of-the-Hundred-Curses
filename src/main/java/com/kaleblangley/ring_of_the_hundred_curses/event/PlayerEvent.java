@@ -126,7 +126,6 @@ public class PlayerEvent {
 
     private static float breakSpeedGet(Player player, float originalSpeed, BlockState state, ItemStack handItem) {
         if (!RingUtil.isEquipRing(player)) return originalSpeed;
-
         if (getConfig().enableSluggishHands) {
             originalSpeed *= getConfig().multiplyRawSpeed;
         }

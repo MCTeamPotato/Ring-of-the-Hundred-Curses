@@ -88,12 +88,10 @@ public class EntityEvent {
         LivingEntity entity = event.getEntity();
         FoodProperties foodProperties = event.getFoodProperties();
         ItemStack itemStack = event.getItemStack();
-
         if (RingUtil.configAndRing(entity, getConfig().enableGreedyEating)) {
             int newNutrition = (int) (foodProperties.getNutrition() * (getConfig().hungerReductionPercent));
             event.setNutrition(newNutrition);
         }
-
         if (itemStack.is(ModTag.RAW_FOOD) && RingUtil.configAndRing(entity, getConfig().enableWeakStomach)) {
             MobEffect effect = ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(getConfig().rawMeatDebuffId));
             MobEffectInstance effectInstance = new MobEffectInstance(effect, getConfig().rawMeatDebuffDuration, getConfig().rawMeatDebuffAmplifier);
@@ -148,7 +146,7 @@ public class EntityEvent {
     @SubscribeEvent
     public static void preventAnimalTaming(AnimalTameEvent event) {
         if (event.getTamer() instanceof Player) {
-            Player player = (Player) event.getTamer();
+            Player player = event.getTamer();
             if (RingUtil.configAndRing(player, getConfig().enableLonelyMaster)) {
                 event.setCanceled(true);
             }
