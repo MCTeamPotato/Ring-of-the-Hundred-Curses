@@ -7,13 +7,16 @@ import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
@@ -59,6 +62,20 @@ import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManage
 
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeEvent {
+    
+    private static final List<MobEffect> HARMFUL_EFFECTS;
+    
+    static {
+        List<MobEffect> effects = new java.util.ArrayList<>();
+        for (MobEffect effect : BuiltInRegistries.MOB_EFFECT) {
+            if (effect.getCategory() == MobEffectCategory.HARMFUL && 
+                effect != MobEffects.HARM && effect != MobEffects.HEAL) {
+                effects.add(effect);
+            }
+        }
+        HARMFUL_EFFECTS = List.copyOf(effects);
+    }
+
     @SubscribeEvent
     public static void curiosChange(CurioChangeEvent event) {
         if (event.getEntity() instanceof Player player) {
@@ -269,5 +286,26 @@ public class ForgeEvent {
                 event.setCanceled(true);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void neurologicalDegenerationEffect(PlayerEvent.PlayerRespawnEvent event) {
+        if (event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            if (RingUtil.configAndRing(player, getConfig().enableNeurologicalDegeneration)) {
+                applyRandomHarmfulEffect(player);
+            }
+        }
+    }
+
+    private static void applyRandomHarmfulEffect(Player player) {
+        if (HARMFUL_EFFECTS.isEmpty()) {
+            return;
+        }
+        MobEffect randomEffect = HARMFUL_EFFECTS.get(player.level().random.nextInt(HARMFUL_EFFECTS.size()));
+        int amplifier = player.level().random.nextInt(3);
+        int duration = 1200 + player.level().random.nextInt(2401);
+        MobEffectInstance effectInstance = new MobEffectInstance(randomEffect, duration, amplifier);
+        player.addEffect(effectInstance);
     }
 }
