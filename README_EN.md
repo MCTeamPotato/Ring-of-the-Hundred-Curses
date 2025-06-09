@@ -62,7 +62,7 @@ Format: (Curse Name + Curse Effect + Designer)
 46. [x] Outline Master: Archery has a larger arrow deviation. MCMostWolf
 47. [ ] Reborn Wrath: Every time you die to a boss, the boss not only recovers full health but becomes stronger. MCMostWolf
 48. [x] Oxygen Deprivation: Running depletes oxygen. 赤麦RedWheat
-49. [ ] Worm Hoard: Mining stone has a chance to spawn Silverfish. 赤麦RedWheat
+49. [x] Worm Hoard: Mining stone has a chance to spawn Silverfish. 赤麦RedWheat
 50. [ ] Hypocrisy Body: Reduces player's invincibility frames. kl
 51. [ ] Greedy Tome: Doubles the experience cost for the enchantment table. 妖月
 52. [ ] Grinding Wear: Grindstone consumes durability. 妖月

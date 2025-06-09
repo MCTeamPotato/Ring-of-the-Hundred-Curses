@@ -323,6 +323,12 @@ public class ModConfig implements ConfigData {
      * Worm Hoard: Mining stone has a chance to spawn Silverfish.
      */
     public boolean enableWormHoard = true;
+    public double wormHoardSpawnChance = 0.05; // 挖掘石头时蠹虫生成概率 / Chance to spawn silverfish when mining stone
+    public int wormHoardMaxSilverfish = 1; // 最多生成蠹虫数量 / Maximum number of silverfish to spawn
+    public String[] wormHoardTargetBlocks = {
+        "minecraft:stone",
+        "#forge:stone"
+    };
 
     /**
      * 虚伪身躯：玩家的无敌帧减少
