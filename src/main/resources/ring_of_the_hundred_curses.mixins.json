@@ -7,12 +7,13 @@
   "mixins": [
     "AbstractArrowMixin",
     "BowMixin",
-    "items.EyeOfEnderMixin",
+    "EntityMixin",
     "FoodDataMixin",
     "ForgeGuiMixin",
     "ItemStackMixin",
     "PlayerMixin",
-    "inventory.InventoryMenuMixin"
+    "inventory.InventoryMenuMixin",
+    "items.EyeOfEnderMixin"
   ],
   "client": [
     "MinecraftMixin",

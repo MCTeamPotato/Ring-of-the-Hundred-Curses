@@ -83,7 +83,7 @@ Format: (Curse Name + Curse Effect + Designer)
 67. [ ] United Adversaries: The more hostile mobs nearby, the more damage the player takes. Christen
 68. [ ] Bleeding Wound: Taking damage has a chance to cause continuous health loss. Christen
 69. [ ] Feast or Famine: Having too low or too high saturation applies debuffs. Christen
-70. [ ] Pulmonary Fibrosis: Reduces maximum oxygen. Christen
+70. [x] Pulmonary Fibrosis: Reduces maximum oxygen. Christen
 71. [ ] Bargaining Power: The higher the health of a trading entity, the more expensive its trades. Christen
 72. [ ] Hollow Stomach: Reduces maximum saturation. kl
 73. [ ] Distant Deflection: Introduces universal damage cap and ranged damage resistance. rinko

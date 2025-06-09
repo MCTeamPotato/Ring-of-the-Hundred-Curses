@@ -449,6 +449,7 @@ public class ModConfig implements ConfigData {
      * Pulmonary Fibrosis: Reduces maximum oxygen
      */
     public boolean enablePulmonaryFibrosis = true;
+    public int pulmonaryFibrosisAirReduction = 150; // 减少的氧气值，默认减少150（相当于5个气泡）/ Air reduction amount, default 150 (equivalent to 5 bubbles)
 
     /**
      * 以理服人：交易生物血量越高价格越贵
