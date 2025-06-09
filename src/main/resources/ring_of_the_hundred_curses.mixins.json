@@ -13,7 +13,8 @@
     "ItemStackMixin",
     "PlayerMixin",
     "inventory.InventoryMenuMixin",
-    "items.EyeOfEnderMixin"
+    "items.EyeOfEnderMixin",
+    "items.MilkBucketItemMixin"
   ],
   "client": [
     "MinecraftMixin",

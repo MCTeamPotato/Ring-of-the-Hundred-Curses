@@ -89,7 +89,7 @@ Format: (Curse Name + Curse Effect + Designer)
 73. [ ] Distant Deflection: Introduces universal damage cap and ranged damage resistance. rinko
 74. [ ] PTSD: If the player was previously killed by a mob, encountering it again causes a debuff. Textrue
 75. [ ] Curse of Misfortune: The player's dropped items are calculated multiple times, taking the worst result. 咒神灰
-76. [ ] Lactose Intolerance: You cannot remove negative effects with milk. rinko
+76. [x] Lactose Intolerance: You cannot remove negative effects with milk. rinko
 77. [ ] Depth Charge: Fishing has a chance to catch something bad. 咒神灰
 78. [ ] Thunderbound Oath: Significantly increases the chance of being struck by lightning. kl
 79. [ ] Lava Sacrifice: While in the Nether, being attacked will set you on fire. kl

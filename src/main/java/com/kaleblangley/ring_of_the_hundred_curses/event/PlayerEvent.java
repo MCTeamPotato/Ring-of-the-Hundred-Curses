@@ -38,14 +38,13 @@ import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManage
 
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PlayerEvent {
-    
+
     private static final List<MobEffect> HARMFUL_EFFECTS;
-    
+
     static {
         List<MobEffect> effects = new java.util.ArrayList<>();
         for (MobEffect effect : BuiltInRegistries.MOB_EFFECT) {
-            if (effect.getCategory() == MobEffectCategory.HARMFUL && 
-                effect != MobEffects.HARM && effect != MobEffects.HEAL && effect != MobEffects.LEVITATION) {
+            if (effect.getCategory() == MobEffectCategory.HARMFUL && effect != MobEffects.HARM && effect != MobEffects.HEAL && effect != MobEffects.LEVITATION) {
                 effects.add(effect);
             }
         }
@@ -145,8 +144,19 @@ public class PlayerEvent {
             return;
         }
         MobEffect randomEffect = HARMFUL_EFFECTS.get(player.level().random.nextInt(HARMFUL_EFFECTS.size()));
-        int amplifier = player.level().random.nextInt(3);
-        int duration = 1200 + player.level().random.nextInt(2401);
+        int minAmplifier = getConfig().neurologicalDegenerationMinAmplifier;
+        int maxAmplifier = getConfig().neurologicalDegenerationMaxAmplifier;
+        int minDuration = getConfig().neurologicalDegenerationMinDuration;
+        int maxDuration = getConfig().neurologicalDegenerationMaxDuration;
+        if (minAmplifier > maxAmplifier) {
+            minAmplifier = maxAmplifier;
+        }
+        if (minDuration > maxDuration) {
+            minDuration = maxDuration;
+        }
+        int amplifier = minAmplifier + player.level().random.nextInt(Math.max(1, maxAmplifier - minAmplifier + 1));
+        int duration = minDuration + player.level().random.nextInt(Math.max(1, maxDuration - minDuration + 1));
+
         MobEffectInstance effectInstance = new MobEffectInstance(randomEffect, duration, amplifier);
         player.addEffect(effectInstance);
     }
@@ -187,8 +197,7 @@ public class PlayerEvent {
             for (int y = 0; y < 3; y++) {
                 double testY = spawnY + y;
                 BlockPos testPos = new BlockPos((int) spawnX, (int) testY, (int) spawnZ);
-                if (!level.getBlockState(testPos).isCollisionShapeFullBlock(level, testPos) && 
-                    !level.getBlockState(testPos.above()).isCollisionShapeFullBlock(level, testPos.above())) {
+                if (!level.getBlockState(testPos).isCollisionShapeFullBlock(level, testPos) && !level.getBlockState(testPos.above()).isCollisionShapeFullBlock(level, testPos.above())) {
                     spawnY = testY;
                     break;
                 }

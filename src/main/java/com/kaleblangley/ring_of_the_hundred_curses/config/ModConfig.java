@@ -211,6 +211,10 @@ public class ModConfig implements ConfigData {
      * Neurological Degeneration: Negative effects are applied after respawning.
      */
     public boolean enableNeurologicalDegeneration = true;
+    public int neurologicalDegenerationMinAmplifier = 0; // 最小等级 / Minimum amplifier level
+    public int neurologicalDegenerationMaxAmplifier = 1; // 最大等级 / Maximum amplifier level
+    public int neurologicalDegenerationMinDuration = 400; // 最小时长（tick）/ Minimum duration in ticks (60 seconds)
+    public int neurologicalDegenerationMaxDuration = 800; // 最大时长（tick）/ Maximum duration in ticks (180 seconds)
 
     /**
      * 恐怖实体：敌人的生命值有概率提升
