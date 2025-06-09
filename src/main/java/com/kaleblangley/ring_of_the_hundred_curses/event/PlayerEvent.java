@@ -45,7 +45,7 @@ public class PlayerEvent {
         List<MobEffect> effects = new java.util.ArrayList<>();
         for (MobEffect effect : BuiltInRegistries.MOB_EFFECT) {
             if (effect.getCategory() == MobEffectCategory.HARMFUL && 
-                effect != MobEffects.HARM && effect != MobEffects.HEAL) {
+                effect != MobEffects.HARM && effect != MobEffects.HEAL && effect != MobEffects.LEVITATION) {
                 effects.add(effect);
             }
         }
@@ -187,8 +187,8 @@ public class PlayerEvent {
             for (int y = 0; y < 3; y++) {
                 double testY = spawnY + y;
                 BlockPos testPos = new BlockPos((int) spawnX, (int) testY, (int) spawnZ);
-                if (!level.getBlockState(testPos).isSolid() && 
-                    !level.getBlockState(testPos.above()).isSolid()) {
+                if (!level.getBlockState(testPos).isCollisionShapeFullBlock(level, testPos) && 
+                    !level.getBlockState(testPos.above()).isCollisionShapeFullBlock(level, testPos.above())) {
                     spawnY = testY;
                     break;
                 }

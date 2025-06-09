@@ -159,7 +159,10 @@ public class EntityEvent {
         double spawnZ = position.z;
         for (int y = 0; y < 5; y++) {
             double testY = spawnY + y - 2;
-            if (level.getBlockState(new BlockPos((int) spawnX, (int) testY - 1, (int) spawnZ)).isSolid() && !level.getBlockState(new BlockPos((int) spawnX, (int) testY, (int) spawnZ)).isSolid()) {
+            BlockPos groundPos = new BlockPos((int) spawnX, (int) testY - 1, (int) spawnZ);
+            BlockPos spawnPos = new BlockPos((int) spawnX, (int) testY, (int) spawnZ);
+            if (level.getBlockState(groundPos).isCollisionShapeFullBlock(level, groundPos) && 
+                !level.getBlockState(spawnPos).isCollisionShapeFullBlock(level, spawnPos)) {
                 spawnY = testY;
                 break;
             }
