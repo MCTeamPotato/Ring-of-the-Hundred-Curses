@@ -19,7 +19,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.Containers;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.ItemPickupEvent;
@@ -110,7 +113,7 @@ public class PlayerEvent {
     }
 
     @SubscribeEvent
-    public static void wormHoardEffect(BlockEvent.BreakEvent event) {
+    public static void playerBreakEvent(BlockEvent.BreakEvent event) {
         Player player = event.getPlayer();
         if (player != null && RingUtil.configAndRing(player, getConfig().enableWormHoard)) {
             BlockState state = event.getState();
@@ -118,6 +121,20 @@ public class PlayerEvent {
             if (!level.isClientSide && isWormHoardTarget(state.getBlock())) {
                 if (level.random.nextDouble() < getConfig().wormHoardSpawnChance) {
                     spawnSilverfishAtPosition(event.getPos(), level, player);
+                }
+            }
+        }
+        if (player != null && RingUtil.configAndRing(player, getConfig().enableBarrenHarvest)) {
+            BlockState state = event.getState();
+            Level level = player.level();
+            if (!level.isClientSide && state.getBlock() instanceof CropBlock cropBlock) {
+                if (cropBlock.isMaxAge(state)) {
+                    if (level.random.nextDouble() < getConfig().barrenHarvestChance) {
+                        event.setCanceled(true);
+                        level.setBlock(event.getPos(), Blocks.AIR.defaultBlockState(), 3);
+                        ItemStack deadBush = new ItemStack(Items.DEAD_BUSH, 1);
+                        Containers.dropItemStack(level, event.getPos().getX(), event.getPos().getY(), event.getPos().getZ(), deadBush);
+                    }
                 }
             }
         }

@@ -75,7 +75,7 @@ Format: (Curse Name + Curse Effect + Designer)
 59. [ ] Exposed Weakness: Player takes more damage while sneaking. 暮雨雨
 60. [ ] Justified Combat: Player cannot attack non-hostile creatures first. 暮雨雨
 61. [ ] Food Coma: Eating has a delay, during which no actions can be performed. cos45
-62. [ ] Barren Harvest: Crops now have a chance to drop dead bushes instead. 筍
+62. [x] Barren Harvest: Crops now have a chance to drop dead bushes instead. 筍
 63. [ ] Slippery Adventure: All blocks in cold biomes apply ice physics. 苦来兮归去
 64. [ ] Hostile Flora: Plants can deal damage to the player. Christen
 65. [ ] Deep Sea Entanglement: Swimming has a time limit; after which the player starts sinking. Christen

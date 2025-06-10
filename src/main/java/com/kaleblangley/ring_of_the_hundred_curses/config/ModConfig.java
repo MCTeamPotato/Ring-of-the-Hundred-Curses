@@ -411,6 +411,7 @@ public class ModConfig implements ConfigData {
      * Barren Harvest: Crops now have a chance to drop dead bushes instead
      */
     public boolean enableBarrenHarvest = true;
+    public double barrenHarvestChance = 0.2; // 作物掉落枯萎灌木的概率 / Chance for crops to drop dead bushes instead
 
     /**
      * 滑雪冒险：在寒冷群系，所有方块上施加冰块效果
