@@ -3,7 +3,6 @@ package com.kaleblangley.ring_of_the_hundred_curses.event;
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
@@ -32,6 +31,7 @@ import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.ForgeRegistries;
 import top.theillusivec4.curios.api.event.CurioChangeEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 
@@ -46,7 +46,7 @@ public class PlayerEvent {
 
     static {
         List<MobEffect> effects = new java.util.ArrayList<>();
-        for (MobEffect effect : BuiltInRegistries.MOB_EFFECT) {
+        for (MobEffect effect : ForgeRegistries.MOB_EFFECTS) {
             if (effect.getCategory() == MobEffectCategory.HARMFUL && effect != MobEffects.HARM && effect != MobEffects.HEAL && effect != MobEffects.LEVITATION) {
                 effects.add(effect);
             }
@@ -58,13 +58,9 @@ public class PlayerEvent {
     public static void curiosChange(CurioChangeEvent event) {
         if (event.getEntity() instanceof Player player) {
             if (RingUtil.isRing(event.getTo())) {
-                player.getInventory().items.forEach(itemStack -> {
-                    RingUtil.setCurseMaxSizeCapability(itemStack, getConfig().maxStackSize);
-                });
+                player.getInventory().items.forEach(itemStack -> RingUtil.setCurseMaxSizeCapability(itemStack, getConfig().maxStackSize));
             } else if (RingUtil.isRing(event.getFrom())) {
-                player.getInventory().items.forEach(itemStack -> {
-                    RingUtil.setCurseMaxSizeCapability(itemStack, 0);
-                });
+                player.getInventory().items.forEach(itemStack -> RingUtil.setCurseMaxSizeCapability(itemStack, 0));
             }
         }
     }
@@ -105,7 +101,7 @@ public class PlayerEvent {
     @SubscribeEvent
     public static void neurologicalDegenerationEffect(PlayerRespawnEvent event) {
         if (event.getEntity() instanceof Player) {
-            Player player = (Player) event.getEntity();
+            Player player = event.getEntity();
             if (RingUtil.configAndRing(player, getConfig().enableNeurologicalDegeneration)) {
                 applyRandomHarmfulEffect(player);
             }
@@ -179,7 +175,7 @@ public class PlayerEvent {
     }
 
     private static boolean isWormHoardTarget(Block block) {
-        ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(block);
+        ResourceLocation blockId = ForgeRegistries.BLOCKS.getKey(block);
         String blockIdString = blockId.toString();
         for (String target : getConfig().wormHoardTargetBlocks) {
             if (target.startsWith("#")) {
@@ -190,13 +186,10 @@ public class PlayerEvent {
                     if (block.defaultBlockState().is(tagKey)) {
                         return true;
                     }
-                } catch (Exception e) {
-                    continue;
+                } catch (Exception ignored) {
                 }
-            } else {
-                if (target.equals(blockIdString)) {
-                    return true;
-                }
+            } else if (target.equals(blockIdString)) {
+                return true;
             }
         }
         return false;
