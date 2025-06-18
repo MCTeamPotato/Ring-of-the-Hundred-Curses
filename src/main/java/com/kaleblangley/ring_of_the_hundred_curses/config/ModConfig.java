@@ -473,6 +473,7 @@ public class ModConfig implements ConfigData {
      * Hollow Stomach: Reduces maximum saturation
      */
     public boolean enableHollowStomach = true;
+    public int hollowStomachMaxHunger = 15; // 饥肠辘辘状态下的最大饥饿值上限 / Maximum hunger level under hollow stomach curse
 
     /**
      * 远域挡招：为任意添加限伤和远程保护机制
@@ -512,19 +513,19 @@ public class ModConfig implements ConfigData {
 
     /**
      * 破败战士：穿戴装备的耐久值越低，提供的护甲值越少
-     * Dilapidated Warrior: The lower your equipment’s durability, the less armor protection it provides
+     * Dilapidated Warrior: The lower your equipment's durability, the less armor protection it provides
      */
     public boolean enableDilapidatedWarrior = true;
 
     /**
      * 掉包奸商：与村民交易完物品后概率被换成其他物品
-     * Dodgy Merchant: After completing a trade with a villager, there’s a chance the item you receive will be swapped for something else
+     * Dodgy Merchant: After completing a trade with a villager, there's a chance the item you receive will be swapped for something else
      */
     public boolean enableDodgyMerchant = true;
 
     /**
      * 新鲜武器：武器耐久越低伤害越低
-     * Fresh Weapon: The lower a weapon’s durability, the less damage it deals
+     * Fresh Weapon: The lower a weapon's durability, the less damage it deals
      */
     public boolean enableFreshWeapon = true;
 
@@ -548,7 +549,7 @@ public class ModConfig implements ConfigData {
 
     /**
      * 失衡武器：武器的攻击力在每次攻击时概率减少
-     * Unbalanced Weapon: Each time you attack, there’s a chance your weapon’s attack power will decrease
+     * Unbalanced Weapon: Each time you attack, there's a chance your weapon's attack power will decrease
      */
     public boolean enableUnbalancedWeapon = true;
 
@@ -560,19 +561,19 @@ public class ModConfig implements ConfigData {
 
     /**
      * 拔苗助长：作物施肥时概率降低生长阶段，施肥越多降低概率越大
-     * Overzealous Growth: When fertilizing crops, there’s a chance their growth stage will regress—and the more fertilizer you apply, the higher the chance
+     * Overzealous Growth: When fertilizing crops, there's a chance their growth stage will regress—and the more fertilizer you apply, the higher the chance
      */
     public boolean enableOverzealousGrowth = true;
 
     /**
      * 笨拙农夫：玩家在耕地上走有几率踩坏田
-     * Clumsy Farmer: There’s a chance to trample and break farmland when walking over tilled soil
+     * Clumsy Farmer: There's a chance to trample and break farmland when walking over tilled soil
      */
     public boolean enableClumsyFarmer = true;
 
     /**
      * 海市蜃楼：概率看到远处出现结构，但并不是真的
-     * Mirage: You may occasionally see distant structures that aren’t actually there
+     * Mirage: You may occasionally see distant structures that aren't actually there
      */
     public boolean enableMirage = true;
 
@@ -588,7 +589,7 @@ public class ModConfig implements ConfigData {
 
     /**
      * 肌肉无力：使用盾牌抵挡伤害的时候概率会被破盾
-     * Muscle Weakness: When blocking damage with a shield, there’s a chance your shield will break
+     * Muscle Weakness: When blocking damage with a shield, there's a chance your shield will break
      */
     public boolean enableMuscleWeakness = true;
 
@@ -630,13 +631,13 @@ public class ModConfig implements ConfigData {
 
     /**
      * 震耳欲聋：不一定需要幽匿尖啸体才能召唤监守者
-     * Deafening: You don’t always need a Sculk Shrieker to summon the Warden
+     * Deafening: You don't always need a Sculk Shrieker to summon the Warden
      */
     public boolean enableDeafening = true;
 
     /**
      * 话痨戒指：偶尔会听到戒指的话语
-     * Chatterbox Ring: Occasionally you’ll hear the ring itself speaking to you
+     * Chatterbox Ring: Occasionally you'll hear the ring itself speaking to you
      */
     public boolean enableChatterboxRing = true;
 

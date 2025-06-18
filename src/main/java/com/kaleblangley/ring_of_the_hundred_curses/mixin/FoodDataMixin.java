@@ -1,8 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin;
 
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
-import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
-import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.food.FoodData;
@@ -15,7 +13,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(FoodData.class)
 public abstract class FoodDataMixin {
@@ -25,7 +22,7 @@ public abstract class FoodDataMixin {
     public void modifyNutrition(Item pItem, ItemStack pStack, LivingEntity entity, CallbackInfo ci, @Local FoodProperties foodproperties){
         EatEvent eatEvent = new EatEvent(entity, pItem, pStack, foodproperties, foodproperties.getNutrition(), foodproperties.getSaturationModifier());
         MinecraftForge.EVENT_BUS.post(eatEvent);
-        if (eatEvent.isCanceled()) {
+        if (!eatEvent.isCanceled()) {
             this.eat(eatEvent.getNutrition(), eatEvent.getSaturationModifier());
         }
         ci.cancel();

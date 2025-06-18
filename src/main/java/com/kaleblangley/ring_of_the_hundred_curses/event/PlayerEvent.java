@@ -1,6 +1,7 @@
 package com.kaleblangley.ring_of_the_hundred_curses.event;
 
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
+import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -14,6 +15,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Silverfish;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -52,6 +54,24 @@ public class PlayerEvent {
             }
         }
         HARMFUL_EFFECTS = List.copyOf(effects);
+    }
+
+    @SubscribeEvent
+    public static void onEatFood(EatEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            if (RingUtil.configAndRing(player, getConfig().enableHollowStomach)) {
+                int maxHunger = getConfig().hollowStomachMaxHunger;
+                FoodData foodData = player.getFoodData();
+                int currentHunger = foodData.getFoodLevel();
+                int nutritionToAdd = event.getNutrition();
+                if (currentHunger >= maxHunger) {
+                    event.setNutrition(0);
+                } 
+                else if (currentHunger + nutritionToAdd > maxHunger) {
+                    event.setNutrition(maxHunger - currentHunger);
+                }
+            }
+        }
     }
 
     @SubscribeEvent
