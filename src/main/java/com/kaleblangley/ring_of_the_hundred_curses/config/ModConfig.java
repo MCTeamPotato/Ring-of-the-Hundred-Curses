@@ -511,6 +511,7 @@ public class ModConfig implements ConfigData {
      * Lava Sacrifice: While in the Nether, being attacked will set you on fire
      */
     public boolean enableLavaSacrifice = true;
+    public int lavaSacrificeFireDuration = 100; // 燃烧持续时间（tick），默认100tick=5秒 / Fire duration in ticks, default 100 ticks = 5 seconds
 
     /**
      * 破败战士：穿戴装备的耐久值越低，提供的护甲值越少

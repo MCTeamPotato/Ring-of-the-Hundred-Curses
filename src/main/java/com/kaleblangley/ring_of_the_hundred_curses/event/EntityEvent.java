@@ -32,6 +32,7 @@ import net.minecraftforge.event.entity.living.AnimalTameEvent;
 import net.minecraftforge.event.entity.living.LivingBreatheEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSwapItemsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -149,6 +150,18 @@ public class EntityEvent {
             Player player = event.getTamer();
             if (RingUtil.configAndRing(player, getConfig().enableLonelyMaster)) {
                 event.setCanceled(true);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void lavaSacrificeEffect(LivingHurtEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            if (RingUtil.configAndRing(player, getConfig().enableLavaSacrifice)) {
+                if (player.level().dimension() == Level.NETHER) {
+                    int fireDuration = getConfig().lavaSacrificeFireDuration;
+                    player.setSecondsOnFire(fireDuration / 20);
+                }
             }
         }
     }
