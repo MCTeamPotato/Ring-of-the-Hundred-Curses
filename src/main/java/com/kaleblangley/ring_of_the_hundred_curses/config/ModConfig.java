@@ -424,6 +424,7 @@ public class ModConfig implements ConfigData {
      * Hostile Flora: Plants can deal damage to the player
      */
     public boolean enableHostileFlora = true;
+    public float hostileFloraDamage = 1.0f; // 植物造成的伤害值 / Damage dealt by plants
 
     /**
      * 深海纠缠：游泳有时间限制，时间过后会下沉

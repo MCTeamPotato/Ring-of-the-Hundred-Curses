@@ -6,6 +6,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
+
 public final class ModTag {
     public static final TagKey<Item> RAW_FOOD = createItem("raw_food");
     public static final TagKey<Block> ALWAYS_DIG = createBlock("always_dig");
@@ -13,7 +14,7 @@ public final class ModTag {
     public static final TagKey<Block> HOE_DIG = createBlock("hoe_dig");
     public static final TagKey<Block> PICKAXE_DIG = createBlock("pickaxe_dig");
     public static final TagKey<Block> SHOVEL_DIG = createBlock("shovel_dig");
-
+    public static final TagKey<Block> HOSTILE_PLANTS = createBlock("hostile_plants");
 
     private static TagKey<Item> createItem(String name) {
         return TagKey.create(Registries.ITEM, ResourceUtil.ringResource(name));

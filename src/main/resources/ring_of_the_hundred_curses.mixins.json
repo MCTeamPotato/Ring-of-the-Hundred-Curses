@@ -6,6 +6,7 @@
   "refmap": "RingOfTheHundredCurses.refmap.json",
   "mixins": [
     "AbstractArrowMixin",
+    "BlockMixin",
     "BowMixin",
     "EntityMixin",
     "FoodDataMixin",
