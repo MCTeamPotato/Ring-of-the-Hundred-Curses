@@ -1,4 +1,4 @@
-package com.kaleblangley.ring_of_the_hundred_curses.mixin;
+package com.kaleblangley.ring_of_the_hundred_curses.mixin.items;
 
 import com.kaleblangley.ring_of_the_hundred_curses.capability.CurseMaxSizeProvider;
 import com.kaleblangley.ring_of_the_hundred_curses.capability.ICurseMaxSize;

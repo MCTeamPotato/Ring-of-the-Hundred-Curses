@@ -1,4 +1,4 @@
-package com.kaleblangley.ring_of_the_hundred_curses.mixin;
+package com.kaleblangley.ring_of_the_hundred_curses.mixin.block;
 
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;

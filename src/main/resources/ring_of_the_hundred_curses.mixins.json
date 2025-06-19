@@ -6,13 +6,13 @@
   "refmap": "RingOfTheHundredCurses.refmap.json",
   "mixins": [
     "AbstractArrowMixin",
-    "BlockMixin",
-    "BowMixin",
-    "EntityMixin",
+    "block.BlockMixin",
+    "items.BowMixin",
+    "entity.EntityMixin",
     "FoodDataMixin",
     "ForgeGuiMixin",
-    "ItemStackMixin",
-    "PlayerMixin",
+    "items.ItemStackMixin",
+    "entity.PlayerMixin",
     "inventory.InventoryMenuMixin",
     "items.EyeOfEnderMixin",
     "items.MilkBucketItemMixin"
