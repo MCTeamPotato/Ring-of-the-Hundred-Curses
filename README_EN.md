@@ -67,7 +67,7 @@ Format: (Curse Name + Curse Effect + Designer)
 51. [ ] Greedy Tome: Doubles the experience cost for the enchantment table. 妖月
 52. [ ] Grinding Wear: Grindstone consumes durability. 妖月
 53. [ ] Water Shackles: Slows movement speed in water. awei
-54. [ ] Misstep Peril: Sneaking no longer prevents falling off edges. Susanlynna
+54. [x] Misstep Peril: Sneaking no longer prevents falling off edges. Susanlynna
 55. [ ] Lavish Taste: Only armor with trims can be worn. 暮雨雨
 56. [ ] Shattered Eye: Ender Eyes always break upon use. 暮雨雨
 57. [ ] Draconic Favor: When the Ender Dragon breathes fire, a dragon breath area appears under the player's feet. 暮雨雨

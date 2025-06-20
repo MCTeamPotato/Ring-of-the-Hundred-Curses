@@ -13,6 +13,7 @@
     "ForgeGuiMixin",
     "items.ItemStackMixin",
     "entity.PlayerMixin",
+    "entity.PlayerMisstepPerilMixin",
     "inventory.InventoryMenuMixin",
     "items.EyeOfEnderMixin",
     "items.MilkBucketItemMixin"
