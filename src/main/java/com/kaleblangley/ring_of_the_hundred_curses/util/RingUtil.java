@@ -5,6 +5,7 @@ import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModItem;
 import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import top.theillusivec4.curios.api.CuriosApi;
@@ -50,5 +51,16 @@ public class RingUtil {
 
     public static void setCurseMaxSizeCapability(ItemStack itemStack, int size) {
         itemStack.getCapability(CurseMaxSizeProvider.CURSE_MAX_SIZE).ifPresent(iCurseMaxSize -> iCurseMaxSize.setCurseMaxSize(size));
+    }
+
+    public static boolean isTradeOrSpecialContainer(Player player) {
+        String containerClass = player.containerMenu.getClass().getSimpleName();
+        String containerFullName = player.containerMenu.getClass().getName();
+        return containerClass.equals("MerchantMenu") ||
+               containerClass.contains("Merchant") || 
+               containerClass.contains("Trading") || 
+               containerClass.contains("Villager") ||
+               containerFullName.contains("merchant") ||
+               containerFullName.contains("trading");
     }
 }

@@ -16,7 +16,9 @@ public class InventoryMenuMixin {
     @ModifyVariable(method = "quickMoveStack", at = @At("STORE"), ordinal = 1)
     public ItemStack modifyItemSize(ItemStack itemStack){
         ItemStack newItemStack = itemStack.copy();
-        RingUtil.backpackLimitSizeModify(this.owner, newItemStack);
+        if (!RingUtil.isTradeOrSpecialContainer(this.owner)) {
+            RingUtil.backpackLimitSizeModify(this.owner, newItemStack);
+        }
         return newItemStack;
     }
 }

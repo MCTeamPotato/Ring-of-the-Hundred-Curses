@@ -100,8 +100,9 @@ public class PlayerEvent {
     public static void stackItem(ItemStackedOnOtherEvent event) {
         ItemStack carryItem = event.getCarriedItem();
         ItemStack stackedOnItem = event.getStackedOnItem();
-        RingUtil.backpackLimitSizeModify(event.getPlayer(), carryItem);
-
+        if (!RingUtil.isTradeOrSpecialContainer(event.getPlayer())) {
+            RingUtil.backpackLimitSizeModify(event.getPlayer(), carryItem);
+        }
         if (stackedOnItem.is(Items.SHIELD) && event.getSlot().getContainerSlot() == 40 && RingUtil.configAndRing(event.getPlayer(), getConfig().enableShieldOnTheRight)) {
             event.setCanceled(true);
         }
@@ -109,7 +110,9 @@ public class PlayerEvent {
 
     @SubscribeEvent
     public static void pickUpItem(ItemPickupEvent event) {
-        RingUtil.backpackLimitSizeModify(event.getEntity(), event.getStack());
+        if (!RingUtil.isTradeOrSpecialContainer(event.getEntity())) {
+            RingUtil.backpackLimitSizeModify(event.getEntity(), event.getStack());
+        }
     }
 
     @SubscribeEvent
@@ -163,25 +166,33 @@ public class PlayerEvent {
     @SubscribeEvent
     public static void onVillagerTrade(TradeWithVillagerEvent event) {
         Player player = event.getEntity();
-        if (RingUtil.configAndRing(player, getConfig().enableDodgyMerchant)) {
-            Level level = player.level();
-            if (!level.isClientSide) {
-                double swapChance = getConfig().dodgyMerchantSwapChance;
-                if (level.random.nextDouble() < swapChance) {
-                    ItemStack originalResult = event.getMerchantOffer().getResult();
-                    if (canBeSwappedItem(originalResult)) {
-                        ItemStack randomItem = getDodgyMerchantRandomItem(player);
-                        randomItem.setCount(Math.min(originalResult.getCount(), randomItem.getMaxStackSize()));
-                        for (int i = player.getInventory().getContainerSize() - 1; i >= 0; i--) {
-                            ItemStack slotStack = player.getInventory().getItem(i);
-                            if (ItemStack.isSameItemSameTags(slotStack, originalResult) && slotStack.getCount() == originalResult.getCount()) {
-                                player.getInventory().setItem(i, randomItem);
-                                player.containerMenu.broadcastChanges();
-                                break;
-                            }
-                        }
-                    }
-                }
+        if (!RingUtil.configAndRing(player, getConfig().enableDodgyMerchant)) {
+            return;
+        }
+        Level level = player.level();
+        if (level.isClientSide) {
+            return;
+        }
+        double swapChance = getConfig().dodgyMerchantSwapChance;
+        if (level.random.nextDouble() >= swapChance) {
+            return;
+        }
+        ItemStack originalResult = event.getMerchantOffer().getResult();
+        if (canBeSwappedItem(originalResult)) {
+            swapTradeResult(player, originalResult);
+        }
+    }
+    
+    private static void swapTradeResult(Player player, ItemStack originalResult) {
+        ItemStack randomItem = getDodgyMerchantRandomItem(player);
+        randomItem.setCount(Math.min(originalResult.getCount(), randomItem.getMaxStackSize()));
+        for (int i = player.getInventory().getContainerSize() - 1; i >= 0; i--) {
+            ItemStack slotStack = player.getInventory().getItem(i);
+            if (ItemStack.isSameItemSameTags(slotStack, originalResult) &&
+                slotStack.getCount() == originalResult.getCount()) {
+                player.getInventory().setItem(i, randomItem);
+                player.containerMenu.broadcastChanges();
+                break;
             }
         }
     }
@@ -295,4 +306,4 @@ public class PlayerEvent {
         int count = 1 + level.random.nextInt(3);
         return new ItemStack(randomItem, count);
     }
-} 
+}
