@@ -524,6 +524,33 @@ public class ModConfig implements ConfigData {
      * Dodgy Merchant: After completing a trade with a villager, there's a chance the item you receive will be swapped for something else
      */
     public boolean enableDodgyMerchant = true;
+    public double dodgyMerchantSwapChance = 0.15; // 掉包概率 / Chance to swap traded items
+    public String[] dodgyMerchantJunkItems = { // 可替换的垃圾物品列表 / List of junk items for replacement
+        "minecraft:rotten_flesh",
+        "minecraft:bone",
+        "minecraft:string",
+        "minecraft:spider_eye",
+        "minecraft:gunpowder",
+        "minecraft:slime_ball",
+        "minecraft:leather",
+        "minecraft:feather",
+        "minecraft:rabbit_hide",
+        "minecraft:phantom_membrane",
+        "minecraft:cobblestone",
+        "minecraft:dirt",
+        "minecraft:gravel",
+        "minecraft:sand",
+        "minecraft:wheat_seeds",
+        "minecraft:beetroot_seeds",
+        "minecraft:melon_seeds",
+        "minecraft:pumpkin_seeds",
+        "minecraft:poisonous_potato",
+        "minecraft:dead_bush",
+        "minecraft:stick",
+        "minecraft:paper",
+        "minecraft:clay_ball",
+        "minecraft:brick"
+    };
 
     /**
      * 新鲜武器：武器耐久越低伤害越低

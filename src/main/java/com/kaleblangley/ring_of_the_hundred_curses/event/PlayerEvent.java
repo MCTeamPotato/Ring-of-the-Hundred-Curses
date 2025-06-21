@@ -2,12 +2,15 @@ package com.kaleblangley.ring_of_the_hundred_curses.event;
 
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
+import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -16,6 +19,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Silverfish;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -24,10 +28,15 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.Containers;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.ItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
+import net.minecraftforge.event.entity.player.TradeWithVillagerEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -37,6 +46,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import top.theillusivec4.curios.api.event.CurioChangeEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager.getConfig;
@@ -66,8 +76,7 @@ public class PlayerEvent {
                 int nutritionToAdd = event.getNutrition();
                 if (currentHunger >= maxHunger) {
                     event.setNutrition(0);
-                } 
-                else if (currentHunger + nutritionToAdd > maxHunger) {
+                } else if (currentHunger + nutritionToAdd > maxHunger) {
                     event.setNutrition(maxHunger - currentHunger);
                 }
             }
@@ -156,6 +165,32 @@ public class PlayerEvent {
         }
     }
 
+    @SubscribeEvent
+    public static void onVillagerTrade(TradeWithVillagerEvent event) {
+        Player player = event.getEntity();
+        if (RingUtil.configAndRing(player, getConfig().enableDodgyMerchant)) {
+            Level level = player.level();
+            if (!level.isClientSide) {
+                double swapChance = getConfig().dodgyMerchantSwapChance;
+                if (level.random.nextDouble() < swapChance) {
+                    ItemStack originalResult = event.getMerchantOffer().getResult();
+                    if (canBeSwappedItem(originalResult)) {
+                        ItemStack randomItem = getDodgyMerchantRandomItem(player);
+                        randomItem.setCount(Math.min(originalResult.getCount(), randomItem.getMaxStackSize()));
+                        for (int i = player.getInventory().getContainerSize() - 1; i >= 0; i--) {
+                            ItemStack slotStack = player.getInventory().getItem(i);
+                            if (ItemStack.isSameItemSameTags(slotStack, originalResult) && slotStack.getCount() == originalResult.getCount()) {
+                                player.getInventory().setItem(i, randomItem);
+                                player.containerMenu.broadcastChanges();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private static float breakSpeedGet(Player player, float originalSpeed, BlockState state, ItemStack handItem) {
         if (!RingUtil.isEquipRing(player)) return originalSpeed;
         if (getConfig().enableSluggishHands) {
@@ -237,5 +272,32 @@ public class PlayerEvent {
             silverfish.setTarget(player);
             level.addFreshEntity(silverfish);
         }
+    }
+
+    private static boolean canBeSwappedItem(ItemStack stack) {
+        return !(stack.getItem() instanceof CursedRing) &&
+                !stack.is(Items.NETHERITE_INGOT) &&
+                !stack.is(Items.DIAMOND) &&
+                !stack.is(Items.EMERALD);
+    }
+
+    private static ItemStack getDodgyMerchantRandomItem(Player player) {
+        Level level = player.level();
+        String[] junkItemStrings = getConfig().dodgyMerchantJunkItems;
+        List<Item> junkItems = new ArrayList<>();
+        for (String itemString : junkItemStrings) {
+            try {
+                ResourceLocation itemLocation = new ResourceLocation(itemString);
+                Item item = ForgeRegistries.ITEMS.getValue(itemLocation);
+                if (item != null && item != Items.AIR) {
+                    junkItems.add(item);
+                }
+            } catch (Exception e) {
+                RingOfTheHundredCurses.LOGGER.warn("Invalid item in dodgy merchant config: {}", itemString);
+            }
+        }
+        Item randomItem = junkItems.get(level.random.nextInt(junkItems.size()));
+        int count = 1 + level.random.nextInt(3);
+        return new ItemStack(randomItem, count);
     }
 } 
