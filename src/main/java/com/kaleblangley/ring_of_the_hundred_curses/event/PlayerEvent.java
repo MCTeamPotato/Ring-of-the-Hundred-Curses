@@ -185,7 +185,7 @@ public class PlayerEvent {
             spawnTntAtPosition(hookPos, level, player);
             return;
         }
-        
+
         if (level.random.nextDouble() < getConfig().depthChargeMobChance) {
             spawnHostileMobAtPosition(hookPos, level, player);
         }
@@ -210,14 +210,13 @@ public class PlayerEvent {
             swapTradeResult(player, originalResult);
         }
     }
-    
+
     private static void swapTradeResult(Player player, ItemStack originalResult) {
         ItemStack randomItem = getDodgyMerchantRandomItem(player);
         randomItem.setCount(Math.min(originalResult.getCount(), randomItem.getMaxStackSize()));
         for (int i = player.getInventory().getContainerSize() - 1; i >= 0; i--) {
             ItemStack slotStack = player.getInventory().getItem(i);
-            if (ItemStack.isSameItemSameTags(slotStack, originalResult) &&
-                slotStack.getCount() == originalResult.getCount()) {
+            if (ItemStack.isSameItemSameTags(slotStack, originalResult) && slotStack.getCount() == originalResult.getCount()) {
                 player.getInventory().setItem(i, randomItem);
                 player.containerMenu.broadcastChanges();
                 break;
@@ -258,7 +257,6 @@ public class PlayerEvent {
         }
         int amplifier = minAmplifier + player.level().random.nextInt(Math.max(1, maxAmplifier - minAmplifier + 1));
         int duration = minDuration + player.level().random.nextInt(Math.max(1, maxDuration - minDuration + 1));
-
         MobEffectInstance effectInstance = new MobEffectInstance(randomEffect, duration, amplifier);
         player.addEffect(effectInstance);
     }
@@ -309,10 +307,7 @@ public class PlayerEvent {
     }
 
     private static boolean canBeSwappedItem(ItemStack stack) {
-        return !(stack.getItem() instanceof CursedRing) &&
-                !stack.is(Items.NETHERITE_INGOT) &&
-                !stack.is(Items.DIAMOND) &&
-                !stack.is(Items.EMERALD);
+        return !(stack.getItem() instanceof CursedRing) && !stack.is(Items.NETHERITE_INGOT) && !stack.is(Items.DIAMOND) && !stack.is(Items.EMERALD);
     }
 
     private static ItemStack getDodgyMerchantRandomItem(Player player) {
@@ -341,13 +336,9 @@ public class PlayerEvent {
         level.addFreshEntity(tnt);
         Vec3 playerPos = player.position().add(0, 1, 0);
         Vec3 direction = playerPos.subtract(position).normalize();
-        
+
         double speed = 0.8;
-        tnt.setDeltaMovement(
-            direction.x * speed,
-            Math.max(0.3, direction.y * speed + 0.2),
-            direction.z * speed
-        );
+        tnt.setDeltaMovement(direction.x * speed, Math.max(0.3, direction.y * speed + 0.2), direction.z * speed);
     }
 
     private static void spawnHostileMobAtPosition(Vec3 position, Level level, Player player) {
@@ -366,11 +357,7 @@ public class PlayerEvent {
                     Vec3 playerPos = player.position().add(0, 1, 0);
                     Vec3 direction = playerPos.subtract(position).normalize();
                     double speed = 0.6;
-                    monster.setDeltaMovement(
-                        direction.x * speed,
-                        Math.max(0.2, direction.y * speed + 0.15),
-                        direction.z * speed
-                    );
+                    monster.setDeltaMovement(direction.x * speed, Math.max(0.2, direction.y * speed + 0.15), direction.z * speed);
                     monster.invulnerableTime = 20;
                 }
             }
