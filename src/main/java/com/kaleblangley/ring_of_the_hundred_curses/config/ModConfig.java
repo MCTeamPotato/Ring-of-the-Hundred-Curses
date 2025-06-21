@@ -301,6 +301,23 @@ public class ModConfig implements ConfigData {
      * Abandoned by Poseidon: The chance of fishing up junk is significantly increased.
      */
     public boolean enableAbandonedByPoseidon = true;
+    
+    /**
+     * 深水炸弹：钓鱼有概率钓上来坏东西
+     * Depth Charge: Fishing has a chance to catch something bad.
+     */
+    public boolean enableDepthCharge = true;
+    public double depthChargeTntChance = 0.05; // 钓上TNT的概率 / Chance to fish up TNT
+    public double depthChargeMobChance = 0.08; // 钓上敌对生物的概率 / Chance to fish up hostile mobs
+    public String[] depthChargeHostileMobs = { // 可能钓上的敌对生物列表 / List of hostile mobs that can be fished up
+        "minecraft:zombie",
+        "minecraft:skeleton", 
+        "minecraft:spider",
+        "minecraft:creeper",
+        "minecraft:enderman",
+        "minecraft:witch",
+        "minecraft:drowned"
+    };
 
     /**
      * 描边大师：弓有更大的偏转角

@@ -90,7 +90,7 @@ Format: (Curse Name + Curse Effect + Designer)
 74. [ ] PTSD: If the player was previously killed by a mob, encountering it again causes a debuff. Textrue
 75. [ ] Curse of Misfortune: The player's dropped items are calculated multiple times, taking the worst result. 咒神灰
 76. [x] Lactose Intolerance: You cannot remove negative effects with milk. rinko
-77. [ ] Depth Charge: Fishing has a chance to catch something bad. 咒神灰
+77. [x] Depth Charge: Fishing has a chance to catch something bad. 咒神灰
 78. [ ] Thunderbound Oath: Significantly increases the chance of being struck by lightning. kl
 79. [x] Lava Sacrifice: While in the Nether, being attacked will set you on fire. kl
 80. [ ] Dilapidated Warrior: The lower your equipment’s durability, the less armor protection it provides. kl

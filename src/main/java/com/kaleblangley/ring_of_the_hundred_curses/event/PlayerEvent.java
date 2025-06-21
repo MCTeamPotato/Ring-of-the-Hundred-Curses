@@ -15,8 +15,10 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Silverfish;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -26,6 +28,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.Containers;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
@@ -33,6 +38,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent.ItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.event.entity.player.TradeWithVillagerEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
+import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -160,6 +166,28 @@ public class PlayerEvent {
                     }
                 }
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onDepthCharge(ItemFishedEvent event) {
+        Player player = event.getEntity();
+        if (!RingUtil.configAndRing(player, getConfig().enableDepthCharge)) {
+            return;
+        }
+        Level level = player.level();
+        if (level.isClientSide) {
+            return;
+        }
+        FishingHook hook = event.getHookEntity();
+        Vec3 hookPos = hook.position();
+        if (level.random.nextDouble() < getConfig().depthChargeTntChance) {
+            spawnTntAtPosition(hookPos, level, player);
+            return;
+        }
+        
+        if (level.random.nextDouble() < getConfig().depthChargeMobChance) {
+            spawnHostileMobAtPosition(hookPos, level, player);
         }
     }
 
@@ -305,5 +333,68 @@ public class PlayerEvent {
         Item randomItem = junkItems.get(level.random.nextInt(junkItems.size()));
         int count = 1 + level.random.nextInt(3);
         return new ItemStack(randomItem, count);
+    }
+
+    /**
+     * 深水炸弹：在钓鱼位置生成TNT，并让它像被钓上来一样飞向玩家
+     */
+    private static void spawnTntAtPosition(Vec3 position, Level level, Player player) {
+        PrimedTnt tnt = new PrimedTnt(level, position.x, position.y, position.z, player);
+        // 设置较短的引爆时间，增加危险性
+        tnt.setFuse(40); // 2秒后爆炸，给飞行时间
+        level.addFreshEntity(tnt);
+        
+        // 计算从钓鱼位置到玩家的方向向量
+        Vec3 playerPos = player.position().add(0, 1, 0); // 玩家胸部高度
+        Vec3 direction = playerPos.subtract(position).normalize();
+        
+        // 设置TNT朝向玩家飞行，模拟被钓上来的效果
+        double speed = 0.8; // 飞行速度
+        tnt.setDeltaMovement(
+            direction.x * speed,
+            Math.max(0.3, direction.y * speed + 0.2), // 确保有向上的分量
+            direction.z * speed
+        );
+    }
+
+    /**
+     * 深水炸弹：在钓鱼位置生成敌对生物，并让它像被钓上来一样飞向玩家
+     */
+    private static void spawnHostileMobAtPosition(Vec3 position, Level level, Player player) {
+        String[] mobStrings = getConfig().depthChargeHostileMobs;
+        if (mobStrings.length == 0) return;
+        
+        String randomMobId = mobStrings[level.random.nextInt(mobStrings.length)];
+        try {
+            ResourceLocation mobLocation = new ResourceLocation(randomMobId);
+            EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(mobLocation);
+            
+            if (entityType != null) {
+                LivingEntity mob = (LivingEntity) entityType.create(level);
+                if (mob instanceof Monster monster) {
+                    // 在钓鱼位置生成生物
+                    monster.setPos(position.x, position.y, position.z);
+                    monster.setTarget(player); // 让生物主动攻击玩家
+                    level.addFreshEntity(monster);
+                    
+                    // 计算从钓鱼位置到玩家的方向向量
+                    Vec3 playerPos = player.position().add(0, 1, 0); // 玩家胸部高度
+                    Vec3 direction = playerPos.subtract(position).normalize();
+                    
+                    // 让生物朝向玩家飞行，模拟被钓上来的效果
+                    double speed = 0.6; // 生物飞行速度稍慢一些
+                    monster.setDeltaMovement(
+                        direction.x * speed,
+                        Math.max(0.2, direction.y * speed + 0.15), // 确保有向上的分量
+                        direction.z * speed
+                    );
+                    
+                    // 让生物在着陆后有短暂的无敌时间，避免摔死
+                    monster.invulnerableTime = 20; // 1秒无敌时间
+                }
+            }
+        } catch (Exception e) {
+            RingOfTheHundredCurses.LOGGER.warn("Invalid mob in depth charge config: {}", randomMobId);
+        }
     }
 }

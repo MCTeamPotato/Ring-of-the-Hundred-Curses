@@ -6,6 +6,7 @@ import com.kaleblangley.ring_of_the_hundred_curses.init.ModItem;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTab;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
+import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
