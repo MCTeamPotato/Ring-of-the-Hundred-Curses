@@ -53,14 +53,5 @@ public class RingUtil {
         itemStack.getCapability(CurseMaxSizeProvider.CURSE_MAX_SIZE).ifPresent(iCurseMaxSize -> iCurseMaxSize.setCurseMaxSize(size));
     }
 
-    public static boolean isTradeOrSpecialContainer(Player player) {
-        String containerClass = player.containerMenu.getClass().getSimpleName();
-        String containerFullName = player.containerMenu.getClass().getName();
-        return containerClass.equals("MerchantMenu") ||
-               containerClass.contains("Merchant") || 
-               containerClass.contains("Trading") || 
-               containerClass.contains("Villager") ||
-               containerFullName.contains("merchant") ||
-               containerFullName.contains("trading");
-    }
+
 }

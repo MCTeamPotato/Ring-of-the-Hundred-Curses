@@ -105,9 +105,7 @@ public class PlayerEvent {
     public static void stackItem(ItemStackedOnOtherEvent event) {
         ItemStack carryItem = event.getCarriedItem();
         ItemStack stackedOnItem = event.getStackedOnItem();
-        if (!RingUtil.isTradeOrSpecialContainer(event.getPlayer())) {
-            RingUtil.backpackLimitSizeModify(event.getPlayer(), carryItem);
-        }
+        RingUtil.backpackLimitSizeModify(event.getPlayer(), carryItem);
         if (stackedOnItem.is(Items.SHIELD) && event.getSlot().getContainerSlot() == 40 && RingUtil.configAndRing(event.getPlayer(), getConfig().enableShieldOnTheRight)) {
             event.setCanceled(true);
         }
@@ -115,9 +113,7 @@ public class PlayerEvent {
 
     @SubscribeEvent
     public static void pickUpItem(ItemPickupEvent event) {
-        if (!RingUtil.isTradeOrSpecialContainer(event.getEntity())) {
-            RingUtil.backpackLimitSizeModify(event.getEntity(), event.getStack());
-        }
+        RingUtil.backpackLimitSizeModify(event.getEntity(), event.getStack());
     }
 
     @SubscribeEvent
