@@ -5,7 +5,6 @@ import com.mojang.datafixers.util.Pair;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 
-import java.util.List;
 
 @Config(name = RingOfTheHundredCurses.MODID)
 public class ModConfig implements ConfigData {
@@ -101,6 +100,46 @@ public class ModConfig implements ConfigData {
      * Greedy Lock: Chests cannot give high-level loot.
      */
     public boolean enableGreedyLock = true;
+    public String[] greedyLockJunkItems = { // 替换高级战利品的垃圾物品列表 / List of junk items to replace high-level loot
+        "minecraft:cobblestone",
+        "minecraft:dirt",
+        "minecraft:gravel",
+        "minecraft:sand",
+        "minecraft:stick",
+        "minecraft:rotten_flesh",
+        "minecraft:bone",
+        "minecraft:string",
+        "minecraft:leather",
+        "minecraft:feather"
+    };
+    public String[] greedyLockHighValueItems = { // 被认为是高级战利品的物品列表 / List of items considered high-value loot
+        "minecraft:diamond",
+        "minecraft:emerald",
+        "minecraft:gold_ingot",
+        "minecraft:iron_ingot",
+        "minecraft:enchanted_book",
+        "minecraft:diamond_sword",
+        "minecraft:diamond_pickaxe",
+        "minecraft:diamond_axe",
+        "minecraft:diamond_shovel",
+        "minecraft:diamond_hoe",
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots",
+        "minecraft:golden_apple",
+        "minecraft:enchanted_golden_apple",
+        "minecraft:netherite_scrap",
+        "minecraft:netherite_ingot",
+        "minecraft:ancient_debris",
+        "minecraft:totem_of_undying",
+        "minecraft:elytra",
+        "minecraft:shulker_shell",
+        "minecraft:nether_star",
+        "minecraft:dragon_egg",
+        "minecraft:heart_of_the_sea",
+        "minecraft:nautilus_shell"
+    };
 
     /**
      * 沉重枷锁：装备重量降低移速

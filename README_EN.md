@@ -26,7 +26,7 @@ Format: (Curse Name + Curse Effect + Designer)
 10. [ ] Weaponless: Cannot mine hard blocks. kl
 11. [ ] Starry Path: Cannot run when light levels are too low. kl
 12. [ ] End Water Ban: Water cannot be placed in the End. kl
-13. [ ] Greedy Lock: Chests cannot give high-level loot. kl
+13. [x] Greedy Lock: Chests cannot give high-level loot. kl
 14. [ ] Heavy Shackles: Wearing equipment reduces movement speed. kl
 15. [ ] Weakened Strikes: Deals less damage to enemies. kl
 16. [ ] Soul Suppression: Reduces experience point gain. kl

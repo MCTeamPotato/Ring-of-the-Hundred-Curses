@@ -12,6 +12,7 @@
     "FoodDataMixin",
     "ForgeGuiMixin",
     "items.ItemStackMixin",
+    "LootTableMixin",
     "entity.PlayerMixin",
     "entity.PlayerMisstepPerilMixin",
     "inventory.InventoryMenuMixin",
