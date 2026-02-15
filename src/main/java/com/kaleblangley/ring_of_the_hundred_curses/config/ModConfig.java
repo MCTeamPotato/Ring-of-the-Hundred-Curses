@@ -445,6 +445,7 @@ public class ModConfig implements ConfigData {
      * Unfair Trader: Piglins may take gold without bartering
      */
     public boolean enableUnfairTrader = true;
+    public double unfairTraderChance = 0.3; // 猪灵取走黄金不以物易物的概率 / Chance for piglins to take gold without bartering
 
     /**
      * 被刺高手：玩家潜行时，受到的伤害翻倍

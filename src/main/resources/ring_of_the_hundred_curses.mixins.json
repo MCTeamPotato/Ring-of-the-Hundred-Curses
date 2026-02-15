@@ -18,6 +18,7 @@
     "LootTableMixin",
     "entity.PlayerMixin",
     "entity.PlayerMisstepPerilMixin",
+    "entity.PiglinAiMixin",
     "inventory.InventoryMenuMixin",
     "items.EyeOfEnderMixin",
     "items.MilkBucketItemMixin"

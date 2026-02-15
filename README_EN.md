@@ -71,7 +71,7 @@ Format: (Curse Name + Curse Effect + Designer)
 55. [ ] Lavish Taste: Only armor with trims can be worn. 暮雨雨
 56. [ ] Shattered Eye: Ender Eyes always break upon use. 暮雨雨
 57. [ ] Draconic Favor: When the Ender Dragon breathes fire, a dragon breath area appears under the player's feet. 暮雨雨
-58. [ ] Unfair Trader: Piglins may take gold without bartering. 暮雨雨
+58. [x] Unfair Trader: Piglins may take gold without bartering. 暮雨雨
 59. [ ] Exposed Weakness: Player takes more damage while sneaking. 暮雨雨
 60. [ ] Justified Combat: Player cannot attack non-hostile creatures first. 暮雨雨
 61. [ ] Food Coma: Eating has a delay, during which no actions can be performed. cos45
