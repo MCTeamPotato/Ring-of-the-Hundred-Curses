@@ -93,7 +93,7 @@ Format: (Curse Name + Curse Effect + Designer)
 77. [x] Depth Charge: Fishing has a chance to catch something bad. 咒神灰
 78. [ ] Thunderbound Oath: Significantly increases the chance of being struck by lightning. kl
 79. [x] Lava Sacrifice: While in the Nether, being attacked will set you on fire. kl
-80. [ ] Dilapidated Warrior: The lower your equipment’s durability, the less armor protection it provides. kl
+80. [x] Dilapidated Warrior: The lower your equipment’s durability, the less armor protection it provides. kl
 81. [x] Dodgy Merchant: After completing a trade with a villager, there’s a chance the item you receive will be swapped for something else. kl
 82. [ ] Fresh Weapon: The lower a weapon’s durability, the less damage it deals. kl
 83. [ ] Befuddled Artisan: Crafted items have a chance to spawn with reduced durability or in reduced quantity. kl
