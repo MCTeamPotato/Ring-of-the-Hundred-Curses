@@ -14,7 +14,7 @@ import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManage
 @Mixin(Player.class)
 public class PlayerMisstepPerilMixin {
     @Inject(method = "maybeBackOffFromEdge", at = @At("HEAD"), cancellable = true)
-    private void onMaybeBackOffFromEdge(Vec3 vec, MoverType mover, CallbackInfoReturnable<Vec3> cir) {
+    private void ring_of_the_hundred_curses$onMaybeBackOffFromEdge(Vec3 vec, MoverType mover, CallbackInfoReturnable<Vec3> cir) {
         Player player = (Player) (Object) this;
         if (RingUtil.configAndRing(player, getConfig().enableMisstepPeril)) {
             cir.setReturnValue(vec);

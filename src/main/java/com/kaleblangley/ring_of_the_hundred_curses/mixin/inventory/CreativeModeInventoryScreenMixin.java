@@ -18,11 +18,11 @@ public class CreativeModeInventoryScreenMixin {
     @Unique
     private Player ringOfTheHundredCurses$player;
     @Inject(method = "<init>", at = @At(value = "TAIL"))
-    public void savePlayer(Player pPlayer, FeatureFlagSet pEnabledFeatures, boolean pDisplayOperatorCreativeTab, CallbackInfo ci){
+    public void ring_of_the_hundred_curses$savePlayer(Player pPlayer, FeatureFlagSet pEnabledFeatures, boolean pDisplayOperatorCreativeTab, CallbackInfo ci){
         this.ringOfTheHundredCurses$player = pPlayer;
     }
     @Redirect(method = "slotClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getMaxStackSize()I", ordinal = 2))
-    public int modifyCreateMax(ItemStack instance){
+    public int ring_of_the_hundred_curses$modifyCreateMax(ItemStack instance){
         if (RingUtil.configAndRing(this.ringOfTheHundredCurses$player, ModConfigManager.getConfig().enableBackpackLimit)){
             return Math.min(ModConfigManager.getConfig().maxStackSize, instance.getMaxStackSize());
         }

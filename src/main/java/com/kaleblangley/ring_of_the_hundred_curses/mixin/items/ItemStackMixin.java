@@ -16,7 +16,7 @@ public class ItemStackMixin extends CapabilityProvider<ItemStack> {
     }
 
     @Inject(method = "getMaxStackSize", at = @At("HEAD"), cancellable = true)
-    public void modifyStackSize(CallbackInfoReturnable<Integer> cir){
+    public void ring_of_the_hundred_curses$modifyStackSize(CallbackInfoReturnable<Integer> cir){
         int curseMaxSize = this.getCapability(CurseMaxSizeProvider.CURSE_MAX_SIZE).map(ICurseMaxSize::getCurseMaxSize).orElse(0);
         if (curseMaxSize != 0){
             cir.setReturnValue(curseMaxSize);

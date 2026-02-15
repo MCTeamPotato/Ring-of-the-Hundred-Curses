@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class CompassItemPropertyFunctionMixin {
 
     @Inject(method = "unclampedCall", at = @At("HEAD"), cancellable = true)
-    private void disableCompass(ItemStack pStack, ClientLevel pLevel, LivingEntity pEntity, int pSeed, CallbackInfoReturnable<Float> cir) {
+    private void ring_of_the_hundred_curses$disableCompass(ItemStack pStack, ClientLevel pLevel, LivingEntity pEntity, int pSeed, CallbackInfoReturnable<Float> cir) {
         Entity entity = pEntity != null ? pEntity : pStack.getEntityRepresentation();
         if (entity instanceof LivingEntity livingEntity && RingUtil.configAndRing(livingEntity, ModConfigManager.getConfig().enableLostDirection)) {
             // Return a random-ish rotation based on game time to make the compass spin

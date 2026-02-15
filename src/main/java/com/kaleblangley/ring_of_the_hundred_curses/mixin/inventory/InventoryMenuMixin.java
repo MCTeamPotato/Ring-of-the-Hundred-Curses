@@ -14,7 +14,7 @@ public class InventoryMenuMixin {
     @Shadow @Final private Player owner;
 
     @ModifyVariable(method = "quickMoveStack", at = @At("STORE"), ordinal = 1)
-    public ItemStack modifyItemSize(ItemStack itemStack){
+    public ItemStack ring_of_the_hundred_curses$modifyItemSize(ItemStack itemStack){
         ItemStack newItemStack = itemStack.copy();
         RingUtil.backpackLimitSizeModify(this.owner, newItemStack);
         return newItemStack;

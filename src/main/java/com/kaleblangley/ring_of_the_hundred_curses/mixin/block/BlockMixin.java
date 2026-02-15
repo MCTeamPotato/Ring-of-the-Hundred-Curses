@@ -22,7 +22,7 @@ public class BlockMixin {
     private static final float HURT_SPEED_THRESHOLD = 0.003F;
     
     @Inject(method = "entityInside", at = @At("TAIL"))
-    private void onEntityInside(BlockState state, Level level, BlockPos pos, Entity entity, CallbackInfo ci) {
+    private void ring_of_the_hundred_curses$onEntityInside(BlockState state, Level level, BlockPos pos, Entity entity, CallbackInfo ci) {
         if (entity instanceof Player player &&
             RingUtil.configAndRing(player, ModConfigManager.getConfig().enableHostileFlora) &&
             state.is(ModTag.HOSTILE_PLANTS) &&

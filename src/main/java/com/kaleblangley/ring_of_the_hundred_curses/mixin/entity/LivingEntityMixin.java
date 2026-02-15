@@ -16,7 +16,7 @@ import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManage
 public class LivingEntityMixin {
 
     @Inject(method = "getArmorValue", at = @At("RETURN"), cancellable = true)
-    private void modifyArmorValueByDurability(CallbackInfoReturnable<Integer> cir) {
+    private void ring_of_the_hundred_curses$modifyArmorValueByDurability(CallbackInfoReturnable<Integer> cir) {
         LivingEntity livingEntity = (LivingEntity) (Object) this;
         if (!(livingEntity instanceof Player player)) {
             return;

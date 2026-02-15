@@ -19,7 +19,7 @@ public abstract class FoodDataMixin {
     @Shadow public abstract void eat(int pFoodLevelModifier, float pSaturationLevelModifier);
 
     @Inject(method = "eat(Lnet/minecraft/world/item/Item;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/LivingEntity;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/food/FoodData;eat(IF)V"), cancellable = true)
-    public void modifyNutrition(Item pItem, ItemStack pStack, LivingEntity entity, CallbackInfo ci, @Local FoodProperties foodproperties){
+    public void ring_of_the_hundred_curses$modifyNutrition(Item pItem, ItemStack pStack, LivingEntity entity, CallbackInfo ci, @Local FoodProperties foodproperties){
         EatEvent eatEvent = new EatEvent(entity, pItem, pStack, foodproperties, foodproperties.getNutrition(), foodproperties.getSaturationModifier());
         MinecraftForge.EVENT_BUS.post(eatEvent);
         if (!eatEvent.isCanceled()) {

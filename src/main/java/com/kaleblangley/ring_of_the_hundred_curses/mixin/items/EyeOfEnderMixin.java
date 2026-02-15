@@ -18,7 +18,7 @@ public class EyeOfEnderMixin {
     private boolean surviveAfterDeath;
 
     @Inject(method = "signalTo", at = @At("TAIL"))
-    private void forceShatter(BlockPos pos, CallbackInfo ci) {
+    private void ring_of_the_hundred_curses$forceShatter(BlockPos pos, CallbackInfo ci) {
         EyeOfEnder eyeOfEnder = (EyeOfEnder)(Object)this;
         Player nearestPlayer = eyeOfEnder.level().getNearestPlayer(
             eyeOfEnder.getX(), eyeOfEnder.getY(), eyeOfEnder.getZ(), 10.0, false);

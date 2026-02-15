@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MapItemMixin {
 
     @Inject(method = "inventoryTick", at = @At("HEAD"), cancellable = true)
-    private void disableMapUpdate(ItemStack pStack, Level pLevel, Entity pEntity, int pItemSlot, boolean pIsSelected, CallbackInfo ci) {
+    private void ring_of_the_hundred_curses$disableMapUpdate(ItemStack pStack, Level pLevel, Entity pEntity, int pItemSlot, boolean pIsSelected, CallbackInfo ci) {
         if (pEntity instanceof Player player && RingUtil.configAndRing(player, ModConfigManager.getConfig().enableLostDirection)) {
             ci.cancel();
         }

@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class MilkBucketItemMixin {
 
     @Inject(method = "finishUsingItem", at = @At("HEAD"), cancellable = true)
-    private void onFinishUsingMilk(ItemStack stack, net.minecraft.world.level.Level level, LivingEntity entityLiving, CallbackInfoReturnable<ItemStack> cir) {
+    private void ring_of_the_hundred_curses$onFinishUsingMilk(ItemStack stack, net.minecraft.world.level.Level level, LivingEntity entityLiving, CallbackInfoReturnable<ItemStack> cir) {
         if (!level.isClientSide && entityLiving instanceof Player player) {
             if (RingUtil.configAndRing(player, ModConfigManager.getConfig().enableLactoseIntolerance)) {
                 if (entityLiving instanceof ServerPlayer serverPlayer) {

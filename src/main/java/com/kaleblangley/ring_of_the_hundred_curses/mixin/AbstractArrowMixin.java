@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 public class AbstractArrowMixin {
 
     @ModifyArg(method = "shoot(DDDFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/projectile/Projectile;shoot(DDDFF)V"), index = 4)
-    public float increaseInaccuracy(float inaccuracy) {
+    public float ring_of_the_hundred_curses$increaseInaccuracy(float inaccuracy) {
         AbstractArrow arrow = (AbstractArrow) (Object) this;
         if (arrow.getOwner() instanceof Player player) {
             if (RingUtil.configAndRing(player, ModConfigManager.getConfig().enableOutlineMaster)) {

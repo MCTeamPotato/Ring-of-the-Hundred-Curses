@@ -15,12 +15,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class ForgeGuiMixin {
     
     @Redirect(method = "renderHealth", at = @At(value = "INVOKE", target = "Ljava/lang/Math;max(FF)F"))
-    public float maxHealth(float a, float b){
+    public float ring_of_the_hundred_curses$maxHealth(float a, float b){
         return a;
     }
     
     @ModifyConstant(method = "renderFood", constant = @Constant(intValue = 10))
-    public int modifyFoodBarCount(int original) {
+    public int ring_of_the_hundred_curses$modifyFoodBarCount(int original) {
         Player player = Minecraft.getInstance().player;
         if (player != null && RingUtil.configAndRing(player, ModConfigManager.getConfig().enableHollowStomach)) {
             int maxHunger = ModConfigManager.getConfig().hollowStomachMaxHunger;

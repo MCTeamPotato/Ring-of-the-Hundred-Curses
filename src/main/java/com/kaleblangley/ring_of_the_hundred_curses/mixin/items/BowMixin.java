@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(BowItem.class)
 public abstract class BowMixin {
     @Inject(method = "releaseUsing", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getAbilities()Lnet/minecraft/world/entity/player/Abilities;", ordinal = 1), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    public void cancelBow(ItemStack pStack, Level pLevel, LivingEntity pEntityLiving, int pTimeLeft, CallbackInfo ci, Player player, boolean flag, ItemStack itemstack, int i, float f) {
+    public void ring_of_the_hundred_curses$cancelBow(ItemStack pStack, Level pLevel, LivingEntity pEntityLiving, int pTimeLeft, CallbackInfo ci, Player player, boolean flag, ItemStack itemstack, int i, float f) {
         if (f < 1.0D && RingUtil.configAndRing(player, ModConfigManager.getConfig().enableFullPower)) {
             ci.cancel();
         }

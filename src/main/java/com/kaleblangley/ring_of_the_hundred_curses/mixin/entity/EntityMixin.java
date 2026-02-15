@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 public class EntityMixin {
 
     @ModifyConstant(method = "getMaxAirSupply", constant = @Constant(intValue = 300))
-    private int modifyMaxAirSupply(int originalValue) {
+    private int ring_of_the_hundred_curses$modifyMaxAirSupply(int originalValue) {
         Entity entity = (Entity) (Object) this;
         if (entity instanceof Player player) {
             if (RingUtil.configAndRing(player, ModConfigManager.getConfig().enablePulmonaryFibrosis)) {

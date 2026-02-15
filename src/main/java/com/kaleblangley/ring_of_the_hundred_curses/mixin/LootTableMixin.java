@@ -27,8 +27,8 @@ public class LootTableMixin {
 
     @Inject(method = "getRandomItems(Lnet/minecraft/world/level/storage/loot/LootContext;)Lit/unimi/dsi/fastutil/objects/ObjectArrayList;",
             at = @At("RETURN"), cancellable = true)
-    private void modifyLootForGreedyLock(LootContext context, CallbackInfoReturnable<ObjectArrayList<ItemStack>> cir) {
-        Player player = getPlayerFromContext(context);
+    private void ring_of_the_hundred_curses$modifyLootForGreedyLock(LootContext context, CallbackInfoReturnable<ObjectArrayList<ItemStack>> cir) {
+        Player player = ring_of_the_hundred_curses$getPlayerFromContext(context);
         if (player == null || !RingUtil.configAndRing(player, ModConfigManager.getConfig().enableGreedyLock)) {
             return;
         }
@@ -36,8 +36,8 @@ public class LootTableMixin {
         ObjectArrayList<ItemStack> modifiedLoot = new ObjectArrayList<>();
         List<String> highValueItems = Arrays.asList(ModConfigManager.getConfig().greedyLockHighValueItems);
         for (ItemStack stack : originalLoot) {
-            if (isHighValueItem(stack, highValueItems)) {
-                ItemStack junkItem = getRandomJunkItem(context);
+            if (ring_of_the_hundred_curses$isHighValueItem(stack, highValueItems)) {
+                ItemStack junkItem = ring_of_the_hundred_curses$getRandomJunkItem(context);
                 if (junkItem != null) {
                     junkItem.setCount(Math.max(1, stack.getCount()));
                     modifiedLoot.add(junkItem);
@@ -52,7 +52,7 @@ public class LootTableMixin {
         cir.setReturnValue(modifiedLoot);
     }
 
-    private Player getPlayerFromContext(LootContext context) {
+    private Player ring_of_the_hundred_curses$getPlayerFromContext(LootContext context) {
         if (context.hasParam(LootContextParams.LAST_DAMAGE_PLAYER)) {
             return context.getParam(LootContextParams.LAST_DAMAGE_PLAYER);
         }
@@ -67,14 +67,14 @@ public class LootTableMixin {
         return null;
     }
 
-    private boolean isHighValueItem(ItemStack stack, List<String> highValueItems) {
+    private boolean ring_of_the_hundred_curses$isHighValueItem(ItemStack stack, List<String> highValueItems) {
         if (stack.isEmpty()) return false;
         ResourceLocation itemId = ForgeRegistries.ITEMS.getKey(stack.getItem());
         if (itemId == null) return false;
         return highValueItems.contains(itemId.toString());
     }
 
-    private ItemStack getRandomJunkItem(LootContext context) {
+    private ItemStack ring_of_the_hundred_curses$getRandomJunkItem(LootContext context) {
         String[] junkItemStrings = ModConfigManager.getConfig().greedyLockJunkItems;
         if (junkItemStrings.length == 0) return null;
         List<Item> junkItems = new ArrayList<>();
