@@ -2,5 +2,6 @@
   "item.ring_of_the_hundred_curses.ring_of_the_hundred_curses": "百咒之戒",
 
   "message.ring_of_the_hundred_curses.same": "§c§l你无法重复附上诅咒",
-  "message.ring_of_the_hundred_curses.description_1": "§8无尽的混沌终焉之物，戴上之人必要承担百倍苦痛"
+  "message.ring_of_the_hundred_curses.description_1": "§8无尽的混沌终焉之物，戴上之人必要承担百倍苦痛",
+  "message.ring_of_the_hundred_curses.freshness": "保鲜时间: %s"
 }

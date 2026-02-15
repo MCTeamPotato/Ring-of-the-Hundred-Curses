@@ -12,6 +12,7 @@
     "FoodDataMixin",
     "ForgeGuiMixin",
     "items.ItemStackMixin",
+    "items.MapItemMixin",
     "LootTableMixin",
     "entity.PlayerMixin",
     "entity.PlayerMisstepPerilMixin",
@@ -21,7 +22,8 @@
   ],
   "client": [
     "MinecraftMixin",
-    "inventory.CreativeModeInventoryScreenMixin"
+    "inventory.CreativeModeInventoryScreenMixin",
+    "items.CompassItemPropertyFunctionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

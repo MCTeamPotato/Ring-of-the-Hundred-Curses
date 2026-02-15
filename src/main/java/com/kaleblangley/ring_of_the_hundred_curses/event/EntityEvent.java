@@ -34,6 +34,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSwapItemsEvent;
+import net.minecraftforge.event.entity.living.ShieldBlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -150,6 +151,19 @@ public class EntityEvent {
             Player player = event.getTamer();
             if (RingUtil.configAndRing(player, getConfig().enableLonelyMaster)) {
                 event.setCanceled(true);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onShieldBlock(ShieldBlockEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            if (RingUtil.configAndRing(player, getConfig().enableMuscleWeakness)) {
+                if (player.getRandom().nextInt(100) < getConfig().muscleWeaknessChance) {
+                    player.getCooldowns().addCooldown(player.getUseItem().getItem(), 100);
+                    player.stopUsingItem();
+                    player.level().broadcastEntityEvent(player, (byte) 30);
+                }
             }
         }
     }

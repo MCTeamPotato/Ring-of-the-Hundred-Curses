@@ -158,6 +158,7 @@ public class ModConfig implements ConfigData {
      * Soul Suppression: Reduces experience point gain.
      */
     public boolean enableSoulSuppression = true;
+    public float xpReductionPercent = 0.5f;
 
     /**
      * 破碎之躯：摔落伤害无法被减缓
@@ -677,12 +678,14 @@ public class ModConfig implements ConfigData {
      * Muscle Weakness: When blocking damage with a shield, there's a chance your shield will break
      */
     public boolean enableMuscleWeakness = true;
+    public int muscleWeaknessChance = 30;
 
     /**
      * 溃烂饥饿：食物在背包中存放时间过长会变质成腐肉
      * Rotting Hunger: Food stored in your inventory for too long will spoil into rotten flesh
      */
     public boolean enableRottingHunger = true;
+    public int rottingHungerExpireTime = 24000; // 食物保鲜时间（tick），默认24000=1个MC日 / Food freshness duration in ticks, default 24000 = 1 MC day
 
     /**
      * 过度治疗：使用治疗道具时，有概率使玩家短时间内无法再次治疗

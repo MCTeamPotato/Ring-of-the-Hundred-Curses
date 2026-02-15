@@ -31,10 +31,13 @@ import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.Containers;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.ItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
+import net.minecraftforge.event.entity.player.PlayerXpEvent;
 import net.minecraftforge.event.entity.player.TradeWithVillagerEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
@@ -358,6 +361,44 @@ public class PlayerEvent {
             }
         } catch (Exception e) {
             RingOfTheHundredCurses.LOGGER.warn("Invalid mob in depth charge config: {}", randomMobId);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onXpChange(PlayerXpEvent.XpChange event) {
+        Player player = event.getEntity();
+        if (RingUtil.configAndRing(player, getConfig().enableSoulSuppression)) {
+            int reduced = (int) (event.getAmount() * (1.0f - getConfig().xpReductionPercent));
+            event.setAmount(Math.max(reduced, 0));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        Player player = event.player;
+        Level level = player.level();
+        if (level.isClientSide) return;
+        if (!RingUtil.configAndRing(player, getConfig().enableRottingHunger)) return;
+
+        long gameTime = level.getGameTime();
+        int expireTime = getConfig().rottingHungerExpireTime;
+
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.isEmpty() || !stack.isEdible() || stack.is(Items.ROTTEN_FLESH)) continue;
+
+            CompoundTag tag = stack.getOrCreateTag();
+            if (!tag.contains("RotHungerTick")) {
+                tag.putLong("RotHungerTick", gameTime);
+                continue;
+            }
+
+            long startTime = tag.getLong("RotHungerTick");
+            if (gameTime - startTime >= expireTime) {
+                int count = stack.getCount();
+                player.getInventory().setItem(i, new ItemStack(Items.ROTTEN_FLESH, count));
+            }
         }
     }
 }

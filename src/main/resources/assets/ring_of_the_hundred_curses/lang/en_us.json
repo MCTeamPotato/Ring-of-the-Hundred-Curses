@@ -1,3 +1,4 @@
 {
-  "item.ring_of_the_hundred_curses.ring_of_the_hundred_curses": "Ring of the Hundred Curses"
+  "item.ring_of_the_hundred_curses.ring_of_the_hundred_curses": "Ring of the Hundred Curses",
+  "message.ring_of_the_hundred_curses.freshness": "Freshness: %s"
 }

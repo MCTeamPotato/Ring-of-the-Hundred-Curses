@@ -29,12 +29,12 @@ Format: (Curse Name + Curse Effect + Designer)
 13. [x] Greedy Lock: Chests cannot give high-level loot. kl
 14. [ ] Heavy Shackles: Wearing equipment reduces movement speed. kl
 15. [ ] Weakened Strikes: Deals less damage to enemies. kl
-16. [ ] Soul Suppression: Reduces experience point gain. kl
+16. [x] Soul Suppression: Reduces experience point gain. kl
 17. [ ] Fragile Body: Fall damage cannot be mitigated. kl
 18. [ ] Fragile Armor: Reduces armor and toughness given by armor. kl
 19. [ ] Sluggish Hands: Reduces mining speed. kl
 20. [x] Lonely Master: Cannot tame mobs. kl
-21. [ ] Lost Direction: Maps and compasses become useless. kl
+21. [x] Lost Direction: Maps and compasses become useless. kl
 22. [ ] Weak Magic Constitution: Cannot use high-level enchantments. kl
 23. [ ] Weak Swimmer: Reduces swimming speed, and drowning damage increases with depth. kl
 24. [ ] Cafeteria Lady: Respawn anchors charge with a random number of uses. 暮雨雨
@@ -105,8 +105,8 @@ Format: (Curse Name + Curse Effect + Designer)
 89. [ ] Clumsy Farmer: There’s a chance to trample and break farmland when walking over tilled soil. 咒神灰
 90. [ ] Mirage: You may occasionally see distant structures that aren’t actually there. kl
 91. [ ] Single-Purpose Tools: Tools can only perform their designated function. kl
-92. [ ] Muscle Weakness: When blocking damage with a shield, there’s a chance your shield will break. 咒神灰
-93. [ ] Rotting Hunger: Food stored in your inventory for too long will spoil into rotten flesh. kl
+92. [x] Muscle Weakness: When blocking damage with a shield, there’s a chance your shield will break. 咒神灰
+93. [x] Rotting Hunger: Food stored in your inventory for too long will spoil into rotten flesh. kl
 94. [ ] Overhealing: Using a healing item may cause you to be unable to heal again for a short time. kl
 95. [ ] Patterned Assault: You must alternate different attack methods to damage certain creatures. kl
 96. [ ] Unlit Objects: Placed torches and campfires must be manually lit. kl
