@@ -267,6 +267,7 @@ public class ModConfig implements ConfigData {
      * Social Paradox: Villager trade prices are higher.
      */
     public boolean enableSocialParadox = true;
+    public float socialParadoxPriceIncreaseRatio = 0.5f; // 价格额外增加比例 / Extra villager trade price ratio
 
     /**
      * 气压失序：进入过高或过低的位置，导致移动和跳跃能力减弱

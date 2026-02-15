@@ -10,6 +10,7 @@
     "items.BowMixin",
     "entity.EntityMixin",
     "entity.LivingEntityMixin",
+    "entity.VillagerMixin",
     "FoodDataMixin",
     "ForgeGuiMixin",
     "items.ItemStackMixin",

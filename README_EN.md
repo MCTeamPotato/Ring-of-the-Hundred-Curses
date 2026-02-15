@@ -46,7 +46,7 @@ Format: (Curse Name + Curse Effect + Designer)
 30. [ ] Focus Disturbance: Attacks, placements, and crafting have a chance to fail. 初见
 31. [x] Neurological Degeneration: Negative effects are applied after respawning. 初见, kl
 32. [ ] Horrific Entity: Enemies may have a chance to gain extra health. 初见
-33. [ ] Social Paradox: Villager trade prices are higher. 初见
+33. [x] Social Paradox: Villager trade prices are higher. 初见
 34. [ ] Pressure Disorder: Moving and jumping abilities are reduced when in high or low altitudes. 初见
 35. [ ] Loss of Synchronicity: Lower health also reduces attack power. 初见
 36. [ ] Flesh Collapse: Respawn with a portion of your health and hunger. 初见
