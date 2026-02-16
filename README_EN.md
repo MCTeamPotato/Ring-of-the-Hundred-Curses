@@ -101,7 +101,7 @@ Format: (Curse Name + Curse Effect + Designer)
 85. [ ] Shattered Portal: Portals become one-time use; they explode after being used. kl
 86. [ ] Unbalanced Weapon: Each time you attack, there’s a chance your weapon’s attack power will decrease. kl
 87. [ ] Customs Clearance: Advanced villager trades require waiting several Minecraft days before the items become available. kl
-88. [ ] Overzealous Growth: When fertilizing crops, there’s a chance their growth stage will regress—and the more fertilizer you apply, the higher the chance. kl
+88. [x] Overzealous Growth: When fertilizing crops, there’s a chance their growth stage will regress—and the more fertilizer you apply, the higher the chance. kl
 89. [x] Clumsy Farmer: There’s a chance to trample and break farmland when walking over tilled soil. 咒神灰
 90. [ ] Mirage: You may occasionally see distant structures that aren’t actually there. kl
 91. [ ] Single-Purpose Tools: Tools can only perform their designated function. kl
@@ -109,7 +109,7 @@ Format: (Curse Name + Curse Effect + Designer)
 93. [x] Rotting Hunger: Food stored in your inventory for too long will spoil into rotten flesh. kl
 94. [ ] Overhealing: Using a healing item may cause you to be unable to heal again for a short time. kl
 95. [ ] Patterned Assault: You must alternate different attack methods to damage certain creatures. kl
-96. [ ] Unlit Objects: Placed torches and campfires must be manually lit. kl
+96. [x] Unlit Objects: Placed torches and campfires must be manually lit. kl
 97. [ ] Ice Rink: During rain, block friction is reduced, making surfaces slippery. kl
 98. [ ] Terrible Cook: Cooked meals have a chance to turn into mysterious stew that inflicts a debuff. kl
 99. [ ] Deafening: You don’t always need a Sculk Shrieker to summon the Warden. kl

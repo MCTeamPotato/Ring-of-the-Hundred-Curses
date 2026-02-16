@@ -2,6 +2,7 @@ package com.kaleblangley.ring_of_the_hundred_curses;
 
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfig;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
+import com.kaleblangley.ring_of_the_hundred_curses.init.ModBlock;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModItem;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTab;
 import me.shedaniel.autoconfig.AutoConfig;
@@ -24,6 +25,7 @@ public class RingOfTheHundredCurses {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         AutoConfig.register(ModConfig.class, Toml4jConfigSerializer::new);
         ModLoadingContext.get().registerExtensionPoint(ModConfigManager.getConfigFactory().getClass(), ModConfigManager::getConfigFactory);
+        ModBlock.BLOCKS.register(modEventBus);
         ModItem.ITEMS.register(modEventBus);
         ModTab.TAB.register(modEventBus);
     }

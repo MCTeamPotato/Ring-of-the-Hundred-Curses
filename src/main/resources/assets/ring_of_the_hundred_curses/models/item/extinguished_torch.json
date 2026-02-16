@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "ring_of_the_hundred_curses:block/extinguished_torch"
+  }
+}

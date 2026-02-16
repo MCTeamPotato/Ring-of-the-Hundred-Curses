@@ -658,6 +658,9 @@ public class ModConfig implements ConfigData {
      * Overzealous Growth: When fertilizing crops, there's a chance their growth stage will regress—and the more fertilizer you apply, the higher the chance
      */
     public boolean enableOverzealousGrowth = true;
+    public double overzealousGrowthBaseChance = 0.1; // 基础降低概率 / Base chance to regress growth stage
+    public double overzealousGrowthChanceIncrement = 0.15; // 每次施肥增加的降低概率 / Chance increment per fertilizer use
+    public double overzealousGrowthMaxChance = 0.9; // 最大降低概率 / Maximum regress chance
 
     /**
      * 笨拙农夫：玩家在耕地上走有几率踩坏田

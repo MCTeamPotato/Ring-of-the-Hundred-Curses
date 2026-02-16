@@ -28,6 +28,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.FarmBlock;
+import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.monster.Monster;
@@ -47,12 +49,14 @@ import net.minecraftforge.event.entity.player.PlayerXpEvent;
 import net.minecraftforge.event.entity.player.TradeWithVillagerEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
+import net.minecraftforge.event.entity.player.BonemealEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import top.theillusivec4.curios.api.event.CurioChangeEvent;
+import com.kaleblangley.ring_of_the_hundred_curses.init.ModBlock;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 
 import java.util.ArrayList;
@@ -450,6 +454,67 @@ public class PlayerEvent {
 
         int newLevel = (int) (event.getEnchantLevel() * getConfig().greedyTomeCostMultiplier);
         event.setEnchantLevel(Math.min(newLevel, 30));
+    }
+
+    private static final String OVERZEALOUS_GROWTH_KEY = "OverzealousGrowthCounts";
+
+    @SubscribeEvent
+    public static void onBonemeal(BonemealEvent event) {
+        if (event.getLevel().isClientSide()) return;
+        Player player = event.getEntity();
+        if (!RingUtil.configAndRing(player, getConfig().enableOverzealousGrowth)) return;
+        BlockPos pos = event.getPos();
+        BlockState state = event.getLevel().getBlockState(pos);
+        if (!(state.getBlock() instanceof CropBlock cropBlock)) return;
+        int currentAge = cropBlock.getAge(state);
+        if (currentAge <= 0) return;
+        CompoundTag persistentData = player.getPersistentData();
+        CompoundTag growthCounts = persistentData.contains(OVERZEALOUS_GROWTH_KEY) ? persistentData.getCompound(OVERZEALOUS_GROWTH_KEY) : new CompoundTag();
+        String posKey = pos.getX() + "," + pos.getY() + "," + pos.getZ();
+        int fertCount = growthCounts.getInt(posKey);
+        double baseChance = getConfig().overzealousGrowthBaseChance;
+        double increment = getConfig().overzealousGrowthChanceIncrement;
+        double maxChance = getConfig().overzealousGrowthMaxChance;
+        double chance = Math.min(baseChance + fertCount * increment, maxChance);
+        fertCount++;
+        growthCounts.putInt(posKey, fertCount);
+        persistentData.put(OVERZEALOUS_GROWTH_KEY, growthCounts);
+        if (player.level().random.nextDouble() < chance) {
+            int newAge = Math.max(0, currentAge - 1);
+            event.getLevel().setBlock(pos, cropBlock.getStateForAge(newAge), 2);
+            event.setResult(Event.Result.ALLOW);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (player.level().isClientSide) return;
+        if (!RingUtil.configAndRing(player, getConfig().enableUnlitObjects)) return;
+
+        BlockState placedState = event.getPlacedBlock();
+        Block placedBlock = placedState.getBlock();
+        BlockPos pos = event.getPos();
+        Level level = (Level) event.getLevel();
+
+        // Torch -> Extinguished Torch
+        if (placedBlock == Blocks.TORCH) {
+            level.setBlock(pos, ModBlock.EXTINGUISHED_TORCH.get().defaultBlockState(), 3);
+        }
+        // Wall Torch -> Extinguished Wall Torch
+        else if (placedBlock == Blocks.WALL_TORCH) {
+            BlockState extinguishedState = ModBlock.EXTINGUISHED_WALL_TORCH.get().defaultBlockState()
+                    .setValue(WallTorchBlock.FACING, placedState.getValue(WallTorchBlock.FACING));
+            level.setBlock(pos, extinguishedState, 3);
+        }
+        // Campfire -> Unlit Campfire (only for newly placed campfires, not re-lit ones)
+        else if (placedBlock instanceof CampfireBlock) {
+            BlockState replacedState = event.getBlockSnapshot().getReplacedBlock();
+            boolean isNewPlacement = !(replacedState.getBlock() instanceof CampfireBlock);
+            if (isNewPlacement && placedState.getValue(CampfireBlock.LIT)) {
+                level.setBlock(pos, placedState.setValue(CampfireBlock.LIT, false), 3);
+            }
+        }
     }
 
 }

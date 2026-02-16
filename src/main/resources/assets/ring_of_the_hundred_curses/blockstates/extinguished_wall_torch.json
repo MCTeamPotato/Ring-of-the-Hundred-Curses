@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "ring_of_the_hundred_curses:block/extinguished_wall_torch"
+    },
+    "facing=north": {
+      "model": "ring_of_the_hundred_curses:block/extinguished_wall_torch",
+      "y": 270
+    },
+    "facing=south": {
+      "model": "ring_of_the_hundred_curses:block/extinguished_wall_torch",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "ring_of_the_hundred_curses:block/extinguished_wall_torch",
+      "y": 180
+    }
+  }
+}

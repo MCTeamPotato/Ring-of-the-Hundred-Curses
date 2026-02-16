@@ -1,5 +1,6 @@
 {
   "item.ring_of_the_hundred_curses.ring_of_the_hundred_curses": "百咒之戒",
+  "block.ring_of_the_hundred_curses.extinguished_torch": "熄灭的火把",
 
   "message.ring_of_the_hundred_curses.same": "§c§l你无法重复附上诅咒",
   "message.ring_of_the_hundred_curses.description_1": "§8无尽的混沌终焉之物，戴上之人必要承担百倍苦痛",

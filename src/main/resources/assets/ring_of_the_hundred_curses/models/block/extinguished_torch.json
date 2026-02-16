@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/template_torch",
+  "textures": {
+    "torch": "ring_of_the_hundred_curses:block/extinguished_torch"
+  }
+}
