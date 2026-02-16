@@ -26,7 +26,6 @@ public class ExtinguishedWallTorchBlock extends WallTorchBlock {
 
     @Override
     public void animateTick(BlockState pState, Level pLevel, BlockPos pPos, RandomSource pRandom) {
-        // No particles for extinguished wall torch
     }
 
     @Override
