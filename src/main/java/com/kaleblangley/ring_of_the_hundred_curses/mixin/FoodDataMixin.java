@@ -1,8 +1,11 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin;
 
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
+import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
+import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
@@ -12,6 +15,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(FoodData.class)
@@ -26,5 +30,13 @@ public abstract class FoodDataMixin {
             this.eat(eatEvent.getNutrition(), eatEvent.getSaturationModifier());
         }
         ci.cancel();
+    }
+
+    @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;isHurt()Z"))
+    private boolean ring_of_the_hundred_curses$preventNaturalRegen(Player player) {
+        if (RingUtil.configAndRing(player, ModConfigManager.getConfig().enableSlowRecovery)) {
+            return false;
+        }
+        return player.isHurt();
     }
 }
