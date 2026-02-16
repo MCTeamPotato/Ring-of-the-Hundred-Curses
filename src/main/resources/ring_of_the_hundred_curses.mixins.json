@@ -22,6 +22,7 @@
     "entity.PiglinAiMixin",
     "inventory.InventoryMenuMixin",
     "inventory.GrindstoneMenuMixin",
+    "inventory.ResultSlotMixin",
     "items.EyeOfEnderMixin",
     "items.MilkBucketItemMixin"
   ],

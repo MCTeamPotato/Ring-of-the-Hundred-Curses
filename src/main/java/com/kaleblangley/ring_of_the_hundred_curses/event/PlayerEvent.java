@@ -451,4 +451,5 @@ public class PlayerEvent {
         int newLevel = (int) (event.getEnchantLevel() * getConfig().greedyTomeCostMultiplier);
         event.setEnchantLevel(Math.min(newLevel, 30));
     }
+
 }

@@ -625,6 +625,9 @@ public class ModConfig implements ConfigData {
      * Befuddled Artisan: Crafted items have a chance to spawn with reduced durability or in reduced quantity
      */
     public boolean enableBefuddledArtisan = true;
+    public double befuddledArtisanChance = 0.3; // 触发概率 / Trigger chance
+    public double befuddledArtisanDurabilityLossPercent = 0.5; // 最大耐久损失百分比 / Maximum durability loss percentage
+    public double befuddledArtisanCountLossPercent = 0.5; // 最大数量减少百分比 / Maximum count reduction percentage
 
     /**
      * 溢出负重：玩家背包内存放的物品超过一定数量，移动速度会降低，摔落伤害增加
