@@ -35,6 +35,7 @@ import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSwapItemsEvent;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
+import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -198,5 +199,28 @@ public class EntityEvent {
         endermite.setPos(spawnX, spawnY, spawnZ);
         endermite.setTarget(player);
         level.addFreshEntity(endermite);
+    }
+
+    private static final String JUSTIFIED_COMBAT_TAG = "ring_of_the_hundred_curses.attacked_player";
+
+    @SubscribeEvent
+    public static void onPlayerHurt(LivingHurtEvent event) {
+        if (event.getEntity() instanceof Player player && !player.level().isClientSide) {
+            if (event.getSource().getEntity() instanceof LivingEntity attacker) {
+                attacker.addTag(JUSTIFIED_COMBAT_TAG);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerAttack(AttackEntityEvent event) {
+        Player player = event.getEntity();
+        if (!RingUtil.configAndRing(player, getConfig().enableJustifiedCombat)) return;
+        if (player.level().isClientSide) return;
+        if (event.getTarget() instanceof LivingEntity target) {
+            if (!target.getTags().contains(JUSTIFIED_COMBAT_TAG)) {
+                event.setCanceled(true);
+            }
+        }
     }
 } 

@@ -73,7 +73,7 @@ Format: (Curse Name + Curse Effect + Designer)
 57. [ ] Draconic Favor: When the Ender Dragon breathes fire, a dragon breath area appears under the player's feet. 暮雨雨
 58. [x] Unfair Trader: Piglins may take gold without bartering. 暮雨雨
 59. [ ] Exposed Weakness: Player takes more damage while sneaking. 暮雨雨
-60. [ ] Justified Combat: Player cannot attack non-hostile creatures first. 暮雨雨
+60. [x] Justified Combat: Player cannot attack non-hostile creatures first. 暮雨雨
 61. [ ] Food Coma: Eating has a delay, during which no actions can be performed. cos45
 62. [x] Barren Harvest: Crops now have a chance to drop dead bushes instead. 筍
 63. [ ] Slippery Adventure: All blocks in cold biomes apply ice physics. 苦来兮归去
