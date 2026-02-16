@@ -179,6 +179,19 @@ public class EntityEvent {
                 }
             }
         }
+
+        // 新鲜武器：武器耐久越低伤害越低
+        if (event.getSource().getEntity() instanceof Player player) {
+            if (RingUtil.configAndRing(player, getConfig().enableFreshWeapon)) {
+                ItemStack weapon = player.getMainHandItem();
+                if (weapon.isDamageableItem()) {
+                    int maxDamage = weapon.getMaxDamage();
+                    int currentDamage = weapon.getDamageValue();
+                    float durabilityRatio = (float) (maxDamage - currentDamage) / maxDamage;
+                    event.setAmount(event.getAmount() * durabilityRatio);
+                }
+            }
+        }
     }
 
     private static void spawnEndermitesAtPosition(Vec3 position, Level level, Player player) {
