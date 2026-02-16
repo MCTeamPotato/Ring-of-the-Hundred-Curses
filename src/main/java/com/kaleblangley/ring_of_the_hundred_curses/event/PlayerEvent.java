@@ -31,6 +31,8 @@ import net.minecraft.world.level.block.FarmBlock;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.phys.Vec3;
@@ -513,6 +515,55 @@ public class PlayerEvent {
             boolean isNewPlacement = !(replacedState.getBlock() instanceof CampfireBlock);
             if (isNewPlacement && placedState.getValue(CampfireBlock.LIT)) {
                 level.setBlock(pos, placedState.setValue(CampfireBlock.LIT, false), 3);
+            }
+        }
+    }
+
+    private static final String SWIM_TIME_KEY = "DeepSeaEntanglementSwimTick";
+
+    @SubscribeEvent
+    public static void onDeepSeaEntanglementTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        Player player = event.player;
+        Level level = player.level();
+        if (level.isClientSide) return;
+        if (!RingUtil.configAndRing(player, getConfig().enableDeepSeaEntanglement)) return;
+
+        CompoundTag data = player.getPersistentData();
+        int swimTicks = data.getInt(SWIM_TIME_KEY);
+        int maxSwimTicks = getConfig().deepSeaEntanglementSwimTime * 20;
+        int recoverTicks = getConfig().deepSeaEntanglementRecoverTime * 20;
+
+        if (player.isInWater()) {
+            swimTicks++;
+            data.putInt(SWIM_TIME_KEY, swimTicks);
+
+            if (swimTicks >= maxSwimTicks) {
+                Vec3 motion = player.getDeltaMovement();
+                double ySpeed = Math.min(motion.y, 0) - 0.08;
+                player.setDeltaMovement(motion.x * 0.7, ySpeed, motion.z * 0.7);
+                player.setSwimming(false);
+                if (swimTicks % 20 == 0) {
+                    player.displayClientMessage(
+                            Component.translatable("message.ring_of_the_hundred_curses.deep_sea_entanglement.sinking")
+                                    .withStyle(ChatFormatting.RED), true);
+                }
+            } else {
+                int remainSeconds = (maxSwimTicks - swimTicks) / 20;
+                if (swimTicks % 20 == 0) {
+                    ChatFormatting color = remainSeconds <= 5 ? ChatFormatting.RED
+                            : remainSeconds <= 10 ? ChatFormatting.YELLOW
+                            : ChatFormatting.AQUA;
+                    player.displayClientMessage(
+                            Component.translatable("message.ring_of_the_hundred_curses.deep_sea_entanglement.countdown", remainSeconds)
+                                    .withStyle(color), true);
+                }
+            }
+        } else {
+            if (swimTicks > 0) {
+                int recoverRate = recoverTicks > 0 ? Math.max(1, maxSwimTicks / recoverTicks) : maxSwimTicks;
+                swimTicks = Math.max(0, swimTicks - recoverRate);
+                data.putInt(SWIM_TIME_KEY, swimTicks);
             }
         }
     }

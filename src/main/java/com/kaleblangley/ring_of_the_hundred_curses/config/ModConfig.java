@@ -497,6 +497,8 @@ public class ModConfig implements ConfigData {
      * Deep Sea Entanglement: Swimming has a time limit; after which the player starts sinking
      */
     public boolean enableDeepSeaEntanglement = true;
+    public int deepSeaEntanglementSwimTime = 30; // 可以游泳的时间（秒）/ Swimming time limit in seconds
+    public int deepSeaEntanglementRecoverTime = 10; // 离开水后恢复所需时间（秒）/ Recovery time after leaving water in seconds
 
     /**
      * 均衡饮食：某一食物食用过多会减少饥饿值回复

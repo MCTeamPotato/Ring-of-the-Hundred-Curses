@@ -1,5 +1,7 @@
 {
   "item.ring_of_the_hundred_curses.ring_of_the_hundred_curses": "Ring of the Hundred Curses",
   "block.ring_of_the_hundred_curses.extinguished_torch": "Extinguished Torch",
-  "message.ring_of_the_hundred_curses.freshness": "Freshness: %s"
+  "message.ring_of_the_hundred_curses.freshness": "Freshness: %s",
+  "message.ring_of_the_hundred_curses.deep_sea_entanglement.countdown": "Stamina remaining: %s s",
+  "message.ring_of_the_hundred_curses.deep_sea_entanglement.sinking": "Exhausted, sinking..."
 }

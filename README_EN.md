@@ -78,7 +78,7 @@ Format: (Curse Name + Curse Effect + Designer)
 62. [x] Barren Harvest: Crops now have a chance to drop dead bushes instead. 筍
 63. [ ] Slippery Adventure: All blocks in cold biomes apply ice physics. 苦来兮归去
 64. [x] Hostile Flora: Plants can deal damage to the player. Christen
-65. [ ] Deep Sea Entanglement: Swimming has a time limit; after which the player starts sinking. Christen
+65. [x] Deep Sea Entanglement: Swimming has a time limit; after which the player starts sinking. Christen
 66. [ ] Balanced Diet: Overconsuming a single type of food reduces its hunger restoration. Christen
 67. [ ] United Adversaries: The more hostile mobs nearby, the more damage the player takes. Christen
 68. [ ] Bleeding Wound: Taking damage has a chance to cause continuous health loss. Christen
