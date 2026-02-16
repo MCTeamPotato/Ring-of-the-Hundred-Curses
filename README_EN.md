@@ -37,10 +37,10 @@ Format: (Curse Name + Curse Effect + Designer)
 21. [x] Lost Direction: Maps and compasses become useless. kl
 22. [ ] Weak Magic Constitution: Cannot use high-level enchantments. kl
 23. [ ] Weak Swimmer: Reduces swimming speed, and drowning damage increases with depth. kl
-24. [ ] Cafeteria Lady: Respawn anchors charge with a random number of uses. 暮雨雨
+24. [x] Cafeteria Lady: Respawn anchors charge with a random number of uses. 暮雨雨
 25. [ ] Endless Quiz: Enchanting the same weapon repeatedly reduces its enchantment level. 暮雨雨
 26. [ ] Friend or Foe: A trident with Loyalty has a chance to damage the player when returning. 暮雨雨
-27. [ ] Incompetent Thief: Opening loot chests in Pillager Outposts or Villages spawns Pillagers and Villagers. 暮雨雨
+27. [x] Incompetent Thief: Opening loot chests in Pillager Outposts or Villages spawns Pillagers and Villagers. 暮雨雨
 28. [ ] Blood and Flesh: Each time you take damage, you receive additional damage based on a percentage of your maximum health. 初见
 29. [ ] Horde Mind: After killing a mob, there is a chance to spawn the same mob in place. 初见
 30. [ ] Focus Disturbance: Attacks, placements, and crafting have a chance to fail. 初见

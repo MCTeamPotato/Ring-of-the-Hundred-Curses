@@ -208,6 +208,8 @@ public class ModConfig implements ConfigData {
      * Cafeteria Lady: Respawn anchors charge with a random number of uses.
      */
     public boolean enableCafeteriaLady = true;
+    public int cafeteriaLadyMinCost = 1; // 最少消耗萤石数量 / Minimum glowstone cost per charge
+    public int cafeteriaLadyMaxCost = 4; // 最多消耗萤石数量 / Maximum glowstone cost per charge
 
     /**
      * 无效题海：当玩家每天对同一种武器附魔次数过多后，附魔效果的等级下降
@@ -226,6 +228,8 @@ public class ModConfig implements ConfigData {
      * Incompetent Thief: Opening loot chests in Pillager Outposts or Villages spawns Pillagers and Villagers.
      */
     public boolean enableIncompetentThief = true;
+    public int incompetentThiefMinSpawn = 1; // 最少生成数量 / Minimum number of mobs to spawn
+    public int incompetentThiefMaxSpawn = 3; // 最多生成数量 / Maximum number of mobs to spawn
 
     /**
      * 血肉失控：每一次受伤额外受到最大生命值部分百分比的伤害
