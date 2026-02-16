@@ -415,6 +415,7 @@ public class ModConfig implements ConfigData {
      * Water Shackles: Slows movement speed in water
      */
     public boolean enableWaterShackles = true;
+    public double waterShacklesSlowdown = 0.5; // 水中移速降低比例，0.5=降低50% / Movement speed reduction ratio in water, 0.5 = 50% reduction
 
     /**
      * 失足之险：潜行不能阻止走到边缘时坠落

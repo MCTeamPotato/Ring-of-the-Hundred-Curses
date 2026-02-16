@@ -66,7 +66,7 @@ Format: (Curse Name + Curse Effect + Designer)
 50. [ ] Hypocrisy Body: Reduces player's invincibility frames. kl
 51. [ ] Greedy Tome: Doubles the experience cost for the enchantment table. 妖月
 52. [ ] Grinding Wear: Grindstone consumes durability. 妖月
-53. [ ] Water Shackles: Slows movement speed in water. awei
+53. [x] Water Shackles: Slows movement speed in water. awei
 54. [x] Misstep Peril: Sneaking no longer prevents falling off edges. Susanlynna
 55. [ ] Lavish Taste: Only armor with trims can be worn. 暮雨雨
 56. [ ] Shattered Eye: Ender Eyes always break upon use. 暮雨雨

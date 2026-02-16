@@ -32,6 +32,9 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.Containers;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
@@ -51,6 +54,7 @@ import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager.getConfig;
 
@@ -58,6 +62,7 @@ import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManage
 public class PlayerEvent {
 
     private static final List<MobEffect> HARMFUL_EFFECTS;
+    private static final UUID WATER_SHACKLES_UUID = UUID.fromString("a3d2b4c1-8f7e-4d6a-9b5c-1e2f3a4b5c6d");
 
     static {
         List<MobEffect> effects = new java.util.ArrayList<>();
@@ -399,6 +404,26 @@ public class PlayerEvent {
                 int count = stack.getCount();
                 player.getInventory().setItem(i, new ItemStack(Items.ROTTEN_FLESH, count));
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onWaterShacklesTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        Player player = event.player;
+        if (player.level().isClientSide) return;
+
+        AttributeInstance speedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (speedAttr == null) return;
+
+        AttributeModifier existing = speedAttr.getModifier(WATER_SHACKLES_UUID);
+        boolean shouldApply = player.isInWater() && RingUtil.configAndRing(player, getConfig().enableWaterShackles);
+
+        if (shouldApply && existing == null) {
+            double slowdown = -getConfig().waterShacklesSlowdown;
+            speedAttr.addTransientModifier(new AttributeModifier(WATER_SHACKLES_UUID, "Water Shackles", slowdown, AttributeModifier.Operation.MULTIPLY_TOTAL));
+        } else if (!shouldApply && existing != null) {
+            speedAttr.removeModifier(WATER_SHACKLES_UUID);
         }
     }
 }
