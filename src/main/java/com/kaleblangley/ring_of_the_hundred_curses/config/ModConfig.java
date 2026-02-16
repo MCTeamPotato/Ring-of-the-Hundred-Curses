@@ -403,12 +403,14 @@ public class ModConfig implements ConfigData {
      * Greedy Tome: Doubles the experience cost for the enchantment table
      */
     public boolean enableGreedyTome = true;
+    public double greedyTomeCostMultiplier = 2.0; // 附魔经验消耗倍率 / Enchantment experience cost multiplier
 
     /**
      * 打磨损耗：砂轮会折损耐久值
      * Grinding Wear: Grindstone consumes durability
      */
     public boolean enableGrindingWear = true;
+    public double grindingWearDurabilityLossPercent = 0.1; // 砂轮折损耐久百分比 / Percentage of max durability lost when using grindstone
 
     /**
      * 水中束缚：下水减速

@@ -21,6 +21,7 @@
     "entity.PlayerMisstepPerilMixin",
     "entity.PiglinAiMixin",
     "inventory.InventoryMenuMixin",
+    "inventory.GrindstoneMenuMixin",
     "items.EyeOfEnderMixin",
     "items.MilkBucketItemMixin"
   ],

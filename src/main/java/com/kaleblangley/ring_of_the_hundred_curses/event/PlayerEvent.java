@@ -39,6 +39,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.ItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
@@ -438,5 +439,16 @@ public class PlayerEvent {
         if (event.getLevel().random.nextDouble() < getConfig().clumsyFarmerChance) {
             FarmBlock.turnToDirt(player, event.getState(), event.getLevel(), event.getPos());
         }
+    }
+
+    @SubscribeEvent
+    public static void onEnchantmentLevelSet(EnchantmentLevelSetEvent event) {
+        Level level = event.getLevel();
+        Player nearestPlayer = level.getNearestPlayer(event.getPos().getX(), event.getPos().getY(), event.getPos().getZ(), 8.0, false);
+        if (nearestPlayer == null) return;
+        if (!RingUtil.configAndRing(nearestPlayer, getConfig().enableGreedyTome)) return;
+
+        int newLevel = (int) (event.getEnchantLevel() * getConfig().greedyTomeCostMultiplier);
+        event.setEnchantLevel(Math.min(newLevel, 30));
     }
 }
