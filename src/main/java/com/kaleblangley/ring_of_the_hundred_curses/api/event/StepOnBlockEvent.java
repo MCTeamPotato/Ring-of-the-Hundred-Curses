@@ -7,10 +7,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.eventbus.api.Cancelable;
 import net.minecraftforge.eventbus.api.Event;
 
-/**
- * 当实体踩在方块上时触发
- * Fired when an entity steps on a block (from Block.stepOn)
- */
 @Cancelable
 public class StepOnBlockEvent extends Event {
     private final Level level;
