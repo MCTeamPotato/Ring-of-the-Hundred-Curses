@@ -2,6 +2,7 @@ package com.kaleblangley.ring_of_the_hundred_curses.event;
 
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
+import com.kaleblangley.ring_of_the_hundred_curses.api.event.StepOnBlockEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
@@ -26,6 +27,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.FarmBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.monster.Monster;
@@ -424,6 +426,17 @@ public class PlayerEvent {
             speedAttr.addTransientModifier(new AttributeModifier(WATER_SHACKLES_UUID, "Water Shackles", slowdown, AttributeModifier.Operation.MULTIPLY_TOTAL));
         } else if (!shouldApply && existing != null) {
             speedAttr.removeModifier(WATER_SHACKLES_UUID);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onStepOnBlock(StepOnBlockEvent event) {
+        if (event.getLevel().isClientSide) return;
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!(event.getState().getBlock() instanceof FarmBlock)) return;
+        if (!RingUtil.configAndRing(player, getConfig().enableClumsyFarmer)) return;
+        if (event.getLevel().random.nextDouble() < getConfig().clumsyFarmerChance) {
+            FarmBlock.turnToDirt(player, event.getState(), event.getLevel(), event.getPos());
         }
     }
 }

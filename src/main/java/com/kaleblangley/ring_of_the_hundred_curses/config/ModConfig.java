@@ -659,6 +659,7 @@ public class ModConfig implements ConfigData {
      * Clumsy Farmer: There's a chance to trample and break farmland when walking over tilled soil
      */
     public boolean enableClumsyFarmer = true;
+    public double clumsyFarmerChance = 0.01; // 每tick踩坏耕地的概率 / Chance per tick to trample farmland
 
     /**
      * 海市蜃楼：概率看到远处出现结构，但并不是真的
