@@ -56,6 +56,7 @@ import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.BonemealEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -503,17 +504,13 @@ public class PlayerEvent {
         BlockPos pos = event.getPos();
         Level level = (Level) event.getLevel();
 
-        // Torch -> Extinguished Torch
         if (placedBlock == Blocks.TORCH) {
             level.setBlock(pos, ModBlock.EXTINGUISHED_TORCH.get().defaultBlockState(), 3);
         }
-        // Wall Torch -> Extinguished Wall Torch
         else if (placedBlock == Blocks.WALL_TORCH) {
-            BlockState extinguishedState = ModBlock.EXTINGUISHED_WALL_TORCH.get().defaultBlockState()
-                    .setValue(WallTorchBlock.FACING, placedState.getValue(WallTorchBlock.FACING));
+            BlockState extinguishedState = ModBlock.EXTINGUISHED_WALL_TORCH.get().defaultBlockState().setValue(WallTorchBlock.FACING, placedState.getValue(WallTorchBlock.FACING));
             level.setBlock(pos, extinguishedState, 3);
         }
-        // Campfire -> Unlit Campfire (only for newly placed campfires, not re-lit ones)
         else if (placedBlock instanceof CampfireBlock) {
             BlockState replacedState = event.getBlockSnapshot().getReplacedBlock();
             boolean isNewPlacement = !(replacedState.getBlock() instanceof CampfireBlock);
@@ -548,19 +545,13 @@ public class PlayerEvent {
                 player.setDeltaMovement(motion.x * 0.7, ySpeed, motion.z * 0.7);
                 player.setSwimming(false);
                 if (swimTicks % 20 == 0) {
-                    player.displayClientMessage(
-                            Component.translatable("message.ring_of_the_hundred_curses.deep_sea_entanglement.sinking")
-                                    .withStyle(ChatFormatting.RED), true);
+                    player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.deep_sea_entanglement.sinking").withStyle(ChatFormatting.RED), true);
                 }
             } else {
                 int remainSeconds = (maxSwimTicks - swimTicks) / 20;
                 if (swimTicks % 20 == 0) {
-                    ChatFormatting color = remainSeconds <= 5 ? ChatFormatting.RED
-                            : remainSeconds <= 10 ? ChatFormatting.YELLOW
-                            : ChatFormatting.AQUA;
-                    player.displayClientMessage(
-                            Component.translatable("message.ring_of_the_hundred_curses.deep_sea_entanglement.countdown", remainSeconds)
-                                    .withStyle(color), true);
+                    ChatFormatting color = remainSeconds <= 5 ? ChatFormatting.RED : remainSeconds <= 10 ? ChatFormatting.YELLOW : ChatFormatting.AQUA;
+                    player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.deep_sea_entanglement.countdown", remainSeconds).withStyle(color), true);
                 }
             }
         } else {
@@ -572,7 +563,7 @@ public class PlayerEvent {
         }
     }
 
-    // 破裂之门：传送门是一次性的，使用了之后会炸裂
+    // 破裂之门：传送门是一次性的，使用了之后两端都会炸裂
     @SubscribeEvent
     public static void onTravelToDimension(EntityTravelToDimensionEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
@@ -580,32 +571,54 @@ public class PlayerEvent {
         if (!RingUtil.configAndRing(player, getConfig().enableShatteredPortal)) return;
         if (event.getDimension() == player.level().dimension()) return;
         if (!(player.level() instanceof ServerLevel serverLevel)) return;
-
         destroyPortalAt(serverLevel, player.blockPosition());
+    }
 
-        player.displayClientMessage(
-                Component.translatable("message.ring_of_the_hundred_curses.shattered_portal")
-                        .withStyle(ChatFormatting.RED), true);
+    @SubscribeEvent
+    public static void onPlayerChangedDimension(PlayerChangedDimensionEvent event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide) return;
+        if (!RingUtil.configAndRing(player, getConfig().enableShatteredPortal)) return;
+        if (!(player.level() instanceof ServerLevel serverLevel)) return;
+        destroyPortalAt(serverLevel, player.blockPosition());
+        player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.shattered_portal").withStyle(ChatFormatting.RED), true);
     }
 
     private static void destroyPortalAt(ServerLevel level, BlockPos center) {
         int searchRadius = 5;
         List<BlockPos> portalBlocks = new ArrayList<>();
-
+        List<BlockPos> frameBlocks = new ArrayList<>();
+        boolean hasEndPortal = false;
         for (int x = -searchRadius; x <= searchRadius; x++) {
             for (int y = -searchRadius; y <= searchRadius; y++) {
                 for (int z = -searchRadius; z <= searchRadius; z++) {
                     BlockPos pos = center.offset(x, y, z);
                     BlockState state = level.getBlockState(pos);
-                    if (state.getBlock() instanceof NetherPortalBlock || state.getBlock() instanceof EndPortalBlock) {
+                    if (state.getBlock() instanceof NetherPortalBlock) {
                         portalBlocks.add(pos);
+                    } else if (state.getBlock() instanceof EndPortalBlock) {
+                        portalBlocks.add(pos);
+                        hasEndPortal = true;
                     }
                 }
             }
         }
-
         if (portalBlocks.isEmpty()) return;
-
+        for (BlockPos portalPos : portalBlocks) {
+            for (BlockPos neighbor : BlockPos.betweenClosed(portalPos.offset(-1, -1, -1), portalPos.offset(1, 1, 1))) {
+                BlockState neighborState = level.getBlockState(neighbor);
+                Block block = neighborState.getBlock();
+                if (hasEndPortal) {
+                    if (block == Blocks.END_PORTAL_FRAME) {
+                        frameBlocks.add(neighbor.immutable());
+                    }
+                } else {
+                    if (block == Blocks.OBSIDIAN) {
+                        frameBlocks.add(neighbor.immutable());
+                    }
+                }
+            }
+        }
         double centerX = 0, centerY = 0, centerZ = 0;
         for (BlockPos pos : portalBlocks) {
             centerX += pos.getX();
@@ -615,11 +628,12 @@ public class PlayerEvent {
         centerX = centerX / portalBlocks.size() + 0.5;
         centerY = centerY / portalBlocks.size() + 0.5;
         centerZ = centerZ / portalBlocks.size() + 0.5;
-
         for (BlockPos pos : portalBlocks) {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
         }
-
+        for (BlockPos pos : frameBlocks) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+        }
         level.explode(null, centerX, centerY, centerZ, 2.0f, Level.ExplosionInteraction.NONE);
     }
 
