@@ -7,5 +7,7 @@
   "message.ring_of_the_hundred_curses.freshness": "保鲜时间: %s",
   "message.ring_of_the_hundred_curses.deep_sea_entanglement.countdown": "体力剩余: %s 秒",
   "message.ring_of_the_hundred_curses.deep_sea_entanglement.sinking": "体力耗尽，正在下沉...",
-  "message.ring_of_the_hundred_curses.shattered_portal": "§c传送门在你身后炸裂了..."
+  "message.ring_of_the_hundred_curses.shattered_portal": "§c传送门在你身后炸裂了...",
+  "message.ring_of_the_hundred_curses.customs_clearance.held": "§e你的交易物品被海关扣留了，预计 %s 天后送达",
+  "message.ring_of_the_hundred_curses.customs_clearance.delivered": "§a一个海关包裹送达了！"
 }

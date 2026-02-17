@@ -17,6 +17,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Silverfish;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -41,6 +42,8 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.Containers;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -398,26 +401,33 @@ public class PlayerEvent {
         Player player = event.player;
         Level level = player.level();
         if (level.isClientSide) return;
-        if (!RingUtil.configAndRing(player, getConfig().enableRottingHunger)) return;
 
         long gameTime = level.getGameTime();
-        int expireTime = getConfig().rottingHungerExpireTime;
 
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-            ItemStack stack = player.getInventory().getItem(i);
-            if (stack.isEmpty() || !stack.isEdible() || stack.is(Items.ROTTEN_FLESH)) continue;
+        // 溃烂饥饿
+        if (RingUtil.configAndRing(player, getConfig().enableRottingHunger)) {
+            int expireTime = getConfig().rottingHungerExpireTime;
+            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                ItemStack stack = player.getInventory().getItem(i);
+                if (stack.isEmpty() || !stack.isEdible() || stack.is(Items.ROTTEN_FLESH)) continue;
 
-            CompoundTag tag = stack.getOrCreateTag();
-            if (!tag.contains("RotHungerTick")) {
-                tag.putLong("RotHungerTick", gameTime);
-                continue;
+                CompoundTag tag = stack.getOrCreateTag();
+                if (!tag.contains("RotHungerTick")) {
+                    tag.putLong("RotHungerTick", gameTime);
+                    continue;
+                }
+
+                long startTime = tag.getLong("RotHungerTick");
+                if (gameTime - startTime >= expireTime) {
+                    int count = stack.getCount();
+                    player.getInventory().setItem(i, new ItemStack(Items.ROTTEN_FLESH, count));
+                }
             }
+        }
 
-            long startTime = tag.getLong("RotHungerTick");
-            if (gameTime - startTime >= expireTime) {
-                int count = stack.getCount();
-                player.getInventory().setItem(i, new ItemStack(Items.ROTTEN_FLESH, count));
-            }
+        // 海关过境：每秒检查一次待交付物品
+        if (gameTime % 20 == 0) {
+            checkCustomsClearanceDelivery(player, level.getDayTime());
         }
     }
 
@@ -506,12 +516,10 @@ public class PlayerEvent {
 
         if (placedBlock == Blocks.TORCH) {
             level.setBlock(pos, ModBlock.EXTINGUISHED_TORCH.get().defaultBlockState(), 3);
-        }
-        else if (placedBlock == Blocks.WALL_TORCH) {
+        } else if (placedBlock == Blocks.WALL_TORCH) {
             BlockState extinguishedState = ModBlock.EXTINGUISHED_WALL_TORCH.get().defaultBlockState().setValue(WallTorchBlock.FACING, placedState.getValue(WallTorchBlock.FACING));
             level.setBlock(pos, extinguishedState, 3);
-        }
-        else if (placedBlock instanceof CampfireBlock) {
+        } else if (placedBlock instanceof CampfireBlock) {
             BlockState replacedState = event.getBlockSnapshot().getReplacedBlock();
             boolean isNewPlacement = !(replacedState.getBlock() instanceof CampfireBlock);
             if (isNewPlacement && placedState.getValue(CampfireBlock.LIT)) {
@@ -635,6 +643,83 @@ public class PlayerEvent {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
         }
         level.explode(null, centerX, centerY, centerZ, 2.0f, Level.ExplosionInteraction.NONE);
+    }
+
+    // 海关过境：高级村民交易需要等待几天才能拿到物品
+    private static final String CUSTOMS_CLEARANCE_KEY = "CustomsClearancePending";
+
+    @SubscribeEvent
+    public static void onCustomsClearanceTrade(TradeWithVillagerEvent event) {
+        Player player = event.getEntity();
+        if (!RingUtil.configAndRing(player, getConfig().enableCustomsClearance)) return;
+        Level level = player.level();
+        if (level.isClientSide) return;
+        if (!(event.getAbstractVillager() instanceof Villager villager)) return;
+
+        int villagerLevel = villager.getVillagerData().getLevel();
+        if (villagerLevel < getConfig().customsClearanceMinLevel) return;
+
+        ItemStack result = event.getMerchantOffer().getResult();
+        if (result.isEmpty()) return;
+
+        // Remove the traded result from player inventory (same pattern as swapTradeResult)
+        boolean removed = false;
+        for (int i = player.getInventory().getContainerSize() - 1; i >= 0; i--) {
+            ItemStack slotStack = player.getInventory().getItem(i);
+            if (ItemStack.isSameItemSameTags(slotStack, result) && slotStack.getCount() == result.getCount()) {
+                player.getInventory().setItem(i, ItemStack.EMPTY);
+                player.containerMenu.broadcastChanges();
+                removed = true;
+                break;
+            }
+        }
+        if (!removed) return;
+
+        // Calculate delivery time and store pending delivery
+        long deliveryTime = level.getDayTime() + (long) getConfig().customsClearanceWaitDays * 24000L;
+        CompoundTag persistentData = player.getPersistentData();
+        ListTag pendingList = persistentData.contains(CUSTOMS_CLEARANCE_KEY, Tag.TAG_LIST)
+                ? persistentData.getList(CUSTOMS_CLEARANCE_KEY, Tag.TAG_COMPOUND)
+                : new ListTag();
+
+        CompoundTag entry = new CompoundTag();
+        entry.put("Item", result.save(new CompoundTag()));
+        entry.putLong("DeliveryTime", deliveryTime);
+        pendingList.add(entry);
+        persistentData.put(CUSTOMS_CLEARANCE_KEY, pendingList);
+
+        int waitDays = getConfig().customsClearanceWaitDays;
+        player.displayClientMessage(
+                Component.translatable("message.ring_of_the_hundred_curses.customs_clearance.held", waitDays)
+                        .withStyle(ChatFormatting.YELLOW), true);
+    }
+
+    private static void checkCustomsClearanceDelivery(Player player, long gameTime) {
+        CompoundTag persistentData = player.getPersistentData();
+        if (!persistentData.contains(CUSTOMS_CLEARANCE_KEY, Tag.TAG_LIST)) return;
+
+        ListTag pendingList = persistentData.getList(CUSTOMS_CLEARANCE_KEY, Tag.TAG_COMPOUND);
+        if (pendingList.isEmpty()) return;
+
+        ListTag remaining = new ListTag();
+        for (int i = 0; i < pendingList.size(); i++) {
+            CompoundTag entry = pendingList.getCompound(i);
+            long deliveryTime = entry.getLong("DeliveryTime");
+            if (gameTime >= deliveryTime) {
+                ItemStack item = ItemStack.of(entry.getCompound("Item"));
+                if (!item.isEmpty()) {
+                    if (!player.addItem(item)) {
+                        player.drop(item, false);
+                    }
+                    player.displayClientMessage(
+                            Component.translatable("message.ring_of_the_hundred_curses.customs_clearance.delivered")
+                                    .withStyle(ChatFormatting.GREEN), false);
+                }
+            } else {
+                remaining.add(entry);
+            }
+        }
+        persistentData.put(CUSTOMS_CLEARANCE_KEY, remaining);
     }
 
 }

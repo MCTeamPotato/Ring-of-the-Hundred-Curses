@@ -100,7 +100,7 @@ Format: (Curse Name + Curse Effect + Designer)
 84. [ ] Overburdened: When your inventory holds too many items, your movement speed is reduced and fall damage is increased. kl
 85. [x] Shattered Portal: Portals become one-time use; they explode after being used. kl
 86. [ ] Unbalanced Weapon: Each time you attack, there’s a chance your weapon’s attack power will decrease. kl
-87. [ ] Customs Clearance: Advanced villager trades require waiting several Minecraft days before the items become available. kl
+87. [x] Customs Clearance: Advanced villager trades require waiting several Minecraft days before the items become available. kl
 88. [x] Overzealous Growth: When fertilizing crops, there’s a chance their growth stage will regress—and the more fertilizer you apply, the higher the chance. kl
 89. [x] Clumsy Farmer: There’s a chance to trample and break farmland when walking over tilled soil. 咒神灰
 90. [ ] Mirage: You may occasionally see distant structures that aren’t actually there. kl

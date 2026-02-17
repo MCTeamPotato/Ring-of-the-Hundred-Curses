@@ -658,6 +658,8 @@ public class ModConfig implements ConfigData {
      * Customs Clearance: Advanced villager trades require waiting several Minecraft days before the items become available
      */
     public boolean enableCustomsClearance = true;
+    public int customsClearanceMinLevel = 3; // 触发海关的最低村民等级（1=新手, 2=学徒, 3=老手, 4=专家, 5=大师） / Minimum villager level to trigger (1=Novice, 2=Apprentice, 3=Journeyman, 4=Expert, 5=Master)
+    public int customsClearanceWaitDays = 3; // 交易物品延迟交付的天数 / Number of MC days to wait before delivery
 
     /**
      * 拔苗助长：作物施肥时概率降低生长阶段，施肥越多降低概率越大
