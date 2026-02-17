@@ -17,7 +17,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Silverfish;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -57,7 +56,6 @@ import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.BonemealEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -68,9 +66,7 @@ import com.kaleblangley.ring_of_the_hundred_curses.init.ModBlock;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager.getConfig;
@@ -576,36 +572,16 @@ public class PlayerEvent {
         }
     }
 
-    // 破裂之门：记录玩家进入传送门时的位置和维度
-    private static final Map<UUID, PortalEntryInfo> PORTAL_ENTRY_MAP = new HashMap<>();
-
-    private record PortalEntryInfo(BlockPos pos, ResourceKey<Level> dimension) {}
-
+    // 破裂之门：传送门是一次性的，使用了之后会炸裂
     @SubscribeEvent
     public static void onTravelToDimension(EntityTravelToDimensionEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (player.level().isClientSide) return;
         if (!RingUtil.configAndRing(player, getConfig().enableShatteredPortal)) return;
+        if (event.getDimension() == player.level().dimension()) return;
+        if (!(player.level() instanceof ServerLevel serverLevel)) return;
 
-        BlockPos portalPos = player.blockPosition();
-        ResourceKey<Level> fromDimension = player.level().dimension();
-        PORTAL_ENTRY_MAP.put(player.getUUID(), new PortalEntryInfo(portalPos, fromDimension));
-    }
-
-    @SubscribeEvent
-    public static void onPlayerChangedDimension(PlayerChangedDimensionEvent event) {
-        Player player = event.getEntity();
-        if (player.level().isClientSide) return;
-        if (!RingUtil.configAndRing(player, getConfig().enableShatteredPortal)) return;
-
-        PortalEntryInfo entryInfo = PORTAL_ENTRY_MAP.remove(player.getUUID());
-        if (entryInfo == null) return;
-
-        if (player.getServer() == null) return;
-        ServerLevel fromLevel = player.getServer().getLevel(entryInfo.dimension());
-        if (fromLevel == null) return;
-
-        destroyPortalAt(fromLevel, entryInfo.pos());
+        destroyPortalAt(serverLevel, player.blockPosition());
 
         player.displayClientMessage(
                 Component.translatable("message.ring_of_the_hundred_curses.shattered_portal")
