@@ -165,6 +165,7 @@ public class ModConfig implements ConfigData {
      * Fragile Body: Fall damage cannot be mitigated.
      */
     public boolean enableFragileBody = true;
+    public int fragileBodyMaxInvulnerableTime = 5; // 无敌帧上限（原版为20tick） / Max invulnerable ticks after damage (vanilla is 20)
 
     /**
      * 脆弱护甲：减少护甲给予的盔甲值与韧性
@@ -346,6 +347,7 @@ public class ModConfig implements ConfigData {
      * Abandoned by Poseidon: The chance of fishing up junk is significantly increased.
      */
     public boolean enableAbandonedByPoseidon = true;
+    public float abandonedByPoseidonLuckPenalty = 40.0f; // 降低的幸运值（越高垃圾越多，40≈42%垃圾率）/ Luck penalty applied (higher = more junk, 40 ≈ 42% junk rate)
     
     /**
      * 深水炸弹：钓鱼有概率钓上来坏东西

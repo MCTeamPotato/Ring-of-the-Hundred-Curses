@@ -58,12 +58,12 @@ Format: (Curse Name + Curse Effect + Designer)
 42. [ ] Bad Luck: The chance of fortune enchantment not triggering while mining is increased. kl
 43. [ ] Time Rift: Every time you throw an Ender Pearl, Endermites spawn to attack you. rinko
 44. [ ] Time Distortion: There is a chance to be teleported to a random location near the target when using a portal. 冬香
-45. [ ] Abandoned by Poseidon: The chance of fishing up junk is significantly increased. MCMostWolf
+45. [x] Abandoned by Poseidon: The chance of fishing up junk is significantly increased. MCMostWolf
 46. [x] Outline Master: Archery has a larger arrow deviation. MCMostWolf
 47. [ ] Reborn Wrath: Every time you die to a boss, the boss not only recovers full health but becomes stronger. MCMostWolf
 48. [x] Oxygen Deprivation: Running depletes oxygen. 赤麦RedWheat
 49. [x] Worm Hoard: Mining stone has a chance to spawn Silverfish. 赤麦RedWheat
-50. [ ] Hypocrisy Body: Reduces player's invincibility frames. kl
+50. [x] Hypocrisy Body: Reduces player's invincibility frames. kl
 51. [x] Greedy Tome: Doubles the experience cost for the enchantment table. 妖月
 52. [x] Grinding Wear: Grindstone consumes durability. 妖月
 53. [x] Water Shackles: Slows movement speed in water. awei

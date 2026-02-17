@@ -21,6 +21,7 @@
     "RandomizableContainerMixin",
     "entity.PlayerMixin",
     "entity.PlayerMisstepPerilMixin",
+    "entity.FishingHookMixin",
     "entity.PiglinAiMixin",
     "inventory.InventoryMenuMixin",
     "inventory.GrindstoneMenuMixin",

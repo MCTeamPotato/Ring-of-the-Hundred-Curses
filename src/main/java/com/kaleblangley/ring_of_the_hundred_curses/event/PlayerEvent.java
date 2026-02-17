@@ -404,6 +404,14 @@ public class PlayerEvent {
 
         long gameTime = level.getGameTime();
 
+        // 脆弱身躯：减少无敌帧
+        if (RingUtil.configAndRing(player, getConfig().enableFragileBody)) {
+            int max = getConfig().fragileBodyMaxInvulnerableTime;
+            if (player.invulnerableTime > max) {
+                player.invulnerableTime = max;
+            }
+        }
+
         // 溃烂饥饿
         if (RingUtil.configAndRing(player, getConfig().enableRottingHunger)) {
             int expireTime = getConfig().rottingHungerExpireTime;
