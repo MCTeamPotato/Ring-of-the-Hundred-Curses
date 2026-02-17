@@ -17,6 +17,8 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Silverfish;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.food.FoodData;
@@ -27,8 +29,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.EndPortalBlock;
 import net.minecraft.world.level.block.FarmBlock;
 import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.network.chat.Component;
@@ -52,6 +56,8 @@ import net.minecraftforge.event.entity.player.TradeWithVillagerEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.BonemealEvent;
+import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -62,7 +68,9 @@ import com.kaleblangley.ring_of_the_hundred_curses.init.ModBlock;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager.getConfig;
@@ -566,6 +574,77 @@ public class PlayerEvent {
                 data.putInt(SWIM_TIME_KEY, swimTicks);
             }
         }
+    }
+
+    // 破裂之门：记录玩家进入传送门时的位置和维度
+    private static final Map<UUID, PortalEntryInfo> PORTAL_ENTRY_MAP = new HashMap<>();
+
+    private record PortalEntryInfo(BlockPos pos, ResourceKey<Level> dimension) {}
+
+    @SubscribeEvent
+    public static void onTravelToDimension(EntityTravelToDimensionEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (player.level().isClientSide) return;
+        if (!RingUtil.configAndRing(player, getConfig().enableShatteredPortal)) return;
+
+        BlockPos portalPos = player.blockPosition();
+        ResourceKey<Level> fromDimension = player.level().dimension();
+        PORTAL_ENTRY_MAP.put(player.getUUID(), new PortalEntryInfo(portalPos, fromDimension));
+    }
+
+    @SubscribeEvent
+    public static void onPlayerChangedDimension(PlayerChangedDimensionEvent event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide) return;
+        if (!RingUtil.configAndRing(player, getConfig().enableShatteredPortal)) return;
+
+        PortalEntryInfo entryInfo = PORTAL_ENTRY_MAP.remove(player.getUUID());
+        if (entryInfo == null) return;
+
+        if (player.getServer() == null) return;
+        ServerLevel fromLevel = player.getServer().getLevel(entryInfo.dimension());
+        if (fromLevel == null) return;
+
+        destroyPortalAt(fromLevel, entryInfo.pos());
+
+        player.displayClientMessage(
+                Component.translatable("message.ring_of_the_hundred_curses.shattered_portal")
+                        .withStyle(ChatFormatting.RED), true);
+    }
+
+    private static void destroyPortalAt(ServerLevel level, BlockPos center) {
+        int searchRadius = 5;
+        List<BlockPos> portalBlocks = new ArrayList<>();
+
+        for (int x = -searchRadius; x <= searchRadius; x++) {
+            for (int y = -searchRadius; y <= searchRadius; y++) {
+                for (int z = -searchRadius; z <= searchRadius; z++) {
+                    BlockPos pos = center.offset(x, y, z);
+                    BlockState state = level.getBlockState(pos);
+                    if (state.getBlock() instanceof NetherPortalBlock || state.getBlock() instanceof EndPortalBlock) {
+                        portalBlocks.add(pos);
+                    }
+                }
+            }
+        }
+
+        if (portalBlocks.isEmpty()) return;
+
+        double centerX = 0, centerY = 0, centerZ = 0;
+        for (BlockPos pos : portalBlocks) {
+            centerX += pos.getX();
+            centerY += pos.getY();
+            centerZ += pos.getZ();
+        }
+        centerX = centerX / portalBlocks.size() + 0.5;
+        centerY = centerY / portalBlocks.size() + 0.5;
+        centerZ = centerZ / portalBlocks.size() + 0.5;
+
+        for (BlockPos pos : portalBlocks) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+        }
+
+        level.explode(null, centerX, centerY, centerZ, 2.0f, Level.ExplosionInteraction.NONE);
     }
 
 }
