@@ -575,6 +575,7 @@ public class ModConfig implements ConfigData {
      * Thunderbound Oath: Significantly increases the chance of being struck by lightning
      */
     public boolean enableThunderboundOath = true;
+    public int thunderboundOathRarity = 2000; // 每次区块tick雷击概率为1/此值，越小越频繁 / Lightning chance is 1/N per chunk tick, lower = more frequent
 
     /**
      * 熔岩献祭：处于下界被攻击会使自身着火
@@ -732,6 +733,7 @@ public class ModConfig implements ConfigData {
      * Ice Rink: During rain, block friction is reduced, making surfaces slippery
      */
     public boolean enableIceRink = true;
+    public float iceRinkFriction = 0.98f; // 冰的摩擦力值（0.6=普通, 0.98=冰, 0.989=蓝冰）/ Ice friction value (0.6=normal, 0.98=ice, 0.989=blue ice)
 
     /**
      * 糟糕厨师：饭菜概率变成迷之炖菜（debuff的）

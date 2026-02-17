@@ -91,7 +91,7 @@ Format: (Curse Name + Curse Effect + Designer)
 75. [ ] Curse of Misfortune: The player's dropped items are calculated multiple times, taking the worst result. 咒神灰
 76. [x] Lactose Intolerance: You cannot remove negative effects with milk. rinko
 77. [x] Depth Charge: Fishing has a chance to catch something bad. 咒神灰
-78. [ ] Thunderbound Oath: Significantly increases the chance of being struck by lightning. kl
+78. [x] Thunderbound Oath: Significantly increases the chance of being struck by lightning. kl
 79. [x] Lava Sacrifice: While in the Nether, being attacked will set you on fire. kl
 80. [x] Dilapidated Warrior: The lower your equipment’s durability, the less armor protection it provides. kl
 81. [x] Dodgy Merchant: After completing a trade with a villager, there’s a chance the item you receive will be swapped for something else. kl
@@ -110,7 +110,7 @@ Format: (Curse Name + Curse Effect + Designer)
 94. [ ] Overhealing: Using a healing item may cause you to be unable to heal again for a short time. kl
 95. [ ] Patterned Assault: You must alternate different attack methods to damage certain creatures. kl
 96. [x] Unlit Objects: Placed torches and campfires must be manually lit. kl
-97. [ ] Ice Rink: During rain, block friction is reduced, making surfaces slippery. kl
+97. [x] Ice Rink: During rain, block friction is reduced, making surfaces slippery. kl
 98. [ ] Terrible Cook: Cooked meals have a chance to turn into mysterious stew that inflicts a debuff. kl
 99. [ ] Deafening: You don’t always need a Sculk Shrieker to summon the Warden. kl
 100. [ ] Chatterbox Ring: Occasionally you’ll hear the ring itself speaking to you. kl

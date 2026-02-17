@@ -19,6 +19,7 @@
     "items.MapItemMixin",
     "LootTableMixin",
     "RandomizableContainerMixin",
+    "ServerLevelMixin",
     "entity.PlayerMixin",
     "entity.PlayerMisstepPerilMixin",
     "entity.FishingHookMixin",

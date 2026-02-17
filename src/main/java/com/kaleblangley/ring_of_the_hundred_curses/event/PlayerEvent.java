@@ -1,6 +1,7 @@
 package com.kaleblangley.ring_of_the_hundred_curses.event;
 
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
+import com.kaleblangley.ring_of_the_hundred_curses.api.event.ChunkThunderEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.StepOnBlockEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
@@ -15,6 +16,7 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Silverfish;
 import net.minecraft.world.entity.npc.Villager;
@@ -728,6 +730,23 @@ public class PlayerEvent {
             }
         }
         persistentData.put(CUSTOMS_CLEARANCE_KEY, remaining);
+    }
+
+    // 雷霆引誓：雷雨天更高概率被雷击中
+    @SubscribeEvent
+    public static void onChunkThunder(ChunkThunderEvent event) {
+        Player player = event.getPlayer();
+        if (!RingUtil.configAndRing(player, getConfig().enableThunderboundOath)) return;
+
+        ServerLevel level = event.getLevel();
+        int rarity = getConfig().thunderboundOathRarity;
+        if (rarity <= 0 || level.random.nextInt(rarity) != 0) return;
+
+        LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level);
+        if (bolt != null) {
+            bolt.moveTo(player.position());
+            level.addFreshEntity(bolt);
+        }
     }
 
 }
