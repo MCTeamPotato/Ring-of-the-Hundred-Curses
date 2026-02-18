@@ -492,6 +492,7 @@ public class ModConfig implements ConfigData {
      * Slippery Adventure: All blocks in cold biomes apply ice physics
      */
     public boolean enableSlipperyAdventure = true;
+    public float slipperyAdventureFriction = 0.98f; // 寒冷群系摩擦力（0.6=普通, 0.98=冰, 0.989=蓝冰）/ Friction in cold biomes (0.6=normal, 0.98=ice, 0.989=blue ice)
 
     /**
      * 疯狂植物：会被植物扎

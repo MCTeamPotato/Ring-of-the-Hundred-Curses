@@ -76,7 +76,7 @@ Format: (Curse Name + Curse Effect + Designer)
 60. [x] Justified Combat: Player cannot attack non-hostile creatures first. 暮雨雨
 61. [ ] Food Coma: Eating has a delay, during which no actions can be performed. cos45
 62. [x] Barren Harvest: Crops now have a chance to drop dead bushes instead. 筍
-63. [ ] Slippery Adventure: All blocks in cold biomes apply ice physics. 苦来兮归去
+63. [x] Slippery Adventure: All blocks in cold biomes apply ice physics. 苦来兮归去
 64. [x] Hostile Flora: Plants can deal damage to the player. Christen
 65. [x] Deep Sea Entanglement: Swimming has a time limit; after which the player starts sinking. Christen
 66. [ ] Balanced Diet: Overconsuming a single type of food reduces its hunger restoration. Christen

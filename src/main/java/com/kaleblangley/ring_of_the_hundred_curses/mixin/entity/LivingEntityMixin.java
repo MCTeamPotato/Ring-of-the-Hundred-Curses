@@ -58,19 +58,26 @@ public class LivingEntityMixin {
         cir.setReturnValue((int) Math.max(0, Math.round(adjustedArmorValue)));
     }
 
-    // 滑冰赛场：雨天方块阻力减小，所有方块变得像冰一样滑
+    // 滑冰赛场：雨天方块阻力减小 + 滑雪冒险：寒冷群系方块施加冰块效果
     @Redirect(
             method = "travel",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getFriction(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)F", remap = false)
     )
-    private float ring_of_the_hundred_curses$iceRink(BlockState state, LevelReader levelReader, BlockPos pos, Entity entity) {
+    private float ring_of_the_hundred_curses$modifyFriction(BlockState state, LevelReader levelReader, BlockPos pos, Entity entity) {
         float friction = state.getFriction(levelReader, pos, entity);
-        if (entity instanceof Player player
-                && RingUtil.configAndRing(player, getConfig().enableIceRink)
-                && levelReader instanceof Level level
-                && level.isRaining()) {
-            return Math.max(friction, getConfig().iceRinkFriction);
+        if (!(entity instanceof Player player) || !(levelReader instanceof Level level)) return friction;
+
+        // 滑冰赛场：雨天滑
+        if (RingUtil.configAndRing(player, getConfig().enableIceRink) && level.isRaining()) {
+            friction = Math.max(friction, getConfig().iceRinkFriction);
         }
+
+        // 滑雪冒险：寒冷群系滑
+        if (RingUtil.configAndRing(player, getConfig().enableSlipperyAdventure)
+                && level.getBiome(player.blockPosition()).value().coldEnoughToSnow(player.blockPosition())) {
+            friction = Math.max(friction, getConfig().slipperyAdventureFriction);
+        }
+
         return friction;
     }
 
