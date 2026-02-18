@@ -151,7 +151,6 @@ public class PlayerEvent {
         float originalSpeed = event.getOriginalSpeed();
         BlockState state = event.getState();
         ItemStack handItem = player.getMainHandItem();
-
         event.setNewSpeed(breakSpeedGet(player, originalSpeed, state, handItem));
     }
 
@@ -209,7 +208,6 @@ public class PlayerEvent {
             spawnTntAtPosition(hookPos, level, player);
             return;
         }
-
         if (level.random.nextDouble() < getConfig().depthChargeMobChance) {
             spawnHostileMobAtPosition(hookPos, level, player);
         }
@@ -360,7 +358,6 @@ public class PlayerEvent {
         level.addFreshEntity(tnt);
         Vec3 playerPos = player.position().add(0, 1, 0);
         Vec3 direction = playerPos.subtract(position).normalize();
-
         double speed = 0.8;
         tnt.setDeltaMovement(direction.x * speed, Math.max(0.3, direction.y * speed + 0.2), direction.z * speed);
     }
@@ -405,30 +402,23 @@ public class PlayerEvent {
         Player player = event.player;
         Level level = player.level();
         if (level.isClientSide) return;
-
         long gameTime = level.getGameTime();
-
-        // 脆弱身躯：减少无敌帧
         if (RingUtil.configAndRing(player, getConfig().enableFragileBody)) {
             int max = getConfig().fragileBodyMaxInvulnerableTime;
             if (player.invulnerableTime > max) {
                 player.invulnerableTime = max;
             }
         }
-
-        // 溃烂饥饿
         if (RingUtil.configAndRing(player, getConfig().enableRottingHunger)) {
             int expireTime = getConfig().rottingHungerExpireTime;
             for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
                 ItemStack stack = player.getInventory().getItem(i);
                 if (stack.isEmpty() || !stack.isEdible() || stack.is(Items.ROTTEN_FLESH)) continue;
-
                 CompoundTag tag = stack.getOrCreateTag();
                 if (!tag.contains("RotHungerTick")) {
                     tag.putLong("RotHungerTick", gameTime);
                     continue;
                 }
-
                 long startTime = tag.getLong("RotHungerTick");
                 if (gameTime - startTime >= expireTime) {
                     int count = stack.getCount();
@@ -436,8 +426,6 @@ public class PlayerEvent {
                 }
             }
         }
-
-        // 海关过境：每秒检查一次待交付物品
         if (gameTime % 20 == 0) {
             checkCustomsClearanceDelivery(player, level.getDayTime());
         }
@@ -448,13 +436,10 @@ public class PlayerEvent {
         if (event.phase != TickEvent.Phase.END) return;
         Player player = event.player;
         if (player.level().isClientSide) return;
-
         AttributeInstance speedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speedAttr == null) return;
-
         AttributeModifier existing = speedAttr.getModifier(WATER_SHACKLES_UUID);
         boolean shouldApply = player.isInWater() && RingUtil.configAndRing(player, getConfig().enableWaterShackles);
-
         if (shouldApply && existing == null) {
             double slowdown = -getConfig().waterShacklesSlowdown;
             speedAttr.addTransientModifier(new AttributeModifier(WATER_SHACKLES_UUID, "Water Shackles", slowdown, AttributeModifier.Operation.MULTIPLY_TOTAL));
@@ -480,7 +465,6 @@ public class PlayerEvent {
         Player nearestPlayer = level.getNearestPlayer(event.getPos().getX(), event.getPos().getY(), event.getPos().getZ(), 8.0, false);
         if (nearestPlayer == null) return;
         if (!RingUtil.configAndRing(nearestPlayer, getConfig().enableGreedyTome)) return;
-
         int newLevel = (int) (event.getEnchantLevel() * getConfig().greedyTomeCostMultiplier);
         event.setEnchantLevel(Math.min(newLevel, 30));
     }
@@ -520,12 +504,10 @@ public class PlayerEvent {
         if (!(event.getEntity() instanceof Player player)) return;
         if (player.level().isClientSide) return;
         if (!RingUtil.configAndRing(player, getConfig().enableUnlitObjects)) return;
-
         BlockState placedState = event.getPlacedBlock();
         Block placedBlock = placedState.getBlock();
         BlockPos pos = event.getPos();
         Level level = (Level) event.getLevel();
-
         if (placedBlock == Blocks.TORCH) {
             level.setBlock(pos, ModBlock.EXTINGUISHED_TORCH.get().defaultBlockState(), 3);
         } else if (placedBlock == Blocks.WALL_TORCH) {
@@ -549,16 +531,13 @@ public class PlayerEvent {
         Level level = player.level();
         if (level.isClientSide) return;
         if (!RingUtil.configAndRing(player, getConfig().enableDeepSeaEntanglement)) return;
-
         CompoundTag data = player.getPersistentData();
         int swimTicks = data.getInt(SWIM_TIME_KEY);
         int maxSwimTicks = getConfig().deepSeaEntanglementSwimTime * 20;
         int recoverTicks = getConfig().deepSeaEntanglementRecoverTime * 20;
-
         if (player.isInWater()) {
             swimTicks++;
             data.putInt(SWIM_TIME_KEY, swimTicks);
-
             if (swimTicks >= maxSwimTicks) {
                 Vec3 motion = player.getDeltaMovement();
                 double ySpeed = Math.min(motion.y, 0) - 0.08;
@@ -667,14 +646,10 @@ public class PlayerEvent {
         Level level = player.level();
         if (level.isClientSide) return;
         if (!(event.getAbstractVillager() instanceof Villager villager)) return;
-
         int villagerLevel = villager.getVillagerData().getLevel();
         if (villagerLevel < getConfig().customsClearanceMinLevel) return;
-
         ItemStack result = event.getMerchantOffer().getResult();
         if (result.isEmpty()) return;
-
-        // Remove the traded result from player inventory (same pattern as swapTradeResult)
         boolean removed = false;
         for (int i = player.getInventory().getContainerSize() - 1; i >= 0; i--) {
             ItemStack slotStack = player.getInventory().getItem(i);
@@ -686,33 +661,23 @@ public class PlayerEvent {
             }
         }
         if (!removed) return;
-
-        // Calculate delivery time and store pending delivery
         long deliveryTime = level.getDayTime() + (long) getConfig().customsClearanceWaitDays * 24000L;
         CompoundTag persistentData = player.getPersistentData();
-        ListTag pendingList = persistentData.contains(CUSTOMS_CLEARANCE_KEY, Tag.TAG_LIST)
-                ? persistentData.getList(CUSTOMS_CLEARANCE_KEY, Tag.TAG_COMPOUND)
-                : new ListTag();
-
+        ListTag pendingList = persistentData.contains(CUSTOMS_CLEARANCE_KEY, Tag.TAG_LIST) ? persistentData.getList(CUSTOMS_CLEARANCE_KEY, Tag.TAG_COMPOUND) : new ListTag();
         CompoundTag entry = new CompoundTag();
         entry.put("Item", result.save(new CompoundTag()));
         entry.putLong("DeliveryTime", deliveryTime);
         pendingList.add(entry);
         persistentData.put(CUSTOMS_CLEARANCE_KEY, pendingList);
-
         int waitDays = getConfig().customsClearanceWaitDays;
-        player.displayClientMessage(
-                Component.translatable("message.ring_of_the_hundred_curses.customs_clearance.held", waitDays)
-                        .withStyle(ChatFormatting.YELLOW), true);
+        player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.customs_clearance.held", waitDays).withStyle(ChatFormatting.YELLOW), true);
     }
 
     private static void checkCustomsClearanceDelivery(Player player, long gameTime) {
         CompoundTag persistentData = player.getPersistentData();
         if (!persistentData.contains(CUSTOMS_CLEARANCE_KEY, Tag.TAG_LIST)) return;
-
         ListTag pendingList = persistentData.getList(CUSTOMS_CLEARANCE_KEY, Tag.TAG_COMPOUND);
         if (pendingList.isEmpty()) return;
-
         ListTag remaining = new ListTag();
         for (int i = 0; i < pendingList.size(); i++) {
             CompoundTag entry = pendingList.getCompound(i);
@@ -723,9 +688,7 @@ public class PlayerEvent {
                     if (!player.addItem(item)) {
                         player.drop(item, false);
                     }
-                    player.displayClientMessage(
-                            Component.translatable("message.ring_of_the_hundred_curses.customs_clearance.delivered")
-                                    .withStyle(ChatFormatting.GREEN), false);
+                    player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.customs_clearance.delivered").withStyle(ChatFormatting.GREEN), false);
                 }
             } else {
                 remaining.add(entry);
@@ -741,23 +704,15 @@ public class PlayerEvent {
         if (player.level().isClientSide) return;
         if (!RingUtil.configAndRing(player, getConfig().enableTimeDistortion)) return;
         if (!(player.level() instanceof ServerLevel serverLevel)) return;
-
         if (player.getRandom().nextDouble() >= getConfig().timeDistortionChance) return;
-
         int maxOffset = getConfig().timeDistortionMaxOffset;
         for (int attempt = 0; attempt < 16; attempt++) {
             double x = player.getX() + (player.getRandom().nextDouble() - 0.5) * 2 * maxOffset;
-            double y = Mth.clamp(
-                    player.getY() + player.getRandom().nextInt(16) - 8,
-                    serverLevel.getMinBuildHeight(),
-                    serverLevel.getMinBuildHeight() + serverLevel.getLogicalHeight() - 1
-            );
+            double y = Mth.clamp(player.getY() + player.getRandom().nextInt(16) - 8, serverLevel.getMinBuildHeight(), serverLevel.getMinBuildHeight() + serverLevel.getLogicalHeight() - 1);
             double z = player.getZ() + (player.getRandom().nextDouble() - 0.5) * 2 * maxOffset;
 
             if (player.randomTeleport(x, y, z, true)) {
-                player.displayClientMessage(
-                        Component.translatable("message.ring_of_the_hundred_curses.time_distortion")
-                                .withStyle(ChatFormatting.DARK_PURPLE), true);
+                player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.time_distortion").withStyle(ChatFormatting.DARK_PURPLE), true);
                 break;
             }
         }
@@ -768,11 +723,9 @@ public class PlayerEvent {
     public static void onChunkThunder(ChunkThunderEvent event) {
         Player player = event.getPlayer();
         if (!RingUtil.configAndRing(player, getConfig().enableThunderboundOath)) return;
-
         ServerLevel level = event.getLevel();
         int rarity = getConfig().thunderboundOathRarity;
         if (rarity <= 0 || level.random.nextInt(rarity) != 0) return;
-
         LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level);
         if (bolt != null) {
             bolt.moveTo(player.position());
