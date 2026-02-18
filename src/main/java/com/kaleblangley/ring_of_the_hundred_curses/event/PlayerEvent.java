@@ -732,5 +732,4 @@ public class PlayerEvent {
             level.addFreshEntity(bolt);
         }
     }
-
 }
