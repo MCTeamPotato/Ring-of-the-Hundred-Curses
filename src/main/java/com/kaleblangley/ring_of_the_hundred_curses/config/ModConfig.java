@@ -325,12 +325,14 @@ public class ModConfig implements ConfigData {
      * No Shelter: Mobs' melee attacks can hit through blocks.
      */
     public boolean enableNoShelter = true;
+    public double noShelterExtraReach = 2.0; // 额外近战攻击距离（方块），2.0可穿透1-2格厚的墙 / Extra melee reach in blocks, 2.0 penetrates 1-2 block walls
 
     /**
      * 霉运附体：挖掘矿物时时运附魔概率不生效
      * Bad Luck: The chance of fortune enchantment not triggering while mining is increased.
      */
     public boolean enableBadLuck = true;
+    public double badLuckChance = 0.5; // 时运不生效的概率 / Chance for Fortune to not apply
 
     /**
      * 时空破缺：你每次投出末影珍珠都会刷出末影螨来咬你

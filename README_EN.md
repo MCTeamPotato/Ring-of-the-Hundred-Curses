@@ -54,8 +54,8 @@ Format: (Curse Name + Curse Effect + Designer)
 38. [ ] Weak Wall: Shield durability drains when holding a shield. 鲁邦
 39. [ ] Regeneration Ban: Instant healing effects you receive will be delayed. 鲁邦
 40. [ ] Potion Conflicts: Each time you gain a positive buff, existing buffs shorten while debuffs are extended. 鲁邦
-41. [ ] No Shelter: Mobs' melee attacks can hit through blocks. 鲁邦
-42. [ ] Bad Luck: The chance of fortune enchantment not triggering while mining is increased. kl
+41. [x] No Shelter: Mobs' melee attacks can hit through blocks. 鲁邦
+42. [x] Bad Luck: The chance of fortune enchantment not triggering while mining is increased. kl
 43. [ ] Time Rift: Every time you throw an Ender Pearl, Endermites spawn to attack you. rinko
 44. [x] Time Distortion: There is a chance to be teleported to a random location near the target when using a portal. 冬香
 45. [x] Abandoned by Poseidon: The chance of fishing up junk is significantly increased. MCMostWolf

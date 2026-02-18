@@ -28,6 +28,7 @@ public class LootTableMixin {
     @Inject(method = "getRandomItems(Lnet/minecraft/world/level/storage/loot/LootContext;)Lit/unimi/dsi/fastutil/objects/ObjectArrayList;",
             at = @At("RETURN"), cancellable = true)
     private void ring_of_the_hundred_curses$modifyLootForGreedyLock(LootContext context, CallbackInfoReturnable<ObjectArrayList<ItemStack>> cir) {
+        if (context.hasParam(LootContextParams.BLOCK_STATE)) return;
         Player player = ring_of_the_hundred_curses$getPlayerFromContext(context);
         if (player == null || !RingUtil.configAndRing(player, ModConfigManager.getConfig().enableGreedyLock)) {
             return;

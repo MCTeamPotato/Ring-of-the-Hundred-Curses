@@ -73,4 +73,14 @@ public class LivingEntityMixin {
         }
         return friction;
     }
+
+    // 无处藏身：怪物的近战攻击可以穿透方块（怪物对佩戴戒指的玩家视线不受方块阻挡）
+    @Inject(method = "hasLineOfSight", at = @At("HEAD"), cancellable = true)
+    private void ring_of_the_hundred_curses$noShelter(Entity target, CallbackInfoReturnable<Boolean> cir) {
+        if (target instanceof Player player) {
+            if (RingUtil.configAndRing(player, getConfig().enableNoShelter)) {
+                cir.setReturnValue(true);
+            }
+        }
+    }
 }

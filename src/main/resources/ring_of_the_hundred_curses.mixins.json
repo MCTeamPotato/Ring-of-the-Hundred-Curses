@@ -7,11 +7,13 @@
   "mixins": [
     "AbstractArrowMixin",
     "block.BlockMixin",
+    "block.BadLuckMixin",
     "block.RespawnAnchorBlockMixin",
     "block.StepOnBlockMixin",
     "items.BowMixin",
     "entity.EntityMixin",
     "entity.LivingEntityMixin",
+    "entity.MeleeAttackGoalMixin",
     "entity.VillagerMixin",
     "FoodDataMixin",
     "ForgeGuiMixin",
