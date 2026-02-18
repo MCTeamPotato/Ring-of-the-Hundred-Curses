@@ -7,6 +7,7 @@ import com.kaleblangley.ring_of_the_hundred_curses.api.event.StepOnBlockEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
@@ -64,6 +65,7 @@ import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -730,6 +732,35 @@ public class PlayerEvent {
             }
         }
         persistentData.put(CUSTOMS_CLEARANCE_KEY, remaining);
+    }
+
+    // 时空紊乱：通过传送门时有概率被传送到目标的任意附近位置（低优先级，确保破裂之门先执行）
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public static void onTimeDistortion(PlayerChangedDimensionEvent event) {
+        Player player = event.getEntity();
+        if (player.level().isClientSide) return;
+        if (!RingUtil.configAndRing(player, getConfig().enableTimeDistortion)) return;
+        if (!(player.level() instanceof ServerLevel serverLevel)) return;
+
+        if (player.getRandom().nextDouble() >= getConfig().timeDistortionChance) return;
+
+        int maxOffset = getConfig().timeDistortionMaxOffset;
+        for (int attempt = 0; attempt < 16; attempt++) {
+            double x = player.getX() + (player.getRandom().nextDouble() - 0.5) * 2 * maxOffset;
+            double y = Mth.clamp(
+                    player.getY() + player.getRandom().nextInt(16) - 8,
+                    serverLevel.getMinBuildHeight(),
+                    serverLevel.getMinBuildHeight() + serverLevel.getLogicalHeight() - 1
+            );
+            double z = player.getZ() + (player.getRandom().nextDouble() - 0.5) * 2 * maxOffset;
+
+            if (player.randomTeleport(x, y, z, true)) {
+                player.displayClientMessage(
+                        Component.translatable("message.ring_of_the_hundred_curses.time_distortion")
+                                .withStyle(ChatFormatting.DARK_PURPLE), true);
+                break;
+            }
+        }
     }
 
     // 雷霆引誓：雷雨天更高概率被雷击中

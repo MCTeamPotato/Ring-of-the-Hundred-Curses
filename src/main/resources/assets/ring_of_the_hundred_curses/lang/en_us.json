@@ -6,5 +6,6 @@
   "message.ring_of_the_hundred_curses.deep_sea_entanglement.sinking": "Exhausted, sinking...",
   "message.ring_of_the_hundred_curses.shattered_portal": "The portal shattered behind you...",
   "message.ring_of_the_hundred_curses.customs_clearance.held": "Your traded item is held at customs. Estimated delivery: %s days",
-  "message.ring_of_the_hundred_curses.customs_clearance.delivered": "A customs package has arrived!"
+  "message.ring_of_the_hundred_curses.customs_clearance.delivered": "A customs package has arrived!",
+  "message.ring_of_the_hundred_curses.time_distortion": "Space warps around you..."
 }

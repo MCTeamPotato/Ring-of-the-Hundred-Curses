@@ -9,5 +9,6 @@
   "message.ring_of_the_hundred_curses.deep_sea_entanglement.sinking": "体力耗尽，正在下沉...",
   "message.ring_of_the_hundred_curses.shattered_portal": "§c传送门在你身后炸裂了...",
   "message.ring_of_the_hundred_curses.customs_clearance.held": "§e你的交易物品被海关扣留了，预计 %s 天后送达",
-  "message.ring_of_the_hundred_curses.customs_clearance.delivered": "§a一个海关包裹送达了！"
+  "message.ring_of_the_hundred_curses.customs_clearance.delivered": "§a一个海关包裹送达了！",
+  "message.ring_of_the_hundred_curses.time_distortion": "§5时空在你周围扭曲了..."
 }

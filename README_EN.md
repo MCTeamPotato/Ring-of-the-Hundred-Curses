@@ -57,7 +57,7 @@ Format: (Curse Name + Curse Effect + Designer)
 41. [ ] No Shelter: Mobs' melee attacks can hit through blocks. 鲁邦
 42. [ ] Bad Luck: The chance of fortune enchantment not triggering while mining is increased. kl
 43. [ ] Time Rift: Every time you throw an Ender Pearl, Endermites spawn to attack you. rinko
-44. [ ] Time Distortion: There is a chance to be teleported to a random location near the target when using a portal. 冬香
+44. [x] Time Distortion: There is a chance to be teleported to a random location near the target when using a portal. 冬香
 45. [x] Abandoned by Poseidon: The chance of fishing up junk is significantly increased. MCMostWolf
 46. [x] Outline Master: Archery has a larger arrow deviation. MCMostWolf
 47. [ ] Reborn Wrath: Every time you die to a boss, the boss not only recovers full health but becomes stronger. MCMostWolf

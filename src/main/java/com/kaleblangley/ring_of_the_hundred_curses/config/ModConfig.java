@@ -343,6 +343,8 @@ public class ModConfig implements ConfigData {
      * Time Distortion: There is a chance to be teleported to a random location near the target when using a portal.
      */
     public boolean enableTimeDistortion = true;
+    public double timeDistortionChance = 0.5; // 传送偏移的概率 / Chance of being teleported to a random nearby location
+    public int timeDistortionMaxOffset = 64;  // 最大偏移距离（方块）/ Maximum offset distance in blocks
 
     /**
      * 海神遗弃：钓上来的是垃圾概率大幅度提高
