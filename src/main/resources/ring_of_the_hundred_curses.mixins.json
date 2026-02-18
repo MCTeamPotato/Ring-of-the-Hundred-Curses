@@ -10,6 +10,7 @@
     "block.BadLuckMixin",
     "block.RespawnAnchorBlockMixin",
     "block.StepOnBlockMixin",
+    "items.ArmorItemMixin",
     "items.BowMixin",
     "entity.EntityMixin",
     "entity.LivingEntityMixin",

@@ -68,7 +68,7 @@ Format: (Curse Name + Curse Effect + Designer)
 52. [x] Grinding Wear: Grindstone consumes durability. 妖月
 53. [x] Water Shackles: Slows movement speed in water. awei
 54. [x] Misstep Peril: Sneaking no longer prevents falling off edges. Susanlynna
-55. [ ] Lavish Taste: Only armor with trims can be worn. 暮雨雨
+55. [x] Lavish Taste: Only armor with trims can be worn. 暮雨雨
 56. [ ] Shattered Eye: Ender Eyes always break upon use. 暮雨雨
 57. [ ] Draconic Favor: When the Ender Dragon breathes fire, a dragon breath area appears under the player's feet. 暮雨雨
 58. [x] Unfair Trader: Piglins may take gold without bartering. 暮雨雨
