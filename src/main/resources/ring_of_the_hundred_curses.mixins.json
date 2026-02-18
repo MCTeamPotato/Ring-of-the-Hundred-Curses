@@ -32,10 +32,14 @@
     "inventory.GrindstoneMenuMixin",
     "inventory.ResultSlotMixin",
     "items.EyeOfEnderMixin",
-    "items.MilkBucketItemMixin"
+    "items.MilkBucketItemMixin",
+    "items.BucketItemMixin",
+    "block.WetSpongeBlockMixin",
+    "block.IceBlockMixin"
   ],
   "client": [
     "MinecraftMixin",
+    "entity.LocalPlayerMixin",
     "inventory.CreativeModeInventoryScreenMixin",
     "items.CompassItemPropertyFunctionMixin"
   ],

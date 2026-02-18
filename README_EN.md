@@ -24,8 +24,8 @@ Format: (Curse Name + Curse Effect + Designer)
 8. [x] Sleepless Nights: Cannot sleep in beds. kl
 9. [ ] Weak Stomach: Raw meat gives debuffs. kl
 10. [ ] Weaponless: Cannot mine hard blocks. kl
-11. [ ] Starry Path: Cannot run when light levels are too low. kl
-12. [ ] End Water Ban: Water cannot be placed in the End. kl
+11. [x] Starry Path: Cannot run when light levels are too low. kl
+12. [x] End Water Ban: Water cannot be placed in the End. kl
 13. [x] Greedy Lock: Chests cannot give high-level loot. kl
 14. [ ] Heavy Shackles: Wearing equipment reduces movement speed. kl
 15. [ ] Weakened Strikes: Deals less damage to enemies. kl
@@ -70,7 +70,7 @@ Format: (Curse Name + Curse Effect + Designer)
 54. [x] Misstep Peril: Sneaking no longer prevents falling off edges. Susanlynna
 55. [x] Lavish Taste: Only armor with trims can be worn. 暮雨雨
 56. [ ] Shattered Eye: Ender Eyes always break upon use. 暮雨雨
-57. [ ] Draconic Favor: When the Ender Dragon breathes fire, a dragon breath area appears under the player's feet. 暮雨雨
+57. [x] Draconic Favor: When the Ender Dragon breathes fire, a dragon breath area appears under the player's feet. 暮雨雨
 58. [x] Unfair Trader: Piglins may take gold without bartering. 暮雨雨
 59. [ ] Exposed Weakness: Player takes more damage while sneaking. 暮雨雨
 60. [x] Justified Combat: Player cannot attack non-hostile creatures first. 暮雨雨

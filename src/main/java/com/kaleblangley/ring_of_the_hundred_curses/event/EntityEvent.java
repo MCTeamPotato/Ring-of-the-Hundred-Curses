@@ -5,16 +5,19 @@ import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.monster.Endermite;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.RangedAttackMob;
@@ -181,7 +184,7 @@ public class EntityEvent {
         }
 
         // 新鲜武器：武器耐久越低伤害越低
-        if (event.  getSource().getEntity() instanceof Player player) {
+        if (event.getSource().getEntity() instanceof Player player) {
             if (RingUtil.configAndRing(player, getConfig().enableFreshWeapon)) {
                 ItemStack weapon = player.getMainHandItem();
                 if (weapon.isDamageableItem()) {
@@ -202,8 +205,7 @@ public class EntityEvent {
             double testY = spawnY + y - 2;
             BlockPos groundPos = new BlockPos((int) spawnX, (int) testY - 1, (int) spawnZ);
             BlockPos spawnPos = new BlockPos((int) spawnX, (int) testY, (int) spawnZ);
-            if (level.getBlockState(groundPos).isCollisionShapeFullBlock(level, groundPos) && 
-                !level.getBlockState(spawnPos).isCollisionShapeFullBlock(level, spawnPos)) {
+            if (level.getBlockState(groundPos).isCollisionShapeFullBlock(level, groundPos) && !level.getBlockState(spawnPos).isCollisionShapeFullBlock(level, spawnPos)) {
                 spawnY = testY;
                 break;
             }
@@ -236,4 +238,24 @@ public class EntityEvent {
             }
         }
     }
-} 
+
+    // 龙阳之好：末影龙释放龙息时，玩家脚下一定会出现龙息
+    @SubscribeEvent
+    public static void onDraconicFavor(EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide) return;
+        if (!(event.getEntity() instanceof AreaEffectCloud cloud)) return;
+        if (!(cloud.getOwner() instanceof EnderDragon)) return;
+        if (cloud.getParticle() != ParticleTypes.DRAGON_BREATH) return;
+        for (Player player : event.getLevel().players()) {
+            if (!RingUtil.configAndRing(player, getConfig().enableDraconicFavor)) continue;
+            if (player.distanceTo(cloud) > 128) continue;
+            AreaEffectCloud playerCloud = new AreaEffectCloud(event.getLevel(), player.getX(), player.getY(), player.getZ());
+            playerCloud.setOwner(player);
+            playerCloud.setRadius(3.0F);
+            playerCloud.setDuration(100);
+            playerCloud.setParticle(ParticleTypes.DRAGON_BREATH);
+            playerCloud.addEffect(new MobEffectInstance(MobEffects.HARM));
+            event.getLevel().addFreshEntity(playerCloud);
+        }
+    }
+}
