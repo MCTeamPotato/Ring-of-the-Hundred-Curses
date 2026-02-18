@@ -24,6 +24,7 @@
     "entity.PlayerMisstepPerilMixin",
     "entity.FishingHookMixin",
     "entity.PiglinAiMixin",
+    "entity.ThrownTridentMixin",
     "inventory.InventoryMenuMixin",
     "inventory.GrindstoneMenuMixin",
     "inventory.ResultSlotMixin",

@@ -223,6 +223,8 @@ public class ModConfig implements ConfigData {
      * Friend or Foe: A trident with Loyalty has a chance to damage the player when returning.
      */
     public boolean enableFriendOrFoe = true;
+    public double friendOrFoeChance = 0.3; // 返回时伤害玩家的概率 / Chance to damage the player when returning
+    public float friendOrFoeDamage = 8.0f; // 造成的伤害值 / Damage dealt to the player
 
     /**
      * 无能窃贼：玩家在掠夺者营地与村庄打开战利品箱时会刷新掠夺者和村民

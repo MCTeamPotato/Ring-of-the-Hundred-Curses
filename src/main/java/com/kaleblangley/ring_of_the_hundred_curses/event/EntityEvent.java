@@ -181,7 +181,7 @@ public class EntityEvent {
         }
 
         // 新鲜武器：武器耐久越低伤害越低
-        if (event.getSource().getEntity() instanceof Player player) {
+        if (event.  getSource().getEntity() instanceof Player player) {
             if (RingUtil.configAndRing(player, getConfig().enableFreshWeapon)) {
                 ItemStack weapon = player.getMainHandItem();
                 if (weapon.isDamageableItem()) {
