@@ -30,7 +30,7 @@ Format: (Curse Name + Curse Effect + Designer)
 14. [ ] Heavy Shackles: Wearing equipment reduces movement speed. kl
 15. [ ] Weakened Strikes: Deals less damage to enemies. kl
 16. [x] Soul Suppression: Reduces experience point gain. kl
-17. [ ] Fragile Body: Fall damage cannot be mitigated. kl
+17. [x] Fragile Body: Fall damage cannot be mitigated. kl
 18. [ ] Fragile Armor: Reduces armor and toughness given by armor. kl
 19. [ ] Sluggish Hands: Reduces mining speed. kl
 20. [x] Lonely Master: Cannot tame mobs. kl
