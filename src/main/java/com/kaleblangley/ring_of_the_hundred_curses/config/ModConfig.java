@@ -281,6 +281,11 @@ public class ModConfig implements ConfigData {
      * Pressure Disorder: Moving and jumping abilities are reduced when in high or low altitudes.
      */
     public boolean enablePressureDisorder = true;
+    public double pressureDisorderLowY = 0.0; // 低于此Y值开始触发 / Effect starts below this Y level
+    public double pressureDisorderHighY = 200.0; // 高于此Y值开始触发 / Effect starts above this Y level
+    public double pressureDisorderMaxSpeedReduction = 0.5; // 最大移速降低比例 / Maximum movement speed reduction ratio
+    public double pressureDisorderMaxGravityIncrease = 1.0; // 最大重力增加比例（影响跳跃高度）/ Maximum gravity increase ratio (affects jump height)
+    public double pressureDisorderRange = 64.0; // 从阈值到最大效果的距离 / Distance from threshold to reach maximum effect
 
     /**
      * 趋同缺失：生命值降低时同时导致攻击力降低
@@ -467,6 +472,7 @@ public class ModConfig implements ConfigData {
      * Exposed Weakness: Player takes more damage while sneaking
      */
     public boolean enableExposedWeakness = true;
+    public float exposedWeaknessDamageMultiplier = 2.0f; // 潜行时受到伤害的倍率 / Damage multiplier when sneaking
 
     /**
      * 师出有名：玩家不能攻击未攻击自己的生物

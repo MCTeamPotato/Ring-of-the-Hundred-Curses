@@ -47,7 +47,7 @@ Format: (Curse Name + Curse Effect + Designer)
 31. [x] Neurological Degeneration: Negative effects are applied after respawning. 初见, kl
 32. [ ] Horrific Entity: Enemies may have a chance to gain extra health. 初见
 33. [x] Social Paradox: Villager trade prices are higher. 初见
-34. [ ] Pressure Disorder: Moving and jumping abilities are reduced when in high or low altitudes. 初见
+34. [x] Pressure Disorder: Moving and jumping abilities are reduced when in high or low altitudes. 初见
 35. [ ] Loss of Synchronicity: Lower health also reduces attack power. 初见
 36. [ ] Flesh Collapse: Respawn with a portion of your health and hunger. 初见
 37. [x] Slow Recovery: You cannot naturally regenerate health. 鲁邦
@@ -72,7 +72,7 @@ Format: (Curse Name + Curse Effect + Designer)
 56. [ ] Shattered Eye: Ender Eyes always break upon use. 暮雨雨
 57. [x] Draconic Favor: When the Ender Dragon breathes fire, a dragon breath area appears under the player's feet. 暮雨雨
 58. [x] Unfair Trader: Piglins may take gold without bartering. 暮雨雨
-59. [ ] Exposed Weakness: Player takes more damage while sneaking. 暮雨雨
+59. [x] Exposed Weakness: Player takes more damage while sneaking. 暮雨雨
 60. [x] Justified Combat: Player cannot attack non-hostile creatures first. 暮雨雨
 61. [ ] Food Coma: Eating has a delay, during which no actions can be performed. cos45
 62. [x] Barren Harvest: Crops now have a chance to drop dead bushes instead. 筍

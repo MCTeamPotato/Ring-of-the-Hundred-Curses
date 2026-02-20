@@ -181,6 +181,13 @@ public class EntityEvent {
                     player.setSecondsOnFire(fireDuration / 20);
                 }
             }
+
+            // 被刺高手：玩家潜行时，受到的伤害翻倍
+            if (RingUtil.configAndRing(player, getConfig().enableExposedWeakness)) {
+                if (player.isCrouching()) {
+                    event.setAmount(event.getAmount() * getConfig().exposedWeaknessDamageMultiplier);
+                }
+            }
         }
 
         // 新鲜武器：武器耐久越低伤害越低

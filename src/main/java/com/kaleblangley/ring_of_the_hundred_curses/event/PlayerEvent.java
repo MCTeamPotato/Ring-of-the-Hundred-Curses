@@ -8,6 +8,7 @@ import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
@@ -84,6 +85,8 @@ public class PlayerEvent {
 
     private static final List<MobEffect> HARMFUL_EFFECTS;
     private static final UUID WATER_SHACKLES_UUID = UUID.fromString("a3d2b4c1-8f7e-4d6a-9b5c-1e2f3a4b5c6d");
+    private static final UUID PRESSURE_DISORDER_SPEED_UUID = UUID.fromString("b4e3c5d2-9f8e-5e7b-ac6d-2f3a4a5b6c7e");
+    private static final UUID PRESSURE_DISORDER_GRAVITY_UUID = UUID.fromString("c5f4d6e3-af9f-6f8c-bd7e-3a4b5c6d7e8f");
 
     static {
         List<MobEffect> effects = new java.util.ArrayList<>();
@@ -445,6 +448,56 @@ public class PlayerEvent {
             speedAttr.addTransientModifier(new AttributeModifier(WATER_SHACKLES_UUID, "Water Shackles", slowdown, AttributeModifier.Operation.MULTIPLY_TOTAL));
         } else if (!shouldApply && existing != null) {
             speedAttr.removeModifier(WATER_SHACKLES_UUID);
+        }
+    }
+
+    // 气压失序：过高或过低位置减速+增加重力（降低跳跃）
+    @SubscribeEvent
+    public static void onPressureDisorderTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        Player player = event.player;
+        if (player.level().isClientSide) return;
+
+        boolean shouldApply = RingUtil.configAndRing(player, getConfig().enablePressureDisorder);
+        double intensity = 0.0;
+
+        if (shouldApply) {
+            double y = player.getY();
+            double lowY = getConfig().pressureDisorderLowY;
+            double highY = getConfig().pressureDisorderHighY;
+            double range = getConfig().pressureDisorderRange;
+
+            if (y < lowY) {
+                intensity = Math.min((lowY - y) / range, 1.0);
+            } else if (y > highY) {
+                intensity = Math.min((y - highY) / range, 1.0);
+            }
+        }
+
+        // 移速降低
+        AttributeInstance speedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (speedAttr != null) {
+            AttributeModifier existingSpeed = speedAttr.getModifier(PRESSURE_DISORDER_SPEED_UUID);
+            if (intensity > 0) {
+                double slowdown = -getConfig().pressureDisorderMaxSpeedReduction * intensity;
+                if (existingSpeed != null) speedAttr.removeModifier(PRESSURE_DISORDER_SPEED_UUID);
+                speedAttr.addTransientModifier(new AttributeModifier(PRESSURE_DISORDER_SPEED_UUID, "Pressure Disorder Speed", slowdown, AttributeModifier.Operation.MULTIPLY_TOTAL));
+            } else if (existingSpeed != null) {
+                speedAttr.removeModifier(PRESSURE_DISORDER_SPEED_UUID);
+            }
+        }
+
+        // 重力增加（降低跳跃高度）
+        AttributeInstance gravityAttr = player.getAttribute(ForgeMod.ENTITY_GRAVITY.get());
+        if (gravityAttr != null) {
+            AttributeModifier existingGravity = gravityAttr.getModifier(PRESSURE_DISORDER_GRAVITY_UUID);
+            if (intensity > 0) {
+                double gravityIncrease = getConfig().pressureDisorderMaxGravityIncrease * intensity;
+                if (existingGravity != null) gravityAttr.removeModifier(PRESSURE_DISORDER_GRAVITY_UUID);
+                gravityAttr.addTransientModifier(new AttributeModifier(PRESSURE_DISORDER_GRAVITY_UUID, "Pressure Disorder Gravity", gravityIncrease, AttributeModifier.Operation.MULTIPLY_TOTAL));
+            } else if (existingGravity != null) {
+                gravityAttr.removeModifier(PRESSURE_DISORDER_GRAVITY_UUID);
+            }
         }
     }
 
