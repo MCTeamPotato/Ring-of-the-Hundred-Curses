@@ -92,6 +92,7 @@ public class PlayerEvent {
     private static final UUID PRESSURE_DISORDER_SPEED_UUID = UUID.fromString("b4e3c5d2-9f8e-5e7b-ac6d-2f3a4a5b6c7e");
     private static final UUID PRESSURE_DISORDER_GRAVITY_UUID = UUID.fromString("c5f4d6e3-af9f-6f8c-bd7e-3a4b5c6d7e8f");
     private static final String PTSD_TRAUMA_KEY = "PTSDTraumaMobs";
+    private static final String BALANCED_DIET_KEY = "BalancedDietCounts";
 
     static {
         List<MobEffect> effects = new java.util.ArrayList<>();
@@ -103,9 +104,27 @@ public class PlayerEvent {
         HARMFUL_EFFECTS = List.copyOf(effects);
     }
 
+    // 均衡饮食：同一食物吃太多减少回复
     @SubscribeEvent
     public static void onEatFood(EatEvent event) {
         if (event.getEntity() instanceof Player player) {
+            if (RingUtil.configAndRing(player, getConfig().enableBalancedDiet)) {
+                CompoundTag data = player.getPersistentData();
+                CompoundTag dietCounts = data.contains(BALANCED_DIET_KEY, Tag.TAG_COMPOUND)
+                        ? data.getCompound(BALANCED_DIET_KEY) : new CompoundTag();
+                String foodId = ForgeRegistries.ITEMS.getKey(event.getItem()).toString();
+                int eatCount = dietCounts.getInt(foodId);
+                int threshold = getConfig().balancedDietThreshold;
+                if (eatCount >= threshold) {
+                    int extra = eatCount - threshold;
+                    float reduction = Math.min(extra * getConfig().balancedDietReductionPerExtra, getConfig().balancedDietMaxReduction);
+                    float ratio = 1.0f - reduction;
+                    event.setNutrition(Math.max((int) (event.getNutrition() * ratio), 0));
+                    event.setSaturationModifier(event.getSaturationModifier() * ratio);
+                }
+                dietCounts.putInt(foodId, eatCount + 1);
+                data.put(BALANCED_DIET_KEY, dietCounts);
+            }
             if (RingUtil.configAndRing(player, getConfig().enableHollowStomach)) {
                 int maxHunger = getConfig().hollowStomachMaxHunger;
                 FoodData foodData = player.getFoodData();
@@ -815,11 +834,17 @@ public class PlayerEvent {
         }
     }
 
+
+    // byd Event名称和类名冲突了
     @SubscribeEvent
-    public static void onPlayerClonePTSD(net.minecraftforge.event.entity.player.PlayerEvent.Clone event) {
+    public static void onPlayerClone(net.minecraftforge.event.entity.player.PlayerEvent.Clone event) {
         CompoundTag oldData = event.getOriginal().getPersistentData();
+        CompoundTag newData = event.getEntity().getPersistentData();
         if (oldData.contains(PTSD_TRAUMA_KEY, Tag.TAG_LIST)) {
-            event.getEntity().getPersistentData().put(PTSD_TRAUMA_KEY, oldData.getList(PTSD_TRAUMA_KEY, Tag.TAG_STRING).copy());
+            newData.put(PTSD_TRAUMA_KEY, oldData.getList(PTSD_TRAUMA_KEY, Tag.TAG_STRING).copy());
+        }
+        if (oldData.contains(BALANCED_DIET_KEY, Tag.TAG_COMPOUND)) {
+            newData.put(BALANCED_DIET_KEY, oldData.getCompound(BALANCED_DIET_KEY).copy());
         }
     }
 

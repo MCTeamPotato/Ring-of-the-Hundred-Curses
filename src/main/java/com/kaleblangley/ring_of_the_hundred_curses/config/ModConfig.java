@@ -520,6 +520,9 @@ public class ModConfig implements ConfigData {
      * Balanced Diet: Overconsuming a single type of food reduces its hunger restoration
      */
     public boolean enableBalancedDiet = true;
+    public int balancedDietThreshold = 5; // 同一食物食用多少次后开始减少回复 / Number of times eating the same food before penalty starts
+    public float balancedDietReductionPerExtra = 0.15f; // 每多吃一次额外减少的回复比例 / Nutrition reduction ratio per extra eat beyond threshold
+    public float balancedDietMaxReduction = 0.8f; // 最大减少比例（0.8=最多只回复20%）/ Maximum reduction ratio (0.8 = at most 20% nutrition remains)
 
     /**
      * 狼狈为奸：附近对玩家有仇恨的生物越多，玩家受到的伤害越高
