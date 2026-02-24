@@ -298,6 +298,8 @@ public class ModConfig implements ConfigData {
      * Flesh Collapse: Respawn with a portion of your health and hunger.
      */
     public boolean enableFleshCollapse = true;
+    public float fleshCollapseHealthPercent = 0.5f;
+    public float fleshCollapseHungerPercent = 0.5f;
 
     /**
      * 恢复缓慢：你不能自然回血

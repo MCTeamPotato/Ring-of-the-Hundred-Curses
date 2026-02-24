@@ -48,8 +48,8 @@ Format: (Curse Name + Curse Effect + Designer)
 32. [ ] Horrific Entity: Enemies may have a chance to gain extra health. 初见
 33. [x] Social Paradox: Villager trade prices are higher. 初见
 34. [x] Pressure Disorder: Moving and jumping abilities are reduced when in high or low altitudes. 初见
-35. [ ] Loss of Synchronicity: Lower health also reduces attack power. 初见
-36. [ ] Flesh Collapse: Respawn with a portion of your health and hunger. 初见
+35. [x] Loss of Synchronicity: Lower health also reduces attack power. 初见
+36. [x] Flesh Collapse: Respawn with a portion of your health and hunger. 初见
 37. [x] Slow Recovery: You cannot naturally regenerate health. 鲁邦
 38. [ ] Weak Wall: Shield durability drains when holding a shield. 鲁邦
 39. [ ] Regeneration Ban: Instant healing effects you receive will be delayed. 鲁邦

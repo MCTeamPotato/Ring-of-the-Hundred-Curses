@@ -58,6 +58,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
 import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.ItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
@@ -67,6 +68,7 @@ import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.BonemealEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -93,6 +95,7 @@ public class PlayerEvent {
     private static final UUID PRESSURE_DISORDER_GRAVITY_UUID = UUID.fromString("c5f4d6e3-af9f-6f8c-bd7e-3a4b5c6d7e8f");
     private static final String PTSD_TRAUMA_KEY = "PTSDTraumaMobs";
     private static final String BALANCED_DIET_KEY = "BalancedDietCounts";
+    private static final String FLESH_COLLAPSE_PENDING_KEY = "FleshCollapsePending";
 
     static {
         List<MobEffect> effects = new java.util.ArrayList<>();
@@ -183,12 +186,36 @@ public class PlayerEvent {
 
     @SubscribeEvent
     public static void neurologicalDegenerationEffect(PlayerRespawnEvent event) {
-        if (event.getEntity() instanceof Player) {
-            Player player = event.getEntity();
-            if (RingUtil.configAndRing(player, getConfig().enableNeurologicalDegeneration)) {
-                applyRandomHarmfulEffect(player);
-            }
+        Player player = event.getEntity();
+        if (player.level().isClientSide) {
+            return;
         }
+        if (RingUtil.configAndRing(player, getConfig().enableNeurologicalDegeneration)) {
+            applyRandomHarmfulEffect(player);
+        }
+        if (RingUtil.configAndRing(player, getConfig().enableFleshCollapse)) {
+            player.getPersistentData().putBoolean(FLESH_COLLAPSE_PENDING_KEY, true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerJoinLevel(EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide) {
+            return;
+        }
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        CompoundTag data = player.getPersistentData();
+        if (!data.getBoolean(FLESH_COLLAPSE_PENDING_KEY)) {
+            return;
+        }
+        if (!RingUtil.configAndRing(player, getConfig().enableFleshCollapse)) {
+            data.remove(FLESH_COLLAPSE_PENDING_KEY);
+            return;
+        }
+        applyFleshCollapse(player);
+        data.remove(FLESH_COLLAPSE_PENDING_KEY);
     }
 
     @SubscribeEvent
@@ -308,6 +335,21 @@ public class PlayerEvent {
         int duration = minDuration + player.level().random.nextInt(Math.max(1, maxDuration - minDuration + 1));
         MobEffectInstance effectInstance = new MobEffectInstance(randomEffect, duration, amplifier);
         player.addEffect(effectInstance);
+    }
+
+    private static void applyFleshCollapse(Player player) {
+        float maxHealth = player.getMaxHealth();
+        float healthPercent = Mth.clamp(getConfig().fleshCollapseHealthPercent, 0.0f, 1.0f);
+        float targetHealth = Mth.clamp(maxHealth * healthPercent, 1.0f, maxHealth);
+        player.setHealth(targetHealth);
+        int maxHunger = RingUtil.configAndRing(player, getConfig().enableHollowStomach)
+                ? Mth.clamp(getConfig().hollowStomachMaxHunger, 1, 20)
+                : 20;
+        float hungerPercent = Mth.clamp(getConfig().fleshCollapseHungerPercent, 0.0f, 1.0f);
+        int targetHunger = Mth.clamp(Math.round(maxHunger * hungerPercent), 0, maxHunger);
+        FoodData foodData = player.getFoodData();
+        foodData.setFoodLevel(targetHunger);
+        foodData.setSaturation(Math.min(foodData.getSaturationLevel(), targetHunger));
     }
 
     private static boolean isWormHoardTarget(Block block) {
@@ -523,6 +565,22 @@ public class PlayerEvent {
                 gravityAttr.removeModifier(PRESSURE_DISORDER_GRAVITY_UUID);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onLossOfSynchronicityHurt(LivingHurtEvent event) {
+        if (!(event.getSource().getEntity() instanceof Player player)) {
+            return;
+        }
+        if (!RingUtil.configAndRing(player, getConfig().enableLossOfSynchronicity)) {
+            return;
+        }
+        float maxHealth = player.getMaxHealth();
+        if (maxHealth <= 0.0f) {
+            return;
+        }
+        float healthRatio = Mth.clamp(player.getHealth() / maxHealth, 0.0f, 1.0f);
+        event.setAmount(event.getAmount() * healthRatio);
     }
 
     @SubscribeEvent
