@@ -23,6 +23,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Silverfish;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.TickTask;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.food.FoodData;
@@ -68,7 +70,6 @@ import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.BonemealEvent;
 import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -95,7 +96,6 @@ public class PlayerEvent {
     private static final UUID PRESSURE_DISORDER_GRAVITY_UUID = UUID.fromString("c5f4d6e3-af9f-6f8c-bd7e-3a4b5c6d7e8f");
     private static final String PTSD_TRAUMA_KEY = "PTSDTraumaMobs";
     private static final String BALANCED_DIET_KEY = "BalancedDietCounts";
-    private static final String FLESH_COLLAPSE_PENDING_KEY = "FleshCollapsePending";
 
     static {
         List<MobEffect> effects = new java.util.ArrayList<>();
@@ -194,28 +194,8 @@ public class PlayerEvent {
             applyRandomHarmfulEffect(player);
         }
         if (RingUtil.configAndRing(player, getConfig().enableFleshCollapse)) {
-            player.getPersistentData().putBoolean(FLESH_COLLAPSE_PENDING_KEY, true);
+            scheduleFleshCollapseApply(player);
         }
-    }
-
-    @SubscribeEvent
-    public static void onPlayerJoinLevel(EntityJoinLevelEvent event) {
-        if (event.getLevel().isClientSide) {
-            return;
-        }
-        if (!(event.getEntity() instanceof Player player)) {
-            return;
-        }
-        CompoundTag data = player.getPersistentData();
-        if (!data.getBoolean(FLESH_COLLAPSE_PENDING_KEY)) {
-            return;
-        }
-        if (!RingUtil.configAndRing(player, getConfig().enableFleshCollapse)) {
-            data.remove(FLESH_COLLAPSE_PENDING_KEY);
-            return;
-        }
-        applyFleshCollapse(player);
-        data.remove(FLESH_COLLAPSE_PENDING_KEY);
     }
 
     @SubscribeEvent
@@ -338,7 +318,7 @@ public class PlayerEvent {
     }
 
     private static void applyFleshCollapse(Player player) {
-        float maxHealth = player.getMaxHealth();
+        float maxHealth = getFleshCollapseReferenceMaxHealth(player);
         float healthPercent = Mth.clamp(getConfig().fleshCollapseHealthPercent, 0.0f, 1.0f);
         float targetHealth = Mth.clamp(maxHealth * healthPercent, 1.0f, maxHealth);
         player.setHealth(targetHealth);
@@ -350,6 +330,32 @@ public class PlayerEvent {
         FoodData foodData = player.getFoodData();
         foodData.setFoodLevel(targetHunger);
         foodData.setSaturation(Math.min(foodData.getSaturationLevel(), targetHunger));
+    }
+
+    private static float getFleshCollapseReferenceMaxHealth(Player player) {
+        float currentMaxHealth = player.getMaxHealth();
+        if (!RingUtil.configAndRing(player, getConfig().enableFragileLife)) {
+            return currentMaxHealth;
+        }
+        float fragileLifeMax = Math.max(1.0f, 20.0f - getConfig().reducesHealth);
+        return Math.min(currentMaxHealth, fragileLifeMax);
+    }
+
+    private static void scheduleFleshCollapseApply(Player player) {
+        MinecraftServer server = player.getServer();
+        if (server == null) {
+            return;
+        }
+        int runTick = server.getTickCount() + 10;
+        server.tell(new TickTask(runTick, () -> {
+            if (player.isRemoved() || player.level().isClientSide) {
+                return;
+            }
+            if (!RingUtil.configAndRing(player, getConfig().enableFleshCollapse)) {
+                return;
+            }
+            applyFleshCollapse(player);
+        }));
     }
 
     private static boolean isWormHoardTarget(Block block) {
