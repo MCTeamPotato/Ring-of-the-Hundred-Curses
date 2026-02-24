@@ -570,7 +570,6 @@ public class ModConfig implements ConfigData {
      * PTSD: If the player was previously killed by a mob, encountering it again causes a debuff
      */
     public boolean enablePTSD = true;
-    public double ptsdDetectionRange = 16.0; // 检测创伤生物的范围（方块）/ Detection range for trauma mobs (blocks)
     public int ptsdDebuffDuration = 200; // debuff持续时间（tick）/ Debuff duration in ticks
     public int ptsdDebuffAmplifier = 0; // debuff等级 / Debuff amplifier level
     public int ptsdMaxTraumaCount = 10; // 最多记录的创伤生物种类数量 / Maximum number of trauma mob types stored

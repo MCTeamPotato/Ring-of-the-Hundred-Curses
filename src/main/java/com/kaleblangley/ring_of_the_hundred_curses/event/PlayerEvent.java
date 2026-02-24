@@ -56,6 +56,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
+import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.ItemPickupEvent;
@@ -822,28 +823,20 @@ public class PlayerEvent {
         }
     }
 
-    // 创伤应激：检测附近是否有创伤生物，有则施加debuff
+    // 创伤应激：怪物将玩家设为攻击目标时，检查是否为创伤生物
     @SubscribeEvent
-    public static void onPTSDTick(TickEvent.PlayerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
-        Player player = event.player;
+    public static void onPTSDTargeted(LivingChangeTargetEvent event) {
+        if (!(event.getNewTarget() instanceof Player player)) return;
         if (player.level().isClientSide) return;
         if (!RingUtil.configAndRing(player, getConfig().enablePTSD)) return;
-        if (player.tickCount % 20 != 0) return;
         CompoundTag data = player.getPersistentData();
         if (!data.contains(PTSD_TRAUMA_KEY, Tag.TAG_LIST)) return;
         ListTag traumaList = data.getList(PTSD_TRAUMA_KEY, Tag.TAG_STRING);
-        if (traumaList.isEmpty()) return;
-        double range = getConfig().ptsdDetectionRange;
-        AABB searchBox = player.getBoundingBox().inflate(range);
-        var nearbyEntities = player.level().getEntitiesOfClass(LivingEntity.class, searchBox, e -> e != player);
-        for (LivingEntity entity : nearbyEntities) {
-            String entityType = EntityType.getKey(entity.getType()).toString();
-            for (int i = 0; i < traumaList.size(); i++) {
-                if (traumaList.getString(i).equals(entityType)) {
-                    applyPTSDDebuff(player);
-                    return;
-                }
+        String entityType = EntityType.getKey(event.getEntity().getType()).toString();
+        for (int i = 0; i < traumaList.size(); i++) {
+            if (traumaList.getString(i).equals(entityType)) {
+                applyPTSDDebuff(player);
+                return;
             }
         }
     }
