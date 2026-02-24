@@ -5,13 +5,16 @@ import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.AreaEffectCloud;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
@@ -19,11 +22,11 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
-import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.Endermite;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ThrownEnderpearl;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -45,6 +48,7 @@ import net.minecraftforge.event.entity.living.LivingSwapItemsEvent;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.common.Tags;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -94,12 +98,7 @@ public class EntityEvent {
         if (healthBonus <= 0.0f) {
             return;
         }
-        maxHealthAttr.addPermanentModifier(new AttributeModifier(
-                HORRIFIC_ENTITY_HEALTH_UUID,
-                "Horrific Entity Health",
-                healthBonus,
-                AttributeModifier.Operation.MULTIPLY_TOTAL
-        ));
+        maxHealthAttr.addPermanentModifier(new AttributeModifier(HORRIFIC_ENTITY_HEALTH_UUID, "Horrific Entity Health", healthBonus, AttributeModifier.Operation.MULTIPLY_TOTAL));
         monster.setHealth(monster.getMaxHealth());
     }
 
@@ -190,17 +189,54 @@ public class EntityEvent {
         if (!RingUtil.configAndRing(player, getConfig().enableRebornWrath)) {
             return;
         }
-        if (!(event.getSource().getEntity() instanceof LivingEntity killer)) {
-            return;
-        }
-        if (!isRebornWrathBoss(killer)) {
+        LivingEntity killer = resolveRebornWrathBoss(player, event);
+        if (killer == null) {
             return;
         }
         empowerRebornWrathBoss(killer);
     }
 
+    private static LivingEntity resolveRebornWrathBoss(Player player, LivingDeathEvent event) {
+        Entity sourceEntity = event.getSource().getEntity();
+        if (sourceEntity instanceof LivingEntity sourceLiving && isRebornWrathBoss(sourceLiving)) {
+            return sourceLiving;
+        }
+        Entity directEntity = event.getSource().getDirectEntity();
+        if (directEntity instanceof LivingEntity directLiving && isRebornWrathBoss(directLiving)) {
+            return directLiving;
+        }
+        if (directEntity instanceof Projectile projectile
+                && projectile.getOwner() instanceof LivingEntity owner
+                && isRebornWrathBoss(owner)) {
+            return owner;
+        }
+        LivingEntity lastHurtByMob = player.getLastHurtByMob();
+        if (lastHurtByMob != null && isRebornWrathBoss(lastHurtByMob)) {
+            return lastHurtByMob;
+        }
+        return null;
+    }
+
     private static boolean isRebornWrathBoss(LivingEntity livingEntity) {
-        return livingEntity instanceof EnderDragon || livingEntity instanceof WitherBoss;
+        EntityType<?> entityType = livingEntity.getType();
+        if (entityType.is(Tags.EntityTypes.BOSSES)) {
+            return true;
+        }
+        ResourceLocation entityId = EntityType.getKey(entityType);
+        for (String target : getConfig().rebornWrathBossTargets) {
+            if (target.startsWith("#")) {
+                try {
+                    TagKey<EntityType<?>> tagKey = TagKey.create(Registries.ENTITY_TYPE, new ResourceLocation(target.substring(1)));
+                    if (entityType.is(tagKey)) {
+                        return true;
+                    }
+                } catch (Exception ignored) {
+                }
+            } else if (target.equals(entityId.toString())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void empowerRebornWrathBoss(LivingEntity boss) {
@@ -216,24 +252,14 @@ public class EntityEvent {
         if (maxHealth != null) {
             maxHealth.removeModifier(REBORN_WRATH_HEALTH_UUID);
             if (totalHealthBonus > 0.0d) {
-                maxHealth.addPermanentModifier(new AttributeModifier(
-                        REBORN_WRATH_HEALTH_UUID,
-                        "Reborn Wrath Health",
-                        totalHealthBonus,
-                        AttributeModifier.Operation.MULTIPLY_TOTAL
-                ));
+                maxHealth.addPermanentModifier(new AttributeModifier(REBORN_WRATH_HEALTH_UUID, "Reborn Wrath Health", totalHealthBonus, AttributeModifier.Operation.MULTIPLY_TOTAL));
             }
         }
         AttributeInstance attackDamage = boss.getAttribute(Attributes.ATTACK_DAMAGE);
         if (attackDamage != null) {
             attackDamage.removeModifier(REBORN_WRATH_ATTACK_UUID);
             if (totalAttackBonus > 0.0d) {
-                attackDamage.addPermanentModifier(new AttributeModifier(
-                        REBORN_WRATH_ATTACK_UUID,
-                        "Reborn Wrath Attack",
-                        totalAttackBonus,
-                        AttributeModifier.Operation.MULTIPLY_TOTAL
-                ));
+                attackDamage.addPermanentModifier(new AttributeModifier(REBORN_WRATH_ATTACK_UUID, "Reborn Wrath Attack", totalAttackBonus, AttributeModifier.Operation.MULTIPLY_TOTAL));
             }
         }
 

@@ -397,6 +397,11 @@ public class ModConfig implements ConfigData {
     public int rebornWrathMaxStacks = 8;
     public float rebornWrathHealthBonusPerDeath = 0.2f;
     public float rebornWrathAttackBonusPerDeath = 0.15f;
+    public String[] rebornWrathBossTargets = {
+        "#forge:bosses",
+        "minecraft:ender_dragon",
+        "minecraft:wither"
+    };
 
     /**
      * 速行之困：跑步消耗氧气
