@@ -80,7 +80,7 @@ Format: (Curse Name + Curse Effect + Designer)
 64. [x] Hostile Flora: Plants can deal damage to the player. Christen
 65. [x] Deep Sea Entanglement: Swimming has a time limit; after which the player starts sinking. Christen
 66. [x] Balanced Diet: Overconsuming a single type of food reduces its hunger restoration. Christen
-67. [ ] United Adversaries: The more hostile mobs nearby, the more damage the player takes. Christen
+67. [x] United Adversaries: The more hostile mobs nearby, the more damage the player takes. Christen
 68. [ ] Bleeding Wound: Taking damage has a chance to cause continuous health loss. Christen
 69. [ ] Feast or Famine: Having too low or too high saturation applies debuffs. Christen
 70. [x] Pulmonary Fibrosis: Reduces maximum oxygen. Christen

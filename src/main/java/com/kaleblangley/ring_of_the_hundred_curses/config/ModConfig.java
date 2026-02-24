@@ -531,6 +531,9 @@ public class ModConfig implements ConfigData {
      * United Adversaries: The more hostile mobs nearby, the more damage the player takes
      */
     public boolean enableUnitedAdversaries = true;
+    public double unitedAdversariesRange = 16.0;
+    public float unitedAdversariesPerMobBonus = 0.05f;
+    public float unitedAdversariesMaxBonus = 1.0f;
 
     /**
      * 创伤开口：受到伤害概率持续掉血

@@ -590,6 +590,29 @@ public class PlayerEvent {
     }
 
     @SubscribeEvent
+    public static void onUnitedAdversariesHurt(LivingHurtEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        if (player.level().isClientSide) {
+            return;
+        }
+        if (!RingUtil.configAndRing(player, getConfig().enableUnitedAdversaries)) {
+            return;
+        }
+        double range = Math.max(1.0d, getConfig().unitedAdversariesRange);
+        int hostileCount = player.level().getEntitiesOfClass(Monster.class, player.getBoundingBox().inflate(range),
+                monster -> monster.isAlive() && monster.getTarget() == player).size();
+        if (hostileCount <= 0) {
+            return;
+        }
+        float perMobBonus = Math.max(0.0f, getConfig().unitedAdversariesPerMobBonus);
+        float maxBonus = Math.max(0.0f, getConfig().unitedAdversariesMaxBonus);
+        float bonus = Math.min(hostileCount * perMobBonus, maxBonus);
+        event.setAmount(event.getAmount() * (1.0f + bonus));
+    }
+
+    @SubscribeEvent
     public static void onStepOnBlock(StepOnBlockEvent event) {
         if (event.getLevel().isClientSide) return;
         if (!(event.getEntity() instanceof Player player)) return;
