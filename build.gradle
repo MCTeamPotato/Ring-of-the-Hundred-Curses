@@ -17,11 +17,11 @@ java {
 legacyForge {
     version = "${minecraft_version}-${forge_version}"
 
-    if (Boolean.getBoolean(enableAccessTransformers)){
+    if (Boolean.getBoolean(enableAccessTransformers)) {
         accessTransformers = [file('src/main/resources/META-INF/accesstransformer.cfg')]
     }
 
-    if (mapping_channel=="parchment"){
+    if (mapping_channel == "parchment") {
         parchment {
             minecraftVersion = '1.20.1'
             mappingsVersion = '2023.09.03'
@@ -57,6 +57,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 repositories {
     maven { url = "https://maven.theillusivec4.top/" }
     maven { url "https://maven.shedaniel.me/" }
+    maven { url "https://cursemaven.com" }
 }
 
 dependencies {
@@ -64,6 +65,8 @@ dependencies {
     modCompileOnly("top.theillusivec4.curios:curios-forge:${curios_version}:api")
     modRuntimeOnly("top.theillusivec4.curios:curios-forge:${curios_version}")
 
+    modRuntimeOnly("curse.maven:jade-324717:6855440")
+    modRuntimeOnly("curse.maven:neat-238372:5838485")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixinextras_version}"))
     modImplementation(jarJar("io.github.llamalad7:mixinextras-forge:${mixinextras_version}"))
@@ -72,31 +75,28 @@ dependencies {
 }
 
 processResources {
-    var replaceProperties = [
-            minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
-            forge_version: forge_version, forge_version_range: forge_version_range,
-            loader_version_range: loader_version_range,
-            mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_authors: mod_authors, mod_description: mod_description,
-    ]
+    var replaceProperties = [minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
+                             forge_version       : forge_version, forge_version_range: forge_version_range,
+                             loader_version_range: loader_version_range,
+                             mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+                             mod_authors         : mod_authors, mod_description: mod_description,]
 
     inputs.properties replaceProperties
 
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
         expand replaceProperties + [project: project]
-    }}
+    }
+}
 
 jar {
     manifest {
-        attributes([
-                "Specification-Title": mod_id,
-                "Specification-Vendor": mod_authors,
-                "Specification-Version": "1", // We are version 1 of ourselves
-                "Implementation-Title": project.name,
-                "Implementation-Version": project.jar.archiveVersion,
-                "Implementation-Vendor": mod_authors,
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+        attributes(["Specification-Title"     : mod_id,
+                    "Specification-Vendor"    : mod_authors,
+                    "Specification-Version"   : "1", // We are version 1 of ourselves
+                    "Implementation-Title"    : project.name,
+                    "Implementation-Version"  : project.jar.archiveVersion,
+                    "Implementation-Vendor"   : mod_authors,
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")])
     }
 
     finalizedBy 'reobfJar'

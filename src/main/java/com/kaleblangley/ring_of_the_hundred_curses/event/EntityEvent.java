@@ -23,12 +23,15 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ThrownEnderpearl;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.Mth;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.AnimalTameEvent;
@@ -44,19 +47,58 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager.getConfig;
-import static com.kaleblangley.ring_of_the_hundred_curses.init.ModEventKeys.JUSTIFIED_COMBAT_TAG;
+import static com.kaleblangley.ring_of_the_hundred_curses.init.ModEventKeys.*;
 
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class EntityEvent {
 
     @SubscribeEvent
     public static void entitySpawn(EntityJoinLevelEvent event) {
+        if (event.getLevel().isClientSide) {
+            return;
+        }
         if (event.getEntity() instanceof LivingEntity livingEntity) {
             if (livingEntity instanceof PathfinderMob mob && !(mob instanceof RangedAttackMob) && getConfig().enableWorldAgainst) {
                 mob.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(mob, Player.class, getConfig().entityAttackChange, true, false, entity -> entity instanceof Player player && RingUtil.isEquipRing(player)));
                 mob.goalSelector.addGoal(1, new MeleeAttackGoal(mob, getConfig().entityAttackSpeed, true));
             }
+            if (livingEntity instanceof Monster monster && getConfig().enableHorrificEntity) {
+                applyHorrificEntityHealthBoost(monster);
+            }
         }
+    }
+
+    private static void applyHorrificEntityHealthBoost(Monster monster) {
+        CompoundTag data = monster.getPersistentData();
+        if (data.getBoolean(HORRIFIC_ENTITY_ROLLED_TAG)) {
+            return;
+        }
+        data.putBoolean(HORRIFIC_ENTITY_ROLLED_TAG, true);
+        float chance = Mth.clamp(getConfig().horrificEntityChance, 0.0f, 1.0f);
+        if (monster.getRandom().nextFloat() >= chance) {
+            return;
+        }
+
+        var maxHealthAttr = monster.getAttribute(Attributes.MAX_HEALTH);
+        if (maxHealthAttr == null) {
+            return;
+        }
+        if (maxHealthAttr.getModifier(HORRIFIC_ENTITY_HEALTH_UUID) != null) {
+            return;
+        }
+        float minBonus = Math.max(0.0f, getConfig().horrificEntityMinHealthBonus);
+        float maxBonus = Math.max(minBonus, getConfig().horrificEntityMaxHealthBonus);
+        float healthBonus = minBonus + monster.getRandom().nextFloat() * (maxBonus - minBonus);
+        if (healthBonus <= 0.0f) {
+            return;
+        }
+        maxHealthAttr.addPermanentModifier(new AttributeModifier(
+                HORRIFIC_ENTITY_HEALTH_UUID,
+                "Horrific Entity Health",
+                healthBonus,
+                AttributeModifier.Operation.MULTIPLY_TOTAL
+        ));
+        monster.setHealth(monster.getMaxHealth());
     }
 
     @SubscribeEvent

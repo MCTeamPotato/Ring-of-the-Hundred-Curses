@@ -45,7 +45,7 @@ Format: (Curse Name + Curse Effect + Designer)
 29. [ ] Horde Mind: After killing a mob, there is a chance to spawn the same mob in place. 初见
 30. [ ] Focus Disturbance: Attacks, placements, and crafting have a chance to fail. 初见
 31. [x] Neurological Degeneration: Negative effects are applied after respawning. 初见, kl
-32. [ ] Horrific Entity: Enemies may have a chance to gain extra health. 初见
+32. [x] Horrific Entity: Enemies may have a chance to gain extra health. 初见
 33. [x] Social Paradox: Villager trade prices are higher. 初见
 34. [x] Pressure Disorder: Moving and jumping abilities are reduced when in high or low altitudes. 初见
 35. [x] Loss of Synchronicity: Lower health also reduces attack power. 初见

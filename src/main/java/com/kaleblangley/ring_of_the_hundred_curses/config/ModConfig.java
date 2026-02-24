@@ -268,6 +268,9 @@ public class ModConfig implements ConfigData {
      * Horrific Entity: Enemies may have a chance to gain extra health.
      */
     public boolean enableHorrificEntity = true;
+    public float horrificEntityChance = 0.25f;
+    public float horrificEntityMinHealthBonus = 0.2f;
+    public float horrificEntityMaxHealthBonus = 0.8f;
 
     /**
      * 社会悖论：村民交易价格提升
