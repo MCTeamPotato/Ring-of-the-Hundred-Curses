@@ -43,10 +43,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.Containers;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -54,6 +56,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraftforge.event.ItemStackedOnOtherEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.ItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
@@ -87,6 +90,7 @@ public class PlayerEvent {
     private static final UUID WATER_SHACKLES_UUID = UUID.fromString("a3d2b4c1-8f7e-4d6a-9b5c-1e2f3a4b5c6d");
     private static final UUID PRESSURE_DISORDER_SPEED_UUID = UUID.fromString("b4e3c5d2-9f8e-5e7b-ac6d-2f3a4a5b6c7e");
     private static final UUID PRESSURE_DISORDER_GRAVITY_UUID = UUID.fromString("c5f4d6e3-af9f-6f8c-bd7e-3a4b5c6d7e8f");
+    private static final String PTSD_TRAUMA_KEY = "PTSDTraumaMobs";
 
     static {
         List<MobEffect> effects = new java.util.ArrayList<>();
@@ -784,5 +788,71 @@ public class PlayerEvent {
             bolt.moveTo(player.position());
             level.addFreshEntity(bolt);
         }
+    }
+
+    // 创伤应激：玩家被生物杀死时，记录该生物类型到NBT
+    @SubscribeEvent
+    public static void onPlayerDeathPTSD(LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (!RingUtil.configAndRing(player, getConfig().enablePTSD)) return;
+        if (event.getSource().getEntity() instanceof LivingEntity killer) {
+            var killerTypeKey = EntityType.getKey(killer.getType());
+            String killerType = killerTypeKey.toString();
+            CompoundTag data = player.getPersistentData();
+            ListTag traumaList = data.contains(PTSD_TRAUMA_KEY, Tag.TAG_LIST)
+                    ? data.getList(PTSD_TRAUMA_KEY, Tag.TAG_STRING)
+                    : new ListTag();
+            for (int i = 0; i < traumaList.size(); i++) {
+                if (traumaList.getString(i).equals(killerType)) return;
+            }
+            traumaList.add(StringTag.valueOf(killerType));
+            int max = getConfig().ptsdMaxTraumaCount;
+            while (traumaList.size() > max) {
+                traumaList.remove(0);
+            }
+            data.put(PTSD_TRAUMA_KEY, traumaList);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerClonePTSD(net.minecraftforge.event.entity.player.PlayerEvent.Clone event) {
+        CompoundTag oldData = event.getOriginal().getPersistentData();
+        if (oldData.contains(PTSD_TRAUMA_KEY, Tag.TAG_LIST)) {
+            event.getEntity().getPersistentData().put(PTSD_TRAUMA_KEY, oldData.getList(PTSD_TRAUMA_KEY, Tag.TAG_STRING).copy());
+        }
+    }
+
+    // 创伤应激：检测附近是否有创伤生物，有则施加debuff
+    @SubscribeEvent
+    public static void onPTSDTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        Player player = event.player;
+        if (player.level().isClientSide) return;
+        if (!RingUtil.configAndRing(player, getConfig().enablePTSD)) return;
+        if (player.tickCount % 20 != 0) return;
+        CompoundTag data = player.getPersistentData();
+        if (!data.contains(PTSD_TRAUMA_KEY, Tag.TAG_LIST)) return;
+        ListTag traumaList = data.getList(PTSD_TRAUMA_KEY, Tag.TAG_STRING);
+        if (traumaList.isEmpty()) return;
+        double range = getConfig().ptsdDetectionRange;
+        AABB searchBox = player.getBoundingBox().inflate(range);
+        var nearbyEntities = player.level().getEntitiesOfClass(LivingEntity.class, searchBox, e -> e != player);
+        for (LivingEntity entity : nearbyEntities) {
+            String entityType = EntityType.getKey(entity.getType()).toString();
+            for (int i = 0; i < traumaList.size(); i++) {
+                if (traumaList.getString(i).equals(entityType)) {
+                    applyPTSDDebuff(player);
+                    return;
+                }
+            }
+        }
+    }
+
+    private static void applyPTSDDebuff(Player player) {
+        int duration = getConfig().ptsdDebuffDuration;
+        int amplifier = getConfig().ptsdDebuffAmplifier;
+        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, amplifier, false, true));
+        player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, duration, amplifier, false, true));
+        player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, duration, amplifier, false, true));
     }
 }

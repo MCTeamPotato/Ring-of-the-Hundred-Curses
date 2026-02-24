@@ -87,7 +87,7 @@ Format: (Curse Name + Curse Effect + Designer)
 71. [ ] Bargaining Power: The higher the health of a trading entity, the more expensive its trades. Christen
 72. [x] Hollow Stomach: Reduces maximum saturation. kl
 73. [ ] Distant Deflection: Introduces universal damage cap and ranged damage resistance. rinko
-74. [ ] PTSD: If the player was previously killed by a mob, encountering it again causes a debuff. Textrue
+74. [x] PTSD: If the player was previously killed by a mob, encountering it again causes a debuff. Textrue
 75. [ ] Curse of Misfortune: The player's dropped items are calculated multiple times, taking the worst result. 咒神灰
 76. [x] Lactose Intolerance: You cannot remove negative effects with milk. rinko
 77. [x] Depth Charge: Fishing has a chance to catch something bad. 咒神灰
