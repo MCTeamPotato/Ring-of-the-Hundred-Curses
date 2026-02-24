@@ -44,6 +44,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager.getConfig;
+import static com.kaleblangley.ring_of_the_hundred_curses.init.ModEventKeys.JUSTIFIED_COMBAT_TAG;
 
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class EntityEvent {
@@ -222,8 +223,6 @@ public class EntityEvent {
         endermite.setTarget(player);
         level.addFreshEntity(endermite);
     }
-
-    private static final String JUSTIFIED_COMBAT_TAG = "ring_of_the_hundred_curses.attacked_player";
 
     @SubscribeEvent
     public static void onPlayerHurt(LivingHurtEvent event) {

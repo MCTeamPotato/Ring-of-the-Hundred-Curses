@@ -26,10 +26,6 @@ import java.util.Map;
 
 import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager.getConfig;
 
-/**
- * 霉运附体：挖掘矿物时时运附魔概率不生效
- * Bad Luck: Fortune enchantment has a chance to not work when mining.
- */
 @Mixin(Block.class)
 public class BadLuckMixin {
 
@@ -45,19 +41,13 @@ public class BadLuckMixin {
     ) {
         if (!(entity instanceof Player player)) return;
         if (!RingUtil.configAndRing(player, getConfig().enableBadLuck)) return;
-
         int fortuneLevel = tool.getEnchantmentLevel(Enchantments.BLOCK_FORTUNE);
         if (fortuneLevel <= 0) return;
-
         if (player.getRandom().nextDouble() >= getConfig().badLuckChance) return;
-
-        // Create tool copy with Fortune removed
         ItemStack toolCopy = tool.copy();
         Map<Enchantment, Integer> enchants = EnchantmentHelper.getEnchantments(toolCopy);
         enchants.remove(Enchantments.BLOCK_FORTUNE);
         EnchantmentHelper.setEnchantments(enchants, toolCopy);
-
-        // Build LootParams with the modified tool (same as vanilla Block.getDrops)
         LootParams.Builder builder = new LootParams.Builder(level)
                 .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
                 .withParameter(LootContextParams.TOOL, toolCopy)

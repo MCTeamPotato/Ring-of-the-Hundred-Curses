@@ -19,7 +19,6 @@ public class CompassItemPropertyFunctionMixin {
     private void ring_of_the_hundred_curses$disableCompass(ItemStack pStack, ClientLevel pLevel, LivingEntity pEntity, int pSeed, CallbackInfoReturnable<Float> cir) {
         Entity entity = pEntity != null ? pEntity : pStack.getEntityRepresentation();
         if (entity instanceof LivingEntity livingEntity && RingUtil.configAndRing(livingEntity, ModConfigManager.getConfig().enableLostDirection)) {
-            // Return a random-ish rotation based on game time to make the compass spin
             long time = pLevel != null ? pLevel.getGameTime() : 0;
             double rotation = Math.sin(time * 0.1) * 0.5 + Math.random() * 0.1;
             cir.setReturnValue((float) rotation);

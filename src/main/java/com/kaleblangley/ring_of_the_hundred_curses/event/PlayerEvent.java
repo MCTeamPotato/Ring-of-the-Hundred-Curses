@@ -83,19 +83,14 @@ import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager.getConfig;
+import static com.kaleblangley.ring_of_the_hundred_curses.init.ModPlayerEventKeys.*;
 
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PlayerEvent {
 
     private static final List<MobEffect> HARMFUL_EFFECTS;
-    private static final UUID WATER_SHACKLES_UUID = UUID.fromString("a3d2b4c1-8f7e-4d6a-9b5c-1e2f3a4b5c6d");
-    private static final UUID PRESSURE_DISORDER_SPEED_UUID = UUID.fromString("b4e3c5d2-9f8e-5e7b-ac6d-2f3a4a5b6c7e");
-    private static final UUID PRESSURE_DISORDER_GRAVITY_UUID = UUID.fromString("c5f4d6e3-af9f-6f8c-bd7e-3a4b5c6d7e8f");
-    private static final String PTSD_TRAUMA_KEY = "PTSDTraumaMobs";
-    private static final String BALANCED_DIET_KEY = "BalancedDietCounts";
 
     static {
         List<MobEffect> effects = new java.util.ArrayList<>();
@@ -633,7 +628,6 @@ public class PlayerEvent {
         event.setEnchantLevel(Math.min(newLevel, 30));
     }
 
-    private static final String OVERZEALOUS_GROWTH_KEY = "OverzealousGrowthCounts";
 
     @SubscribeEvent
     public static void onBonemeal(BonemealEvent event) {
@@ -686,7 +680,6 @@ public class PlayerEvent {
         }
     }
 
-    private static final String SWIM_TIME_KEY = "DeepSeaEntanglementSwimTick";
 
     @SubscribeEvent
     public static void onDeepSeaEntanglementTick(TickEvent.PlayerTickEvent event) {
@@ -801,7 +794,6 @@ public class PlayerEvent {
     }
 
     // 海关过境：高级村民交易需要等待几天才能拿到物品
-    private static final String CUSTOMS_CLEARANCE_KEY = "CustomsClearancePending";
 
     @SubscribeEvent
     public static void onCustomsClearanceTrade(TradeWithVillagerEvent event) {
