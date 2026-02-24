@@ -60,7 +60,7 @@ Format: (Curse Name + Curse Effect + Designer)
 44. [x] Time Distortion: There is a chance to be teleported to a random location near the target when using a portal. 冬香
 45. [x] Abandoned by Poseidon: The chance of fishing up junk is significantly increased. MCMostWolf
 46. [x] Outline Master: Archery has a larger arrow deviation. MCMostWolf
-47. [ ] Reborn Wrath: Every time you die to a boss, the boss not only recovers full health but becomes stronger. MCMostWolf
+47. [x] Reborn Wrath: Every time you die to a boss, the boss not only recovers full health but becomes stronger. MCMostWolf
 48. [x] Oxygen Deprivation: Running depletes oxygen. 赤麦RedWheat
 49. [x] Worm Hoard: Mining stone has a chance to spawn Silverfish. 赤麦RedWheat
 50. [x] Hypocrisy Body: Reduces player's invincibility frames. kl

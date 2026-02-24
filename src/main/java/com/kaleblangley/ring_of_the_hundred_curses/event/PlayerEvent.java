@@ -895,7 +895,7 @@ public class PlayerEvent {
         if (!(event.getEntity() instanceof Player player)) return;
         if (!RingUtil.configAndRing(player, getConfig().enablePTSD)) return;
         if (event.getSource().getEntity() instanceof LivingEntity killer) {
-            var killerTypeKey = EntityType.getKey(killer.getType());
+            ResourceLocation killerTypeKey = EntityType.getKey(killer.getType());
             String killerType = killerTypeKey.toString();
             CompoundTag data = player.getPersistentData();
             ListTag traumaList = data.contains(PTSD_TRAUMA_KEY, Tag.TAG_LIST)

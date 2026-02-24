@@ -394,6 +394,9 @@ public class ModConfig implements ConfigData {
      * Reborn Wrath: Every time you die to a boss, the boss not only recovers full health but becomes stronger.
      */
     public boolean enableRebornWrath = true;
+    public int rebornWrathMaxStacks = 8;
+    public float rebornWrathHealthBonusPerDeath = 0.2f;
+    public float rebornWrathAttackBonusPerDeath = 0.15f;
 
     /**
      * 速行之困：跑步消耗氧气

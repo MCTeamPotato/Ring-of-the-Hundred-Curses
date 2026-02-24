@@ -15,9 +15,11 @@ import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.monster.Endermite;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.RangedAttackMob;
@@ -79,7 +81,7 @@ public class EntityEvent {
             return;
         }
 
-        var maxHealthAttr = monster.getAttribute(Attributes.MAX_HEALTH);
+        AttributeInstance maxHealthAttr = monster.getAttribute(Attributes.MAX_HEALTH);
         if (maxHealthAttr == null) {
             return;
         }
@@ -175,6 +177,67 @@ public class EntityEvent {
                 deadEntity.level().addFreshEntity(newEntity);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onRebornWrath(LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
+        if (player.level().isClientSide) {
+            return;
+        }
+        if (!RingUtil.configAndRing(player, getConfig().enableRebornWrath)) {
+            return;
+        }
+        if (!(event.getSource().getEntity() instanceof LivingEntity killer)) {
+            return;
+        }
+        if (!isRebornWrathBoss(killer)) {
+            return;
+        }
+        empowerRebornWrathBoss(killer);
+    }
+
+    private static boolean isRebornWrathBoss(LivingEntity livingEntity) {
+        return livingEntity instanceof EnderDragon || livingEntity instanceof WitherBoss;
+    }
+
+    private static void empowerRebornWrathBoss(LivingEntity boss) {
+        CompoundTag data = boss.getPersistentData();
+        int maxStacks = Math.max(1, getConfig().rebornWrathMaxStacks);
+        int stacks = Math.min(data.getInt(REBORN_WRATH_STACKS_KEY) + 1, maxStacks);
+        data.putInt(REBORN_WRATH_STACKS_KEY, stacks);
+        float healthBonusPerDeath = Math.max(0.0f, getConfig().rebornWrathHealthBonusPerDeath);
+        float attackBonusPerDeath = Math.max(0.0f, getConfig().rebornWrathAttackBonusPerDeath);
+        double totalHealthBonus = healthBonusPerDeath * stacks;
+        double totalAttackBonus = attackBonusPerDeath * stacks;
+        AttributeInstance maxHealth = boss.getAttribute(Attributes.MAX_HEALTH);
+        if (maxHealth != null) {
+            maxHealth.removeModifier(REBORN_WRATH_HEALTH_UUID);
+            if (totalHealthBonus > 0.0d) {
+                maxHealth.addPermanentModifier(new AttributeModifier(
+                        REBORN_WRATH_HEALTH_UUID,
+                        "Reborn Wrath Health",
+                        totalHealthBonus,
+                        AttributeModifier.Operation.MULTIPLY_TOTAL
+                ));
+            }
+        }
+        AttributeInstance attackDamage = boss.getAttribute(Attributes.ATTACK_DAMAGE);
+        if (attackDamage != null) {
+            attackDamage.removeModifier(REBORN_WRATH_ATTACK_UUID);
+            if (totalAttackBonus > 0.0d) {
+                attackDamage.addPermanentModifier(new AttributeModifier(
+                        REBORN_WRATH_ATTACK_UUID,
+                        "Reborn Wrath Attack",
+                        totalAttackBonus,
+                        AttributeModifier.Operation.MULTIPLY_TOTAL
+                ));
+            }
+        }
+
+        boss.setHealth(boss.getMaxHealth());
     }
 
     @SubscribeEvent
