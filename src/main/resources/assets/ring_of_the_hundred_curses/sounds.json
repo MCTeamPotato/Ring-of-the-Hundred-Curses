@@ -1,0 +1,10 @@
+{
+  "betterremix": {
+    "sounds": [
+      {
+        "name": "ring_of_the_hundred_curses:betterremix",
+        "stream": true
+      }
+    ]
+  }
+}

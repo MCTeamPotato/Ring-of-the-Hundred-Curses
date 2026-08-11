@@ -4,9 +4,6 @@ import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
@@ -32,14 +29,6 @@ public abstract class ArmorItemMixin {
         if (!ring_of_the_hundred_curses$hasTrim(stack)) {
             cir.setReturnValue(InteractionResultHolder.fail(stack));
         }
-    }
-
-    public boolean canEquip(ItemStack stack, EquipmentSlot armorType, Entity entity) {
-        if (Mob.getEquipmentSlotForItem(stack) != armorType) return false;
-        if (entity instanceof Player player && RingUtil.configAndRing(player, getConfig().enableLavishTaste)) {
-            return ring_of_the_hundred_curses$hasTrim(stack);
-        }
-        return true;
     }
 
     @Unique

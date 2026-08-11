@@ -119,15 +119,6 @@ public class LivingEntityMixin {
         return friction;
     }
 
-    @Inject(method = "hasLineOfSight", at = @At("HEAD"), cancellable = true)
-    private void ring_of_the_hundred_curses$noShelter(Entity target, CallbackInfoReturnable<Boolean> cir) {
-        if (target instanceof Player player) {
-            if (RingUtil.configAndRing(player, getConfig().enableNoShelter)) {
-                cir.setReturnValue(true);
-            }
-        }
-    }
-
     @Unique
     private static boolean ring_of_the_hundred_curses$isFragileBodyFall(LivingEntity livingEntity, DamageSource damageSource) {
         if (!damageSource.is(DamageTypeTags.IS_FALL)) {

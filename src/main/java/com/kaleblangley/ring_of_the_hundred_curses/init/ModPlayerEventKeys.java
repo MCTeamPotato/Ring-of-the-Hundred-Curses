@@ -11,7 +11,17 @@ public final class ModPlayerEventKeys {
     public static final String BALANCED_DIET_KEY = "BalancedDietCounts";
     public static final String OVERZEALOUS_GROWTH_KEY = "OverzealousGrowthCounts";
     public static final String SWIM_TIME_KEY = "DeepSeaEntanglementSwimTick";
-    public static final String CUSTOMS_CLEARANCE_KEY = "CustomsClearancePending";
+    public static final String CUSTOMS_CLEARANCE_LEGACY_KEY = "CustomsClearancePending";
+    public static final String REGENERATION_BAN_PENDING_KEY = "RegenerationBanPending";
+    public static final String REGENERATION_BAN_DUE_KEY = "RegenerationBanDue";
+    public static final String OVERHEALING_END_KEY = "OverhealingEnd";
+    public static final String FOOD_COMA_END_KEY = "FoodComaEnd";
+    public static final String ENDLESS_QUIZ_DAY_KEY = "EndlessQuizDay";
+    public static final String ENDLESS_QUIZ_ITEM_KEY = "EndlessQuizItem";
+    public static final String ENDLESS_QUIZ_COUNT_KEY = "EndlessQuizCount";
+    public static final String PATTERNED_ASSAULT_METHODS_KEY = "PatternedAssaultMethods";
+    public static final String ENDING_MOMENT_COUNT_KEY = "EndingMomentCount";
+    public static final String ENDING_MOMENT_LAST_PLAY_KEY = "EndingMomentLastPlay";
 
     private ModPlayerEventKeys() {
     }

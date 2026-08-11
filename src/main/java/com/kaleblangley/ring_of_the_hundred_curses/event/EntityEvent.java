@@ -2,14 +2,22 @@ package com.kaleblangley.ring_of_the_hundred_curses.event;
 
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
+import com.kaleblangley.ring_of_the_hundred_curses.init.ModSound;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
+import com.kaleblangley.ring_of_the_hundred_curses.goal.WorldAgainstMeleeAttackGoal;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -17,9 +25,9 @@ import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.monster.Endermite;
@@ -30,30 +38,40 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ThrownEnderpearl;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShieldItem;
+import net.minecraft.world.entity.monster.Phantom;
+import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.util.Mth;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.AnimalTameEvent;
 import net.minecraftforge.event.entity.living.LivingBreatheEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSwapItemsEvent;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.Iterator;
+
 import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager.getConfig;
 import static com.kaleblangley.ring_of_the_hundred_curses.init.ModEventKeys.*;
+import static com.kaleblangley.ring_of_the_hundred_curses.init.ModPlayerEventKeys.*;
 
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class EntityEvent {
@@ -66,40 +84,90 @@ public class EntityEvent {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
             if (livingEntity instanceof PathfinderMob mob && !(mob instanceof RangedAttackMob) && getConfig().enableWorldAgainst) {
                 mob.targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(mob, Player.class, getConfig().entityAttackChange, true, false, entity -> entity instanceof Player player && RingUtil.isEquipRing(player)));
-                mob.goalSelector.addGoal(1, new MeleeAttackGoal(mob, getConfig().entityAttackSpeed, true));
-            }
-            if (livingEntity instanceof Monster monster && getConfig().enableHorrificEntity) {
-                applyHorrificEntityHealthBoost(monster);
+                mob.goalSelector.addGoal(1, new WorldAgainstMeleeAttackGoal(mob, getConfig().entityAttackSpeed, true));
             }
         }
     }
 
-    private static void applyHorrificEntityHealthBoost(Monster monster) {
-        CompoundTag data = monster.getPersistentData();
-        if (data.getBoolean(HORRIFIC_ENTITY_ROLLED_TAG)) {
+    @SubscribeEvent
+    public static void onPhantomGiftPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        Player player = event.player;
+        Level level = player.level();
+        if (level.isClientSide || !level.isNight()) return;
+        if (!RingUtil.configAndRing(player, getConfig().enablePhantomGift)) return;
+
+        long night = level.getDayTime() / 24000L;
+        CompoundTag data = player.getPersistentData();
+        if (data.contains(PHANTOM_GIFT_LAST_NIGHT_KEY, Tag.TAG_LONG)
+                && data.getLong(PHANTOM_GIFT_LAST_NIGHT_KEY) == night) {
             return;
         }
-        data.putBoolean(HORRIFIC_ENTITY_ROLLED_TAG, true);
-        float chance = Mth.clamp(getConfig().horrificEntityChance, 0.0f, 1.0f);
-        if (monster.getRandom().nextFloat() >= chance) {
+        if (spawnPhantomGiftPhantom(player)) {
+            data.putLong(PHANTOM_GIFT_LAST_NIGHT_KEY, night);
+        }
+    }
+
+    private static boolean spawnPhantomGiftPhantom(Player player) {
+        Level level = player.level();
+        Phantom phantom = EntityType.PHANTOM.create(level);
+        if (phantom == null) return false;
+
+        double x = player.getX() + (level.random.nextDouble() - 0.5D) * 16.0D;
+        double y = Math.min(player.getY() + 20.0D, level.getMaxBuildHeight() - 2.0D);
+        double z = player.getZ() + (level.random.nextDouble() - 0.5D) * 16.0D;
+        phantom.moveTo(x, y, z, level.random.nextFloat() * 360.0F, 0.0F);
+        phantom.setTarget(player);
+        phantom.setPersistenceRequired();
+        return level.addFreshEntity(phantom);
+    }
+
+    @SubscribeEvent
+    public static void onDeafeningPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        Player player = event.player;
+        Level level = player.level();
+        if (level.isClientSide || player.isSpectator()
+                || !RingUtil.configAndRing(player, getConfig().enableDeafening)) {
             return;
         }
 
-        AttributeInstance maxHealthAttr = monster.getAttribute(Attributes.MAX_HEALTH);
-        if (maxHealthAttr == null) {
+        int interval = Math.max(1, getConfig().deafeningCheckInterval);
+        if (player.tickCount % interval != 0) return;
+        if (getConfig().deafeningOnlyInDeepDark
+                && !level.getBiome(player.blockPosition()).is(Biomes.DEEP_DARK)) {
             return;
         }
-        if (maxHealthAttr.getModifier(HORRIFIC_ENTITY_HEALTH_UUID) != null) {
+        if (player.getRandom().nextDouble()
+                >= Mth.clamp(getConfig().deafeningSpawnChance, 0.0d, 1.0d)) {
             return;
         }
-        float minBonus = Math.max(0.0f, getConfig().horrificEntityMinHealthBonus);
-        float maxBonus = Math.max(minBonus, getConfig().horrificEntityMaxHealthBonus);
-        float healthBonus = minBonus + monster.getRandom().nextFloat() * (maxBonus - minBonus);
-        if (healthBonus <= 0.0f) {
+
+        double range = Math.max(4.0d, getConfig().deafeningSearchRange);
+        if (!level.getEntitiesOfClass(Warden.class, player.getBoundingBox().inflate(range), LivingEntity::isAlive).isEmpty()) {
             return;
         }
-        maxHealthAttr.addPermanentModifier(new AttributeModifier(HORRIFIC_ENTITY_HEALTH_UUID, "Horrific Entity Health", healthBonus, AttributeModifier.Operation.MULTIPLY_TOTAL));
-        monster.setHealth(monster.getMaxHealth());
+
+        for (int attempt = 0; attempt < 8; attempt++) {
+            int x = Mth.floor(player.getX()) + player.getRandom().nextInt(17) - 8;
+            int z = Mth.floor(player.getZ()) + player.getRandom().nextInt(17) - 8;
+            int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+            BlockPos spawnPos = new BlockPos(x, y, z);
+            if (!level.getBlockState(spawnPos).isAir()
+                    || !level.getBlockState(spawnPos.above()).isAir()
+                    || !level.getBlockState(spawnPos.below()).isCollisionShapeFullBlock(level, spawnPos.below())) {
+                continue;
+            }
+
+            Warden warden = EntityType.WARDEN.create(level);
+            if (warden == null) return;
+            warden.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D,
+                    level.getRandom().nextFloat() * 360.0F, 0.0F);
+            warden.setTarget(player);
+            warden.setPersistenceRequired();
+            level.addFreshEntity(warden);
+            return;
+        }
     }
 
     @SubscribeEvent
@@ -310,7 +378,8 @@ public class EntityEvent {
             if (RingUtil.configAndRing(player, getConfig().enableLavaSacrifice)) {
                 if (player.level().dimension() == Level.NETHER) {
                     int fireDuration = getConfig().lavaSacrificeFireDuration;
-                    player.setSecondsOnFire(fireDuration / 20);
+                    int remainingFireTicks = Math.max(0, fireDuration);
+                    player.setRemainingFireTicks(Math.max(player.getRemainingFireTicks(), remainingFireTicks));
                 }
             }
 
@@ -323,15 +392,15 @@ public class EntityEvent {
         }
 
         // 新鲜武器：武器耐久越低伤害越低
-        if (event.getSource().getEntity() instanceof Player player) {
-            if (RingUtil.configAndRing(player, getConfig().enableFreshWeapon)) {
-                ItemStack weapon = player.getMainHandItem();
-                if (weapon.isDamageableItem()) {
-                    int maxDamage = weapon.getMaxDamage();
-                    int currentDamage = weapon.getDamageValue();
-                    float durabilityRatio = (float) (maxDamage - currentDamage) / maxDamage;
-                    event.setAmount(event.getAmount() * durabilityRatio);
-                }
+        LivingEntity attacker = findDamageAttacker(event.getSource());
+        if (attacker instanceof Player player
+                && RingUtil.configAndRing(player, getConfig().enableFreshWeapon)) {
+            ItemStack weapon = player.getMainHandItem();
+            if (weapon.isDamageableItem()) {
+                int maxDamage = weapon.getMaxDamage();
+                int currentDamage = weapon.getDamageValue();
+                float durabilityRatio = (float) (maxDamage - currentDamage) / maxDamage;
+                event.setAmount(event.getAmount() * Mth.clamp(durabilityRatio, 0.0F, 1.0F));
             }
         }
     }
@@ -356,10 +425,241 @@ public class EntityEvent {
     }
 
     @SubscribeEvent
+    public static void onWeakenedStrikes(LivingHurtEvent event) {
+        if (event.getEntity() instanceof Player) return;
+
+        Player attacker = null;
+        if (event.getSource().getEntity() instanceof Player player) {
+            attacker = player;
+        } else if (event.getSource().getDirectEntity() instanceof Projectile projectile
+                && projectile.getOwner() instanceof Player player) {
+            attacker = player;
+        }
+        if (attacker == null || !RingUtil.configAndRing(attacker, getConfig().enableWeakenedStrikes)) return;
+
+        float multiplier = Math.max(0.0f, Math.min(1.0f, getConfig().weakenedStrikesDamageMultiplier));
+        event.setAmount(event.getAmount() * multiplier);
+    }
+
+    @SubscribeEvent
+    public static void onPatternedAssault(LivingHurtEvent event) {
+        if (event.getEntity() instanceof Player || event.getEntity().level().isClientSide) return;
+        LivingEntity target = event.getEntity();
+
+        LivingEntity attacker = findDamageAttacker(event.getSource());
+        if (!(attacker instanceof Player player)
+                || !RingUtil.configAndRing(player, getConfig().enablePatternedAssault)
+                || !isPatternedAssaultTarget(target)) {
+            return;
+        }
+
+        String method = getPatternedAssaultMethod(event.getSource());
+        CompoundTag allMethods = player.getPersistentData().contains(PATTERNED_ASSAULT_METHODS_KEY, Tag.TAG_COMPOUND)
+                ? player.getPersistentData().getCompound(PATTERNED_ASSAULT_METHODS_KEY) : new CompoundTag();
+        String targetKey = target.getUUID().toString();
+        CompoundTag previous = allMethods.getCompound(targetKey);
+        long gameTime = player.level().getGameTime();
+        long resetAfter = getConfig().patternedAssaultResetAfterTicks;
+        boolean sameRecentMethod = previous.contains("Method", Tag.TAG_STRING)
+                && previous.getString("Method").equals(method)
+                && (resetAfter <= 0 || gameTime - previous.getLong("GameTime") <= resetAfter);
+        if (sameRecentMethod) {
+            event.setCanceled(true);
+            return;
+        }
+
+        previous.putString("Method", method);
+        previous.putLong("GameTime", gameTime);
+        allMethods.put(targetKey, previous);
+        player.getPersistentData().put(PATTERNED_ASSAULT_METHODS_KEY, allMethods);
+    }
+
+    private static boolean isPatternedAssaultTarget(LivingEntity target) {
+        if (target.getType().is(Tags.EntityTypes.BOSSES)) return true;
+        ResourceLocation targetId = EntityType.getKey(target.getType());
+        String[] targets = getConfig().patternedAssaultTargets;
+        if (targets == null) return false;
+        for (String configuredTarget : targets) {
+            if (configuredTarget == null || configuredTarget.isBlank()) continue;
+            if (configuredTarget.startsWith("#")) {
+                try {
+                    TagKey<EntityType<?>> tag = TagKey.create(Registries.ENTITY_TYPE,
+                            new ResourceLocation(configuredTarget.substring(1)));
+                    if (target.getType().is(tag)) return true;
+                } catch (Exception ignored) {
+                }
+            } else if (configuredTarget.equals(targetId.toString())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String getPatternedAssaultMethod(DamageSource source) {
+        if (source.is(DamageTypeTags.IS_PROJECTILE)) return "projectile";
+        String messageId = source.getMsgId();
+        if (messageId.contains("magic") || messageId.equals("dragonBreath")
+                || messageId.equals("sonic_boom")) return "magic";
+        if (source.is(DamageTypeTags.IS_FIRE)) return "fire";
+        if (source.is(DamageTypeTags.IS_EXPLOSION)) return "explosion";
+        if (source.is(DamageTypeTags.IS_FALL)) return "fall";
+        return "melee";
+    }
+
+    @SubscribeEvent
+    public static void onUnbalancedWeapon(LivingHurtEvent event) {
+        if (event.getEntity() instanceof Player) return;
+
+        Player attacker = null;
+        if (event.getSource().getEntity() instanceof Player player) {
+            attacker = player;
+        } else if (event.getSource().getDirectEntity() instanceof Projectile projectile
+                && projectile.getOwner() instanceof Player player) {
+            attacker = player;
+        }
+        if (attacker == null || attacker.getMainHandItem().isEmpty()
+                || !RingUtil.configAndRing(attacker, getConfig().enableUnbalancedWeapon)) {
+            return;
+        }
+
+        double chance = Math.max(0.0D, Math.min(1.0D, getConfig().unbalancedWeaponChance));
+        if (attacker.getRandom().nextDouble() >= chance) return;
+        float multiplier = Math.max(0.0F, Math.min(1.0F, getConfig().unbalancedWeaponDamageMultiplier));
+        event.setAmount(event.getAmount() * multiplier);
+    }
+
+    @SubscribeEvent
+    public static void onBloodAndFlesh(LivingHurtEvent event) {
+        if (!(event.getEntity() instanceof Player player) || player.level().isClientSide) return;
+        if (!RingUtil.configAndRing(player, getConfig().enableBloodAndFlesh)) return;
+
+        float extraDamagePercent = Math.max(0.0f, getConfig().bloodAndFleshExtraDamagePercent);
+        event.setAmount(event.getAmount() + player.getMaxHealth() * extraDamagePercent);
+    }
+
+    @SubscribeEvent
     public static void onPlayerHurt(LivingHurtEvent event) {
-        if (event.getEntity() instanceof Player player && !player.level().isClientSide) {
-            if (event.getSource().getEntity() instanceof LivingEntity attacker) {
-                attacker.addTag(JUSTIFIED_COMBAT_TAG);
+        if (!(event.getEntity() instanceof Player player)
+                || player.level().isClientSide) {
+            return;
+        }
+
+        LivingEntity attacker = findDamageAttacker(event.getSource());
+        if (attacker == null || attacker == player) return;
+
+        if (RingUtil.configAndRing(player, getConfig().enableJustifiedCombat)) {
+            recordJustifiedAttacker(player, attacker);
+        }
+        if (attacker instanceof Phantom phantom
+                && RingUtil.configAndRing(player, getConfig().enablePhantomGift)) {
+            spawnPhantomGiftMobs(player, phantom);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onCurseOfMisfortuneDrops(LivingDropsEvent event) {
+        if (event.getEntity().level().isClientSide || event.getDrops().isEmpty()) return;
+
+        LivingEntity attacker = findDamageAttacker(event.getSource());
+        if (!(attacker instanceof Player player)
+                || !RingUtil.configAndRing(player, getConfig().enableCurseOfMisfortune)) {
+            return;
+        }
+
+        int rolls = Math.max(1, getConfig().curseOfMisfortuneRolls);
+        Iterator<ItemEntity> iterator = event.getDrops().iterator();
+        while (iterator.hasNext()) {
+            ItemEntity drop = iterator.next();
+            ItemStack stack = drop.getItem();
+            int originalCount = stack.getCount();
+            if (originalCount <= 0) {
+                iterator.remove();
+                continue;
+            }
+
+            int worstCount = originalCount;
+            for (int roll = 0; roll < rolls; roll++) {
+                worstCount = Math.min(worstCount, player.getRandom().nextInt(originalCount + 1));
+            }
+            if (worstCount <= 0) {
+                iterator.remove();
+            } else {
+                stack.setCount(worstCount);
+            }
+        }
+    }
+
+    private static LivingEntity findDamageAttacker(DamageSource source) {
+        Entity sourceEntity = source.getEntity();
+        if (sourceEntity instanceof LivingEntity livingEntity) return livingEntity;
+        if (sourceEntity instanceof Projectile projectile
+                && projectile.getOwner() instanceof LivingEntity owner) {
+            return owner;
+        }
+
+        Entity directEntity = source.getDirectEntity();
+        if (directEntity instanceof LivingEntity livingEntity) return livingEntity;
+        if (directEntity instanceof Projectile projectile
+                && projectile.getOwner() instanceof LivingEntity owner) {
+            return owner;
+        }
+        return null;
+    }
+
+    private static void recordJustifiedAttacker(Player player, LivingEntity attacker) {
+        CompoundTag data = player.getPersistentData();
+        ListTag attackers = data.getList(JUSTIFIED_COMBAT_ATTACKERS_KEY, Tag.TAG_STRING);
+        String attackerId = attacker.getUUID().toString();
+        for (int i = 0; i < attackers.size(); i++) {
+            if (attackerId.equals(attackers.getString(i))) return;
+        }
+        attackers.add(StringTag.valueOf(attackerId));
+        data.put(JUSTIFIED_COMBAT_ATTACKERS_KEY, attackers);
+    }
+
+    private static boolean hasJustifiedAttacker(Player player, LivingEntity target) {
+        ListTag attackers = player.getPersistentData()
+                .getList(JUSTIFIED_COMBAT_ATTACKERS_KEY, Tag.TAG_STRING);
+        String targetId = target.getUUID().toString();
+        for (int i = 0; i < attackers.size(); i++) {
+            if (targetId.equals(attackers.getString(i))) return true;
+        }
+        return false;
+    }
+
+    private static void spawnPhantomGiftMobs(Player player, Phantom phantom) {
+        String[] mobIds = getConfig().phantomGiftAirdropMobs;
+        int count = Math.max(0, getConfig().phantomGiftAirdropCount);
+        if (mobIds == null || mobIds.length == 0 || count == 0) return;
+
+        long gameTime = player.level().getGameTime();
+        CompoundTag data = phantom.getPersistentData();
+        int interval = Math.max(1, getConfig().phantomGiftAirdropInterval);
+        if (data.contains(PHANTOM_GIFT_LAST_AIRDROP_KEY, Tag.TAG_LONG)
+                && gameTime - data.getLong(PHANTOM_GIFT_LAST_AIRDROP_KEY) < interval) {
+            return;
+        }
+        data.putLong(PHANTOM_GIFT_LAST_AIRDROP_KEY, gameTime);
+
+        int height = Math.max(1, getConfig().phantomGiftAirdropHeight);
+        Level level = player.level();
+        for (int i = 0; i < count; i++) {
+            String mobId = mobIds[level.random.nextInt(mobIds.length)];
+            try {
+                EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(mobId));
+                if (entityType == null) continue;
+                Entity entity = entityType.create(level);
+                if (!(entity instanceof Monster monster)) continue;
+
+                double x = player.getX() + (level.random.nextDouble() - 0.5D) * 4.0D;
+                double y = Math.min(player.getY() + height, level.getMaxBuildHeight() - 1.0D);
+                double z = player.getZ() + (level.random.nextDouble() - 0.5D) * 4.0D;
+                monster.moveTo(x, y, z, level.random.nextFloat() * 360.0F, 0.0F);
+                monster.setTarget(player);
+                monster.setDeltaMovement(0.0D, -0.15D, 0.0D);
+                level.addFreshEntity(monster);
+            } catch (Exception exception) {
+                RingOfTheHundredCurses.LOGGER.warn("Invalid mob in phantom gift config: {}", mobId);
             }
         }
     }
@@ -367,16 +667,75 @@ public class EntityEvent {
     @SubscribeEvent
     public static void onPlayerAttack(AttackEntityEvent event) {
         Player player = event.getEntity();
-        if (!RingUtil.configAndRing(player, getConfig().enableJustifiedCombat)) return;
         if (player.level().isClientSide) return;
+        if (PlayerEvent.isFoodComaActive(player)) {
+            event.setCanceled(true);
+            return;
+        }
+        if (RingUtil.configAndRing(player, getConfig().enableFocusDisturbance)) {
+            double chance = Math.max(0.0D, Math.min(1.0D, getConfig().focusDisturbanceChance));
+            if (chance > 0.0D && player.getRandom().nextDouble() < chance) {
+                event.setCanceled(true);
+                return;
+            }
+        }
+        if (!RingUtil.configAndRing(player, getConfig().enableJustifiedCombat)) return;
         if (event.getTarget() instanceof LivingEntity target) {
-            if (!target.getTags().contains(JUSTIFIED_COMBAT_TAG)) {
+            if (!hasJustifiedAttacker(player, target)) {
                 event.setCanceled(true);
             }
         }
     }
 
-    // 龙阳之好：末影龙释放龙息时，玩家脚下一定会出现龙息
+    // 结束时刻：末影龙存在时循环播放音乐，并逐渐提高音调
+    @SubscribeEvent
+    public static void onEndingMomentPlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || !getConfig().enableEndingMoment) return;
+
+        Player player = event.player;
+        Level level = player.level();
+        if (!RingUtil.configAndRing(player, getConfig().enableEndingMoment)) return;
+
+        double range = Math.max(1.0D, getConfig().endingMomentRange);
+        boolean dragonNearby = !level.getEntitiesOfClass(
+                EnderDragon.class,
+                player.getBoundingBox().inflate(range),
+                dragon -> dragon.isAlive() && player.distanceToSqr(dragon) <= range * range
+        ).isEmpty();
+        CompoundTag data = player.getPersistentData();
+        if (!dragonNearby) {
+            data.remove(ENDING_MOMENT_COUNT_KEY);
+            data.remove(ENDING_MOMENT_LAST_PLAY_KEY);
+            return;
+        }
+
+        long gameTime = level.getGameTime();
+        long interval = Math.max(1L, getConfig().endingMomentLoopInterval);
+        long lastPlay = data.getLong(ENDING_MOMENT_LAST_PLAY_KEY);
+        if (lastPlay != 0L && gameTime - lastPlay < interval) return;
+
+        int count = Math.max(0, data.getInt(ENDING_MOMENT_COUNT_KEY));
+        float pitch = Mth.clamp(
+                getConfig().endingMomentBasePitch + count * getConfig().endingMomentPitchIncrease,
+                0.5F,
+                Math.max(0.5F, getConfig().endingMomentMaxPitch)
+        );
+        float volume = Math.max(0.0F, getConfig().endingMomentVolume);
+        if (level.isClientSide) {
+            level.playLocalSound(
+                    player.blockPosition(), ModSound.BETTER_REMIX.get(), SoundSource.MASTER,
+                    volume, pitch, false
+            );
+        } else {
+            int darknessDuration = Math.max(0, getConfig().endingMomentDarknessDuration);
+            if (darknessDuration > 0) {
+                player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, darknessDuration, 0, false, false, true));
+            }
+        }
+        data.putLong(ENDING_MOMENT_LAST_PLAY_KEY, gameTime);
+        data.putInt(ENDING_MOMENT_COUNT_KEY, count + 1);
+    }
+
     @SubscribeEvent
     public static void onDraconicFavor(EntityJoinLevelEvent event) {
         if (event.getLevel().isClientSide) return;

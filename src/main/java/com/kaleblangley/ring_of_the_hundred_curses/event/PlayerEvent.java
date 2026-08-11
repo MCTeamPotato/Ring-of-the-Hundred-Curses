@@ -4,7 +4,11 @@ import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.ChunkThunderEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.StepOnBlockEvent;
+import com.kaleblangley.ring_of_the_hundred_curses.capability.CustomsClearanceProvider;
+import com.kaleblangley.ring_of_the_hundred_curses.capability.ICustomsClearance;
 import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
+import com.kaleblangley.ring_of_the_hundred_curses.init.ModDamageTypes;
+import com.kaleblangley.ring_of_the_hundred_curses.init.ModEffect;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -12,6 +16,7 @@ import net.minecraftforge.common.ForgeMod;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -21,6 +26,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Silverfish;
+import net.minecraft.world.entity.npc.AbstractVillager;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.MinecraftServer;
@@ -28,9 +34,13 @@ import net.minecraft.server.TickTask;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.food.FoodData;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SuspiciousStewItem;
+import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -44,7 +54,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.network.chat.Component;
 import net.minecraft.ChatFormatting;
 import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.Containers;
@@ -60,12 +72,15 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.enchanting.EnchantmentLevelSetEvent;
 import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
+import net.minecraftforge.event.entity.living.LivingHealEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
+import net.minecraftforge.event.entity.player.PlayerEvent.ItemCraftedEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.ItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.event.entity.player.PlayerXpEvent;
-import net.minecraftforge.event.entity.player.TradeWithVillagerEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.event.entity.player.ItemFishedEvent;
 import net.minecraftforge.event.entity.player.BonemealEvent;
@@ -82,15 +97,20 @@ import com.kaleblangley.ring_of_the_hundred_curses.init.ModBlock;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager.getConfig;
+import static com.kaleblangley.ring_of_the_hundred_curses.init.ModEventKeys.*;
 import static com.kaleblangley.ring_of_the_hundred_curses.init.ModPlayerEventKeys.*;
 
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PlayerEvent {
 
     private static final List<MobEffect> HARMFUL_EFFECTS;
+    private static final List<UUID> POTION_CONFLICT_GUARD = new ArrayList<>();
 
     static {
         List<MobEffect> effects = new java.util.ArrayList<>();
@@ -196,6 +216,14 @@ public class PlayerEvent {
     @SubscribeEvent
     public static void playerBreakEvent(BlockEvent.BreakEvent event) {
         Player player = event.getPlayer();
+        if (player != null && !player.level().isClientSide && isFoodComaActive(player)) {
+            event.setCanceled(true);
+            return;
+        }
+        if (player != null && !player.level().isClientSide && focusDisturbanceFails(player)) {
+            event.setCanceled(true);
+            return;
+        }
         if (player != null && RingUtil.configAndRing(player, getConfig().enableWormHoard)) {
             BlockState state = event.getState();
             Level level = player.level();
@@ -242,37 +270,89 @@ public class PlayerEvent {
         }
     }
 
-    @SubscribeEvent
-    public static void onVillagerTrade(TradeWithVillagerEvent event) {
-        Player player = event.getEntity();
-        if (!RingUtil.configAndRing(player, getConfig().enableDodgyMerchant)) {
-            return;
+    public static ItemStack maybeSwapMerchantResult(Player player, ItemStack originalResult) {
+        if (player.level().isClientSide
+                || originalResult.isEmpty()
+                || !RingUtil.configAndRing(player, getConfig().enableDodgyMerchant)
+                || !canBeSwappedItem(originalResult)) {
+            return originalResult;
         }
-        Level level = player.level();
-        if (level.isClientSide) {
-            return;
-        }
-        double swapChance = getConfig().dodgyMerchantSwapChance;
-        if (level.random.nextDouble() >= swapChance) {
-            return;
-        }
-        ItemStack originalResult = event.getMerchantOffer().getResult();
-        if (canBeSwappedItem(originalResult)) {
-            swapTradeResult(player, originalResult);
-        }
+
+        double swapChance = Mth.clamp(getConfig().dodgyMerchantSwapChance, 0.0D, 1.0D);
+        if (player.getRandom().nextDouble() >= swapChance) return originalResult;
+
+        ItemStack randomItem = getDodgyMerchantRandomItem(player);
+        if (randomItem.isEmpty()) return originalResult;
+        randomItem.setCount(Math.min(originalResult.getCount(), randomItem.getMaxStackSize()));
+        return randomItem;
     }
 
-    private static void swapTradeResult(Player player, ItemStack originalResult) {
-        ItemStack randomItem = getDodgyMerchantRandomItem(player);
-        randomItem.setCount(Math.min(originalResult.getCount(), randomItem.getMaxStackSize()));
-        for (int i = player.getInventory().getContainerSize() - 1; i >= 0; i--) {
-            ItemStack slotStack = player.getInventory().getItem(i);
-            if (ItemStack.isSameItemSameTags(slotStack, originalResult) && slotStack.getCount() == originalResult.getCount()) {
-                player.getInventory().setItem(i, randomItem);
-                player.containerMenu.broadcastChanges();
-                break;
+    public static void applyMerchantTradePrices(Player player, AbstractVillager merchant) {
+        if (player == null || player.level().isClientSide || merchant == null) return;
+
+        CompoundTag appliedPrices = merchant.getPersistentData().getCompound("RingCursesAppliedTradePrices");
+        int offerIndex = 0;
+        for (MerchantOffer offer : merchant.getOffers()) {
+            String offerKey = Integer.toString(offerIndex++);
+            int previousCursePrice = appliedPrices.getInt(offerKey);
+            if (previousCursePrice != 0) {
+                offer.setSpecialPriceDiff(offer.getSpecialPriceDiff() - previousCursePrice);
             }
+
+            int extraCost = 0;
+            ItemStack baseCost = offer.getBaseCostA();
+            if (!baseCost.isEmpty() && RingUtil.configAndRing(player, getConfig().enableSocialParadox)) {
+                float ratio = Math.max(0.0f, getConfig().socialParadoxPriceIncreaseRatio);
+                extraCost += Math.max(0, (int) Math.ceil(baseCost.getCount() * ratio));
+            }
+            if (!baseCost.isEmpty() && RingUtil.configAndRing(player, getConfig().enableBargainingPower)) {
+                double healthRatio = merchant.getMaxHealth() <= 0.0f
+                        ? 0.0d : Mth.clamp(merchant.getHealth() / merchant.getMaxHealth(), 0.0f, 1.0f);
+                double multiplier = Math.max(0.0d, getConfig().bargainingPowerPriceMultiplier);
+                int maxExtraCost = Math.max(0, getConfig().bargainingPowerMaxExtraCost);
+                int healthCost = (int) Math.ceil(baseCost.getCount() * healthRatio * multiplier);
+                extraCost += Math.min(healthCost, maxExtraCost);
+            }
+            if (extraCost > 0) {
+                offer.addToSpecialPriceDiff(extraCost);
+            }
+            appliedPrices.putInt(offerKey, extraCost);
         }
+        merchant.getPersistentData().put("RingCursesAppliedTradePrices", appliedPrices);
+    }
+
+    public static boolean shouldInterceptCustomsClearance(Player player, AbstractVillager merchant) {
+        return player != null
+                && !player.level().isClientSide
+                && merchant instanceof Villager villager
+                && RingUtil.configAndRing(player, getConfig().enableCustomsClearance)
+                && villager.getVillagerData().getLevel() >= getConfig().customsClearanceMinLevel
+                && player.getCapability(CustomsClearanceProvider.CUSTOMS_CLEARANCE).isPresent();
+    }
+
+    public static void handleMerchantResultTaken(Player player, AbstractVillager merchant, ItemStack result) {
+        if (player.level().isClientSide || result.isEmpty()
+                || !shouldInterceptCustomsClearance(player, merchant)) {
+            return;
+        }
+
+        ICustomsClearance customs = player.getCapability(CustomsClearanceProvider.CUSTOMS_CLEARANCE).orElse(null);
+        if (customs == null) return;
+
+        long deliveryTime = player.level().getDayTime()
+                + (long) Math.max(0, getConfig().customsClearanceWaitDays) * 24000L;
+        customs.addPendingItem(result, deliveryTime);
+        if (player.containerMenu.getCarried() == result) {
+            player.containerMenu.setCarried(ItemStack.EMPTY);
+        }
+        result.setCount(0);
+        player.containerMenu.broadcastChanges();
+        int waitDays = Math.max(0, getConfig().customsClearanceWaitDays);
+        player.displayClientMessage(
+                Component.translatable("message.ring_of_the_hundred_curses.customs_clearance.held", waitDays)
+                        .withStyle(ChatFormatting.YELLOW),
+                true
+        );
     }
 
     private static float breakSpeedGet(Player player, float originalSpeed, BlockState state, ItemStack handItem) {
@@ -417,6 +497,7 @@ public class PlayerEvent {
                 RingOfTheHundredCurses.LOGGER.warn("Invalid item in dodgy merchant config: {}", itemString);
             }
         }
+        if (junkItems.isEmpty()) return ItemStack.EMPTY;
         Item randomItem = junkItems.get(level.random.nextInt(junkItems.size()));
         int count = 1 + level.random.nextInt(3);
         return new ItemStack(randomItem, count);
@@ -457,6 +538,187 @@ public class PlayerEvent {
         }
     }
 
+    public static ItemStack maybeConvertTerribleCook(Player player, ItemStack cookedMeal) {
+        if (player.level().isClientSide
+                || !RingUtil.configAndRing(player, getConfig().enableTerribleCook)
+                || cookedMeal.isEmpty()
+                || !cookedMeal.isEdible()
+                || cookedMeal.is(ModTag.RAW_FOOD)
+                || cookedMeal.is(Items.SUSPICIOUS_STEW)) {
+            return cookedMeal;
+        }
+        double chance = Mth.clamp(getConfig().terribleCookChance, 0.0d, 1.0d);
+        if (player.getRandom().nextDouble() >= chance) return cookedMeal;
+
+        MobEffect debuff = chooseTerribleCookDebuff(player);
+        int duration = Math.max(1, getConfig().terribleCookDebuffDuration);
+        ItemStack stew = new ItemStack(Items.SUSPICIOUS_STEW);
+        SuspiciousStewItem.saveMobEffect(stew, debuff, duration);
+        return stew;
+    }
+
+    public static ItemStack maybeConvertTerribleCook(Level level, BlockPos pos, ItemStack cookedMeal) {
+        if (level == null || level.isClientSide || pos == null || cookedMeal.isEmpty()) return cookedMeal;
+
+        double range = Math.max(0.0D, getConfig().terribleCookPlayerRange);
+        if (range <= 0.0D) return cookedMeal;
+
+        Player player = level.getNearestPlayer(
+                pos.getX() + 0.5D,
+                pos.getY() + 0.5D,
+                pos.getZ() + 0.5D,
+                range,
+                entity -> entity instanceof Player candidate
+                        && RingUtil.configAndRing(candidate, getConfig().enableTerribleCook)
+        );
+        return player == null ? cookedMeal : maybeConvertTerribleCook(player, cookedMeal);
+    }
+
+    private static MobEffect chooseTerribleCookDebuff(Player player) {
+        List<MobEffect> candidates = new ArrayList<>();
+        String[] configuredIds = getConfig().terribleCookDebuffIds;
+        if (configuredIds != null) {
+            for (String configuredId : configuredIds) {
+                MobEffect effect = resolveMobEffect(configuredId);
+                if (effect != null && !candidates.contains(effect)) {
+                    candidates.add(effect);
+                }
+            }
+        }
+        if (candidates.isEmpty()) return MobEffects.CONFUSION;
+        return candidates.get(player.getRandom().nextInt(candidates.size()));
+    }
+
+    private static MobEffect resolveMobEffect(String effectId) {
+        if (effectId == null || effectId.isBlank()) return null;
+        try {
+            return ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(effectId));
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRegenerationBanHeal(LivingHealEvent event) {
+        if (!(event.getEntity() instanceof Player player)
+                || player.level().isClientSide
+                || !RingUtil.configAndRing(player, getConfig().enableRegenerationBan)) {
+            return;
+        }
+
+        float minimumAmount = Math.max(0.0F, getConfig().regenerationBanMinimumAmount);
+        if (event.getAmount() < minimumAmount || player.getHealth() >= player.getMaxHealth()) return;
+
+        CompoundTag data = player.getPersistentData();
+        float pending = Math.max(0.0F, data.getFloat(REGENERATION_BAN_PENDING_KEY));
+        data.putFloat(REGENERATION_BAN_PENDING_KEY, pending + Math.max(0.0F, event.getAmount()));
+        long delay = Math.max(0L, getConfig().regenerationBanDelay);
+        long due = Math.max(data.getLong(REGENERATION_BAN_DUE_KEY), player.level().getGameTime() + delay);
+        data.putLong(REGENERATION_BAN_DUE_KEY, due);
+        event.setCanceled(true);
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onOverhealingHeal(LivingHealEvent event) {
+        if (!(event.getEntity() instanceof Player player) || player.level().isClientSide) return;
+        CompoundTag data = player.getPersistentData();
+        if (!RingUtil.configAndRing(player, getConfig().enableOverhealing)) {
+            data.remove(OVERHEALING_END_KEY);
+            return;
+        }
+
+        long gameTime = player.level().getGameTime();
+        long cooldownEnd = data.getLong(OVERHEALING_END_KEY);
+        if (cooldownEnd > gameTime) {
+            event.setCanceled(true);
+            return;
+        }
+        if (event.getAmount() < Math.max(0.0F, getConfig().overhealingMinimumAmount)) return;
+
+        double chance = Mth.clamp(getConfig().overhealingChance, 0.0D, 1.0D);
+        if (chance > 0.0D && player.getRandom().nextDouble() < chance) {
+            data.putLong(OVERHEALING_END_KEY, gameTime + Math.max(0L, getConfig().overhealingCooldown));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPotionConflicts(MobEffectEvent.Added event) {
+        if (!(event.getEntity() instanceof Player player)
+                || player.level().isClientSide
+                || !RingUtil.configAndRing(player, getConfig().enablePotionConflicts)) {
+            return;
+        }
+
+        MobEffectInstance addedEffect = event.getEffectInstance();
+        if (addedEffect.getEffect().getCategory() != MobEffectCategory.BENEFICIAL) return;
+
+        float beneficialMultiplier = Math.max(0.0F, getConfig().potionConflictsBeneficialDurationMultiplier);
+        float harmfulMultiplier = Math.max(0.0F, getConfig().potionConflictsHarmfulDurationMultiplier);
+        if (POTION_CONFLICT_GUARD.contains(player.getUUID())) return;
+
+        List<MobEffectInstance> replacements = new ArrayList<>();
+        for (MobEffectInstance existingEffect : player.getActiveEffects()) {
+            if (existingEffect == addedEffect
+                    || existingEffect.getEffect() == addedEffect.getEffect()
+                    || existingEffect.getDuration() < 0) continue;
+            boolean beneficial = existingEffect.getEffect().getCategory() == MobEffectCategory.BENEFICIAL;
+            float multiplier = beneficial ? beneficialMultiplier : harmfulMultiplier;
+            int duration = Math.max(1, Math.round(existingEffect.getDuration() * multiplier));
+            replacements.add(new MobEffectInstance(
+                    existingEffect.getEffect(),
+                    duration,
+                    existingEffect.getAmplifier(),
+                    existingEffect.isAmbient(),
+                    existingEffect.isVisible(),
+                    existingEffect.showIcon()
+            ));
+        }
+
+        if (replacements.isEmpty()) return;
+        POTION_CONFLICT_GUARD.add(player.getUUID());
+        try {
+            for (MobEffectInstance replacement : replacements) {
+                player.removeEffect(replacement.getEffect());
+                player.addEffect(replacement);
+            }
+        } finally {
+            POTION_CONFLICT_GUARD.remove(player.getUUID());
+        }
+    }
+
+    @SubscribeEvent
+    public static void onDistantDeflectionHurt(LivingHurtEvent event) {
+        if (!(event.getEntity() instanceof Player player)
+                || player.level().isClientSide
+                || !RingUtil.configAndRing(player, getConfig().enableDistantDeflection)) {
+            return;
+        }
+
+        float amount = Math.max(0.0F, event.getAmount());
+        if (event.getSource().is(DamageTypeTags.IS_PROJECTILE)) {
+            float rangedMultiplier = Mth.clamp(getConfig().distantDeflectionRangedDamageMultiplier, 0.0F, 1.0F);
+            amount *= rangedMultiplier;
+        }
+        float maximumDamage = Math.max(0.0F, getConfig().distantDeflectionMaxDamage);
+        event.setAmount(Math.min(amount, maximumDamage));
+    }
+
+    @SubscribeEvent
+    public static void onFoodComaFinish(LivingEntityUseItemEvent.Finish event) {
+        if (!(event.getEntity() instanceof Player player)
+                || player.level().isClientSide
+                || !event.getItem().isEdible()
+                || !RingUtil.configAndRing(player, getConfig().enableFoodComa)) {
+            return;
+        }
+
+        long duration = Math.max(0L, getConfig().foodComaDuration);
+        if (duration == 0L) return;
+        CompoundTag data = player.getPersistentData();
+        long end = Math.max(data.getLong(FOOD_COMA_END_KEY), player.level().getGameTime() + duration);
+        data.putLong(FOOD_COMA_END_KEY, end);
+    }
+
     @SubscribeEvent
     public static void onXpChange(PlayerXpEvent.XpChange event) {
         Player player = event.getEntity();
@@ -473,7 +735,12 @@ public class PlayerEvent {
         Level level = player.level();
         if (level.isClientSide) return;
         long gameTime = level.getGameTime();
-        if (RingUtil.configAndRing(player, getConfig().enableFragileBody)) {
+        updateSimpleEquipmentCurses(player);
+        enforceWeakMagicConstitution(player);
+        updateFeastOrFamine(player);
+        tickRegenerationBan(player, gameTime);
+        tickFoodComa(player, gameTime);
+        if (RingUtil.configAndRing(player, getConfig().enableHypocrisyBody)) {
             int max = getConfig().fragileBodyMaxInvulnerableTime;
             if (player.invulnerableTime > max) {
                 player.invulnerableTime = max;
@@ -498,6 +765,258 @@ public class PlayerEvent {
         }
         if (gameTime % 20 == 0) {
             checkCustomsClearanceDelivery(player, level.getDayTime());
+        }
+    }
+
+    private static void tickRegenerationBan(Player player, long gameTime) {
+        CompoundTag data = player.getPersistentData();
+        if (!RingUtil.configAndRing(player, getConfig().enableRegenerationBan)) {
+            data.remove(REGENERATION_BAN_PENDING_KEY);
+            data.remove(REGENERATION_BAN_DUE_KEY);
+            return;
+        }
+
+        float pending = data.getFloat(REGENERATION_BAN_PENDING_KEY);
+        if (pending <= 0.0F) {
+            data.remove(REGENERATION_BAN_PENDING_KEY);
+            data.remove(REGENERATION_BAN_DUE_KEY);
+            return;
+        }
+        if (gameTime < data.getLong(REGENERATION_BAN_DUE_KEY)) return;
+
+        if (player.isAlive()) {
+            player.setHealth(Math.min(player.getMaxHealth(), player.getHealth() + pending));
+        }
+        data.remove(REGENERATION_BAN_PENDING_KEY);
+        data.remove(REGENERATION_BAN_DUE_KEY);
+    }
+
+    private static void tickFoodComa(Player player, long gameTime) {
+        CompoundTag data = player.getPersistentData();
+        if (!RingUtil.configAndRing(player, getConfig().enableFoodComa)) {
+            data.remove(FOOD_COMA_END_KEY);
+            return;
+        }
+
+        long end = data.getLong(FOOD_COMA_END_KEY);
+        if (end <= gameTime) {
+            data.remove(FOOD_COMA_END_KEY);
+            return;
+        }
+
+        player.setSprinting(false);
+        Vec3 motion = player.getDeltaMovement();
+        if (motion.x != 0.0D || motion.z != 0.0D) {
+            player.setDeltaMovement(0.0D, motion.y, 0.0D);
+        }
+    }
+
+    public static boolean isFoodComaActive(Player player) {
+        return RingUtil.configAndRing(player, getConfig().enableFoodComa)
+                && player.getPersistentData().getLong(FOOD_COMA_END_KEY) > player.level().getGameTime();
+    }
+
+    private static void enforceWeakMagicConstitution(Player player) {
+        if (!RingUtil.configAndRing(player, getConfig().enableWeakMagicConstitution)) return;
+
+        int maximumLevel = Mth.clamp(getConfig().weakMagicConstitutionMaxLevel, 0, 255);
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack.isEmpty()) continue;
+
+            Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
+            if (enchantments.isEmpty()) continue;
+
+            Map<Enchantment, Integer> adjustedEnchantments = new HashMap<>(enchantments);
+            boolean changed = false;
+            for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
+                int level = entry.getValue();
+                if (level <= maximumLevel) continue;
+
+                changed = true;
+                if (maximumLevel == 0) {
+                    adjustedEnchantments.remove(entry.getKey());
+                } else {
+                    adjustedEnchantments.put(entry.getKey(), maximumLevel);
+                }
+            }
+
+            if (changed) {
+                EnchantmentHelper.setEnchantments(adjustedEnchantments, stack);
+            }
+        }
+    }
+
+    private static void updateSimpleEquipmentCurses(Player player) {
+        boolean hasEquipment = false;
+        for (ItemStack stack : player.getArmorSlots()) {
+            if (!stack.isEmpty()) {
+                hasEquipment = true;
+                break;
+            }
+        }
+        if (!hasEquipment) {
+            for (ItemStack stack : player.getHandSlots()) {
+                if (!stack.isEmpty()) {
+                    hasEquipment = true;
+                    break;
+                }
+            }
+        }
+
+        boolean heavyShackles = hasEquipment
+                && RingUtil.configAndRing(player, getConfig().enableHeavyShackles);
+        double movementReduction = Math.min(0.95D, Math.max(0.0D, getConfig().heavyShacklesMovementReduction));
+        updateTransientModifier(
+                player.getAttribute(Attributes.MOVEMENT_SPEED),
+                HEAVY_SHACKLES_SPEED_UUID,
+                "Heavy Shackles Speed",
+                heavyShackles,
+                -movementReduction
+        );
+
+        boolean fragileArmor = hasEquipment
+                && RingUtil.configAndRing(player, getConfig().enableFragileArmor);
+        double armorMultiplier = Math.min(1.0D, Math.max(0.0D, getConfig().fragileArmorMultiplier));
+        double armorModifier = armorMultiplier - 1.0D;
+        updateTransientModifier(
+                player.getAttribute(Attributes.ARMOR),
+                FRAGILE_ARMOR_UUID,
+                "Fragile Armor",
+                fragileArmor,
+                armorModifier
+        );
+        updateTransientModifier(
+                player.getAttribute(Attributes.ARMOR_TOUGHNESS),
+                FRAGILE_ARMOR_TOUGHNESS_UUID,
+                "Fragile Armor Toughness",
+                fragileArmor,
+                armorModifier
+        );
+
+        boolean weakSwimmer = player.isInWater()
+                && RingUtil.configAndRing(player, getConfig().enableWeakSwimmer);
+        double swimSpeedMultiplier = Mth.clamp(getConfig().weakSwimmerSwimSpeedMultiplier, 0.0D, 1.0D);
+        updateTransientModifier(
+                player.getAttribute(ForgeMod.SWIM_SPEED.get()),
+                WEAK_SWIMMER_SPEED_UUID,
+                "Weak Swimmer Speed",
+                weakSwimmer,
+                swimSpeedMultiplier - 1.0D
+        );
+
+        boolean overburdened = RingUtil.configAndRing(player, getConfig().enableOverburdened)
+                && countInventoryItems(player) > Math.max(0, getConfig().overburdenedItemThreshold);
+        double overburdenedMovementReduction = Mth.clamp(getConfig().overburdenedMovementReduction, 0.0D, 0.95D);
+        updateTransientModifier(
+                player.getAttribute(Attributes.MOVEMENT_SPEED),
+                OVERBURDENED_SPEED_UUID,
+                "Overburdened Speed",
+                overburdened,
+                -overburdenedMovementReduction
+        );
+    }
+
+    private static int countInventoryItems(Player player) {
+        int count = 0;
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            count += player.getInventory().getItem(i).getCount();
+        }
+        return count;
+    }
+
+    private static boolean isOverburdened(Player player) {
+        return RingUtil.configAndRing(player, getConfig().enableOverburdened)
+                && countInventoryItems(player) > Math.max(0, getConfig().overburdenedItemThreshold);
+    }
+
+    private static void updateTransientModifier(
+            AttributeInstance attribute, UUID uuid, String name, boolean shouldApply, double amount
+    ) {
+        if (attribute == null) return;
+        AttributeModifier existing = attribute.getModifier(uuid);
+        if (!shouldApply) {
+            if (existing != null) {
+                attribute.removeModifier(uuid);
+            }
+            return;
+        }
+        if (existing == null) {
+            attribute.addTransientModifier(new AttributeModifier(uuid, name, amount, AttributeModifier.Operation.MULTIPLY_TOTAL));
+        } else if (Double.compare(existing.getAmount(), amount) != 0) {
+            attribute.removeModifier(uuid);
+            attribute.addTransientModifier(new AttributeModifier(uuid, name, amount, AttributeModifier.Operation.MULTIPLY_TOTAL));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onWeakSwimmerDrowning(LivingHurtEvent event) {
+        if (!(event.getEntity() instanceof Player player)
+                || player.level().isClientSide
+                || !event.getSource().is(DamageTypeTags.IS_DROWNING)
+                || !RingUtil.configAndRing(player, getConfig().enableWeakSwimmer)) {
+            return;
+        }
+
+        double depth = Math.max(0.0D, player.level().getSeaLevel() - player.getY());
+        double perBlock = Math.max(0.0D, getConfig().weakSwimmerDrowningDamagePerBlock);
+        double maximumMultiplier = Math.max(1.0D, getConfig().weakSwimmerMaxDrowningMultiplier);
+        float multiplier = (float) Math.min(maximumMultiplier, 1.0D + depth * perBlock);
+        event.setAmount(event.getAmount() * multiplier);
+    }
+
+    @SubscribeEvent
+    public static void onOverburdenedFall(LivingHurtEvent event) {
+        if (!(event.getEntity() instanceof Player player)
+                || player.level().isClientSide
+                || !event.getSource().is(DamageTypeTags.IS_FALL)
+                || !isOverburdened(player)) {
+            return;
+        }
+
+        float multiplier = Math.max(1.0F, getConfig().overburdenedFallDamageMultiplier);
+        event.setAmount(event.getAmount() * multiplier);
+    }
+
+    @SubscribeEvent
+    public static void onBleedingWoundHurt(LivingHurtEvent event) {
+        if (!(event.getEntity() instanceof Player player)
+                || player.level().isClientSide
+                || event.isCanceled()
+                || event.getAmount() <= 0.0F
+                || event.getSource().is(ModDamageTypes.BLEEDING)
+                || !RingUtil.configAndRing(player, getConfig().enableBleedingWound)) {
+            return;
+        }
+
+        double chance = Mth.clamp(getConfig().bleedingWoundChance, 0.0D, 1.0D);
+        if (player.getRandom().nextDouble() >= chance) return;
+
+        int duration = Math.max(1, getConfig().bleedingWoundDuration);
+        MobEffectInstance existing = player.getEffect(ModEffect.BLEEDING.get());
+        if (existing != null) {
+            duration = Math.max(duration, existing.getDuration());
+        }
+        player.addEffect(new MobEffectInstance(ModEffect.BLEEDING.get(), duration, 0, false, true, true));
+    }
+
+    private static void updateFeastOrFamine(Player player) {
+        if (!RingUtil.configAndRing(player, getConfig().enableFeastOrFamine)) return;
+
+        FoodData foodData = player.getFoodData();
+        int foodLevel = foodData.getFoodLevel();
+        float saturation = foodData.getSaturationLevel();
+        boolean famine = foodLevel <= getConfig().feastOrFamineLowFoodLevel
+                || saturation <= getConfig().feastOrFamineLowSaturation;
+        boolean feast = foodLevel >= getConfig().feastOrFamineHighFoodLevel
+                || saturation >= getConfig().feastOrFamineHighSaturation;
+        int duration = Math.max(1, getConfig().feastOrFamineDebuffDuration);
+        int amplifier = Math.max(0, getConfig().feastOrFamineDebuffAmplifier);
+
+        if (famine && !feast) {
+            player.addEffect(new MobEffectInstance(MobEffects.HUNGER, duration, amplifier, false, true));
+        } else if (feast && !famine) {
+            player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, duration, amplifier, false, true));
         }
     }
 
@@ -596,8 +1115,8 @@ public class PlayerEvent {
             return;
         }
         double range = Math.max(1.0d, getConfig().unitedAdversariesRange);
-        int hostileCount = player.level().getEntitiesOfClass(Monster.class, player.getBoundingBox().inflate(range),
-                monster -> monster.isAlive() && monster.getTarget() == player).size();
+        int hostileCount = player.level().getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(range),
+                mob -> mob instanceof Enemy && mob.isAlive() && mob.getTarget() == player).size();
         if (hostileCount <= 0) {
             return;
         }
@@ -623,9 +1142,15 @@ public class PlayerEvent {
         Level level = event.getLevel();
         Player nearestPlayer = level.getNearestPlayer(event.getPos().getX(), event.getPos().getY(), event.getPos().getZ(), 8.0, false);
         if (nearestPlayer == null) return;
-        if (!RingUtil.configAndRing(nearestPlayer, getConfig().enableGreedyTome)) return;
-        int newLevel = (int) (event.getEnchantLevel() * getConfig().greedyTomeCostMultiplier);
-        event.setEnchantLevel(Math.min(newLevel, 30));
+        int originalLevel = event.getEnchantLevel();
+        int newLevel = originalLevel;
+        if (RingUtil.configAndRing(nearestPlayer, getConfig().enableWeakMagicConstitution)) {
+            int maximumLevel = Mth.clamp(getConfig().weakMagicConstitutionMaxLevel, 0, 30);
+            newLevel = Math.min(newLevel, maximumLevel);
+        }
+        if (newLevel != originalLevel) {
+            event.setEnchantLevel(newLevel);
+        }
     }
 
 
@@ -661,6 +1186,14 @@ public class PlayerEvent {
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
         if (player.level().isClientSide) return;
+        if (isFoodComaActive(player)) {
+            event.setCanceled(true);
+            return;
+        }
+        if (focusDisturbanceFails(player)) {
+            event.setCanceled(true);
+            return;
+        }
         if (!RingUtil.configAndRing(player, getConfig().enableUnlitObjects)) return;
         BlockState placedState = event.getPlacedBlock();
         Block placedBlock = placedState.getBlock();
@@ -686,26 +1219,27 @@ public class PlayerEvent {
         if (event.phase != TickEvent.Phase.END) return;
         Player player = event.player;
         Level level = player.level();
-        if (level.isClientSide) return;
         if (!RingUtil.configAndRing(player, getConfig().enableDeepSeaEntanglement)) return;
         CompoundTag data = player.getPersistentData();
         int swimTicks = data.getInt(SWIM_TIME_KEY);
-        int maxSwimTicks = getConfig().deepSeaEntanglementSwimTime * 20;
+        int maxSwimTicks = Math.max(1, getConfig().deepSeaEntanglementSwimTime * 20);
         int recoverTicks = getConfig().deepSeaEntanglementRecoverTime * 20;
-        if (player.isInWater()) {
+        if (RingUtil.isInWaterOrAtSurface(player)) {
             swimTicks++;
             data.putInt(SWIM_TIME_KEY, swimTicks);
             if (swimTicks >= maxSwimTicks) {
                 Vec3 motion = player.getDeltaMovement();
-                double ySpeed = Math.min(motion.y, 0) - 0.08;
+                double sinkingSpeed = Math.max(0.01, getConfig().deepSeaEntanglementSinkingSpeed);
+                double ySpeed = Math.min(motion.y, -sinkingSpeed);
                 player.setDeltaMovement(motion.x * 0.7, ySpeed, motion.z * 0.7);
                 player.setSwimming(false);
-                if (swimTicks % 20 == 0) {
+                player.setJumping(false);
+                if (!level.isClientSide && swimTicks % 20 == 0) {
                     player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.deep_sea_entanglement.sinking").withStyle(ChatFormatting.RED), true);
                 }
             } else {
                 int remainSeconds = (maxSwimTicks - swimTicks) / 20;
-                if (swimTicks % 20 == 0) {
+                if (!level.isClientSide && swimTicks % 20 == 0) {
                     ChatFormatting color = remainSeconds <= 5 ? ChatFormatting.RED : remainSeconds <= 10 ? ChatFormatting.YELLOW : ChatFormatting.AQUA;
                     player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.deep_sea_entanglement.countdown", remainSeconds).withStyle(color), true);
                 }
@@ -796,61 +1330,45 @@ public class PlayerEvent {
     // 海关过境：高级村民交易需要等待几天才能拿到物品
 
     @SubscribeEvent
-    public static void onCustomsClearanceTrade(TradeWithVillagerEvent event) {
+    public static void onItemCrafted(ItemCraftedEvent event) {
         Player player = event.getEntity();
-        if (!RingUtil.configAndRing(player, getConfig().enableCustomsClearance)) return;
-        Level level = player.level();
-        if (level.isClientSide) return;
-        if (!(event.getAbstractVillager() instanceof Villager villager)) return;
-        int villagerLevel = villager.getVillagerData().getLevel();
-        if (villagerLevel < getConfig().customsClearanceMinLevel) return;
-        ItemStack result = event.getMerchantOffer().getResult();
-        if (result.isEmpty()) return;
-        boolean removed = false;
-        for (int i = player.getInventory().getContainerSize() - 1; i >= 0; i--) {
-            ItemStack slotStack = player.getInventory().getItem(i);
-            if (ItemStack.isSameItemSameTags(slotStack, result) && slotStack.getCount() == result.getCount()) {
-                player.getInventory().setItem(i, ItemStack.EMPTY);
-                player.containerMenu.broadcastChanges();
-                removed = true;
-                break;
-            }
-        }
-        if (!removed) return;
-        long deliveryTime = level.getDayTime() + (long) getConfig().customsClearanceWaitDays * 24000L;
-        CompoundTag persistentData = player.getPersistentData();
-        ListTag pendingList = persistentData.contains(CUSTOMS_CLEARANCE_KEY, Tag.TAG_LIST) ? persistentData.getList(CUSTOMS_CLEARANCE_KEY, Tag.TAG_COMPOUND) : new ListTag();
-        CompoundTag entry = new CompoundTag();
-        entry.put("Item", result.save(new CompoundTag()));
-        entry.putLong("DeliveryTime", deliveryTime);
-        pendingList.add(entry);
-        persistentData.put(CUSTOMS_CLEARANCE_KEY, pendingList);
-        int waitDays = getConfig().customsClearanceWaitDays;
-        player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.customs_clearance.held", waitDays).withStyle(ChatFormatting.YELLOW), true);
+        if (player.level().isClientSide || !focusDisturbanceFails(player)) return;
+        event.getCrafting().setCount(0);
+    }
+
+    private static boolean focusDisturbanceFails(Player player) {
+        if (!RingUtil.configAndRing(player, getConfig().enableFocusDisturbance)) return false;
+        double chance = Mth.clamp(getConfig().focusDisturbanceChance, 0.0D, 1.0D);
+        return chance > 0.0D && player.getRandom().nextDouble() < chance;
     }
 
     private static void checkCustomsClearanceDelivery(Player player, long gameTime) {
         CompoundTag persistentData = player.getPersistentData();
-        if (!persistentData.contains(CUSTOMS_CLEARANCE_KEY, Tag.TAG_LIST)) return;
-        ListTag pendingList = persistentData.getList(CUSTOMS_CLEARANCE_KEY, Tag.TAG_COMPOUND);
-        if (pendingList.isEmpty()) return;
-        ListTag remaining = new ListTag();
+        ICustomsClearance customs = player.getCapability(CustomsClearanceProvider.CUSTOMS_CLEARANCE).orElse(null);
+        if (customs == null) return;
+
+        migrateLegacyCustomsClearance(persistentData, customs);
+        for (ICustomsClearance.PendingItem pendingItem : customs.takeDueItems(gameTime)) {
+            ItemStack item = pendingItem.item();
+            if (item.isEmpty()) continue;
+            if (!player.addItem(item)) {
+                player.drop(item, false);
+            }
+            player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.customs_clearance.delivered").withStyle(ChatFormatting.GREEN), false);
+        }
+    }
+
+    private static void migrateLegacyCustomsClearance(CompoundTag persistentData, ICustomsClearance customs) {
+        if (!persistentData.contains(CUSTOMS_CLEARANCE_LEGACY_KEY, Tag.TAG_LIST)) return;
+        ListTag pendingList = persistentData.getList(CUSTOMS_CLEARANCE_LEGACY_KEY, Tag.TAG_COMPOUND);
         for (int i = 0; i < pendingList.size(); i++) {
             CompoundTag entry = pendingList.getCompound(i);
-            long deliveryTime = entry.getLong("DeliveryTime");
-            if (gameTime >= deliveryTime) {
-                ItemStack item = ItemStack.of(entry.getCompound("Item"));
-                if (!item.isEmpty()) {
-                    if (!player.addItem(item)) {
-                        player.drop(item, false);
-                    }
-                    player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.customs_clearance.delivered").withStyle(ChatFormatting.GREEN), false);
-                }
-            } else {
-                remaining.add(entry);
+            ItemStack item = ItemStack.of(entry.getCompound("Item"));
+            if (!item.isEmpty()) {
+                customs.addPendingItem(item, entry.getLong("DeliveryTime"));
             }
         }
-        persistentData.put(CUSTOMS_CLEARANCE_KEY, remaining);
+        persistentData.remove(CUSTOMS_CLEARANCE_LEGACY_KEY);
     }
 
     // 时空紊乱：通过传送门时有概率被传送到目标的任意附近位置（低优先级，确保破裂之门先执行）
@@ -925,6 +1443,13 @@ public class PlayerEvent {
         if (oldData.contains(BALANCED_DIET_KEY, Tag.TAG_COMPOUND)) {
             newData.put(BALANCED_DIET_KEY, oldData.getCompound(BALANCED_DIET_KEY).copy());
         }
+        if (oldData.contains(PHANTOM_GIFT_LAST_NIGHT_KEY, Tag.TAG_LONG)) {
+            newData.putLong(PHANTOM_GIFT_LAST_NIGHT_KEY, oldData.getLong(PHANTOM_GIFT_LAST_NIGHT_KEY));
+        }
+        event.getOriginal().getCapability(CustomsClearanceProvider.CUSTOMS_CLEARANCE).ifPresent(oldCustoms ->
+                event.getEntity().getCapability(CustomsClearanceProvider.CUSTOMS_CLEARANCE)
+                        .ifPresent(newCustoms -> newCustoms.copyFrom(oldCustoms))
+        );
     }
 
     // 创伤应激：怪物将玩家设为攻击目标时，检查是否为创伤生物

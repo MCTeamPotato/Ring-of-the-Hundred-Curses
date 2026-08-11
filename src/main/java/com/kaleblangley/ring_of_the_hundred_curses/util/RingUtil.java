@@ -4,10 +4,14 @@ import com.kaleblangley.ring_of_the_hundred_curses.capability.CurseMaxSizeProvid
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModItem;
 import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
+import net.minecraft.core.BlockPos;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.FluidState;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 
@@ -39,6 +43,25 @@ public class RingUtil {
 
     public static boolean isRing(ItemStack itemStack) {
         return isRing(itemStack.getItem());
+    }
+
+    public static boolean isInWaterOrAtSurface(Player player) {
+        if (player.isInWaterOrBubble()) return true;
+
+        Level level = player.level();
+        BlockPos feetPos = BlockPos.containing(player.getX(), player.getY() - 0.05D, player.getZ());
+        if (!level.getBlockState(feetPos).getCollisionShape(level, feetPos).isEmpty()) return false;
+
+        FluidState feetFluid = level.getFluidState(feetPos);
+        if (feetFluid.is(FluidTags.WATER)) return true;
+
+        BlockPos belowPos = feetPos.below();
+        FluidState belowFluid = level.getFluidState(belowPos);
+        if (!belowFluid.is(FluidTags.WATER)) return false;
+
+        double surfaceY = belowPos.getY() + belowFluid.getHeight(level, belowPos);
+        double distanceFromSurface = player.getY() - surfaceY;
+        return distanceFromSurface >= -0.1D && distanceFromSurface <= 1.0D;
     }
 
     public static void backpackLimitSizeModify(LivingEntity livingEntity, ItemStack itemStack) {

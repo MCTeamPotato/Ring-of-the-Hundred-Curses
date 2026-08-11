@@ -20,8 +20,10 @@ public class ResultSlotMixin {
         if (player.level().random.nextDouble() >= ModConfigManager.getConfig().befuddledArtisanChance) return;
         if (pStack.isDamageableItem()) {
             int maxDamage = pStack.getMaxDamage();
-            int damageAmount = 1 + player.level().random.nextInt(Math.max(1, (int) (maxDamage * ModConfigManager.getConfig().befuddledArtisanDurabilityLossPercent)));
-            pStack.setDamageValue(Math.min(damageAmount, maxDamage - 1));
+            int maximumAdditionalDamage = Math.max(1,
+                    (int) (maxDamage * ModConfigManager.getConfig().befuddledArtisanDurabilityLossPercent));
+            int damageAmount = 1 + player.level().random.nextInt(maximumAdditionalDamage);
+            pStack.setDamageValue(Math.min(maxDamage - 1, pStack.getDamageValue() + damageAmount));
         } else if (pStack.getCount() > 1) {
             int count = pStack.getCount();
             int reduction = 1 + player.level().random.nextInt(Math.max(1, (int) (count * ModConfigManager.getConfig().befuddledArtisanCountLossPercent)));

@@ -61,10 +61,10 @@ public class CursedRing extends Item implements ICurioItem {
         return ICurioItem.super.canEquip(slotContext, stack);
     }
 
-//    @Override
-//    public boolean canUnequip(SlotContext slotContext, ItemStack stack) {
-//        return false;
-//    }
+    @Override
+    public boolean canUnequip(SlotContext slotContext, ItemStack stack) {
+        return false;
+    }
 
     @Override
     public ICurio.@NotNull DropRule getDropRule(SlotContext slotContext, DamageSource source, int lootingLevel, boolean recentlyHit, ItemStack stack) {

@@ -143,15 +143,17 @@ public class ModConfig implements ConfigData {
 
     /**
      * 沉重枷锁：装备重量降低移速
-     * Heavy Shackles: Wearing equipment reduces movement speed.
+    * Heavy Shackles: Wearing equipment reduces movement speed.
      */
     public boolean enableHeavyShackles = true;
+    public double heavyShacklesMovementReduction = 0.25; // 移速降低比例 / Movement speed reduction ratio
 
     /**
      * 削弱打击：对敌人造成伤害更少
-     * Weakened Strikes: Deals less damage to enemies.
+    * Weakened Strikes: Deals less damage to enemies.
      */
     public boolean enableWeakenedStrikes = true;
+    public float weakenedStrikesDamageMultiplier = 0.8f; // 对敌人造成的伤害倍率 / Damage multiplier against enemies
 
     /**
      * 灵魂压制：减少经验值的获取
@@ -165,13 +167,13 @@ public class ModConfig implements ConfigData {
      * Fragile Body: Fall damage cannot be mitigated.
      */
     public boolean enableFragileBody = true;
-    public int fragileBodyMaxInvulnerableTime = 5; // 无敌帧上限（原版为20tick） / Max invulnerable ticks after damage (vanilla is 20)
 
     /**
      * 脆弱护甲：减少护甲给予的盔甲值与韧性
-     * Fragile Armor: Reduces armor and toughness given by armor.
+    * Fragile Armor: Reduces armor and toughness given by armor.
      */
     public boolean enableFragileArmor = true;
+    public float fragileArmorMultiplier = 0.5f; // 护甲与韧性保留倍率 / Armor and toughness multiplier
 
     /**
      * 迟钝双手：降低挖掘速度
@@ -197,12 +199,16 @@ public class ModConfig implements ConfigData {
      * Weak Magic Constitution: Cannot use high-level enchantments.
      */
     public boolean enableWeakMagicConstitution = true;
+    public int weakMagicConstitutionMaxLevel = 2;
 
     /**
      * 水性弱者：水中游泳速度减慢，溺水受伤按深度增加
      * Weak Swimmer: Reduces swimming speed, and drowning damage increases with depth.
      */
     public boolean enableWeakSwimmer = true;
+    public float weakSwimmerSwimSpeedMultiplier = 0.5f; // 水中游泳速度倍率 / Swimming speed multiplier in water
+    public float weakSwimmerDrowningDamagePerBlock = 0.05f; // 每低于海平面一格的额外溺水伤害倍率 / Extra drowning multiplier per block below sea level
+    public float weakSwimmerMaxDrowningMultiplier = 3.0f; // 溺水伤害倍率上限 / Maximum drowning damage multiplier
 
     /**
      * 食堂阿姨：重生锚每次充能填充数量随机
@@ -217,6 +223,8 @@ public class ModConfig implements ConfigData {
      * Endless Quiz: Enchanting the same weapon repeatedly reduces its enchantment level.
      */
     public boolean enableEndlessQuiz = true;
+    public int endlessQuizDailyLimit = 3;
+    public int endlessQuizLevelReduction = 1;
 
     /**
      * 敌我不分：附有忠诚的三叉戟有一定概率会在返回时伤害玩家
@@ -236,9 +244,10 @@ public class ModConfig implements ConfigData {
 
     /**
      * 血肉失控：每一次受伤额外受到最大生命值部分百分比的伤害
-     * Blood and Flesh: Each time you take damage, you receive additional damage based on a percentage of your maximum health.
+    * Blood and Flesh: Each time you take damage, you receive additional damage based on a percentage of your maximum health.
      */
     public boolean enableBloodAndFlesh = true;
+    public float bloodAndFleshExtraDamagePercent = 0.1f; // 按最大生命值追加的伤害比例 / Extra damage as a percentage of max health
 
     /**
      * 集群意识：击杀怪物后，概率性会原地生成一个同样的怪物
@@ -252,6 +261,7 @@ public class ModConfig implements ConfigData {
      * Focus Disturbance: Attacks, placements, and crafting have a chance to fail.
      */
     public boolean enableFocusDisturbance = true;
+    public double focusDisturbanceChance = 0.15;
 
     /**
      * 神经退行：重生后获得负面效果
@@ -264,13 +274,19 @@ public class ModConfig implements ConfigData {
     public int neurologicalDegenerationMaxDuration = 800; // 最大时长（tick）/ Maximum duration in ticks (180 seconds)
 
     /**
-     * 恐怖实体：敌人的生命值有概率提升
-     * Horrific Entity: Enemies may have a chance to gain extra health.
+     * 幻翼赠礼：每晚必刷新幻翼，幻翼会空投怪物
+     * Phantom Gift: A phantom is spawned every night and drops hostile mobs.
      */
-    public boolean enableHorrificEntity = true;
-    public float horrificEntityChance = 0.25f;
-    public float horrificEntityMinHealthBonus = 0.2f;
-    public float horrificEntityMaxHealthBonus = 0.8f;
+    public boolean enablePhantomGift = true;
+    public int phantomGiftAirdropHeight = 12;
+    public int phantomGiftAirdropCount = 1;
+    public int phantomGiftAirdropInterval = 200;
+    public String[] phantomGiftAirdropMobs = {
+            "minecraft:zombie",
+            "minecraft:skeleton",
+            "minecraft:spider",
+            "minecraft:creeper"
+    };
 
     /**
      * 社会悖论：村民交易价格提升
@@ -323,12 +339,16 @@ public class ModConfig implements ConfigData {
      * Regeneration Ban: Instant healing effects you receive will be delayed.
      */
     public boolean enableRegenerationBan = true;
+    public int regenerationBanDelay = 40;
+    public float regenerationBanMinimumAmount = 2.0f;
 
     /**
      * 药效冲突：你每获得一个正面buff，缩短你身上已有的buff的时长，并延长你身上debuff的时长
      * Potion Conflicts: Each time you gain a positive buff, existing buffs shorten while debuffs are extended.
      */
     public boolean enablePotionConflicts = true;
+    public float potionConflictsBeneficialDurationMultiplier = 0.5f;
+    public float potionConflictsHarmfulDurationMultiplier = 1.5f;
 
     /**
      * 无处藏身：怪物的近战攻击可以穿透方块进行判定
@@ -423,10 +443,11 @@ public class ModConfig implements ConfigData {
     };
 
     /**
-     * 虚伪身躯：玩家的无敌帧减少
+     * 脆弱身躯：玩家的无敌帧减少
      * Hypocrisy Body: Reduces player's invincibility frames
      */
     public boolean enableHypocrisyBody = true;
+    public int fragileBodyMaxInvulnerableTime = 5; // 无敌帧上限（原版为20tick） / Max invulnerable ticks after damage (vanilla is 20)
 
     /**
      * 贪婪之书：附魔台需要的经验翻倍
@@ -478,7 +499,7 @@ public class ModConfig implements ConfigData {
      * Unfair Trader: Piglins may take gold without bartering
      */
     public boolean enableUnfairTrader = true;
-    public double unfairTraderChance = 0.3; // 猪灵取走黄金不以物易物的概率 / Chance for piglins to take gold without bartering
+    public double unfairTraderChance = 0.6; // 猪灵取走黄金不以物易物的概率 / Chance for piglins to take gold without bartering
 
     /**
      * 被刺高手：玩家潜行时，受到的伤害翻倍
@@ -498,6 +519,7 @@ public class ModConfig implements ConfigData {
      * Food Coma: Eating has a delay, during which no actions can be performed
      */
     public boolean enableFoodComa = true;
+    public int foodComaDuration = 40;
 
     /**
      * 颗粒无收：作物的掉落概率改为掉落枯萎的灌木
@@ -525,7 +547,8 @@ public class ModConfig implements ConfigData {
      * Deep Sea Entanglement: Swimming has a time limit; after which the player starts sinking
      */
     public boolean enableDeepSeaEntanglement = true;
-    public int deepSeaEntanglementSwimTime = 30; // 可以游泳的时间（秒）/ Swimming time limit in seconds
+    public double deepSeaEntanglementSinkingSpeed = 0.12; // Downward speed after the swimming time is exhausted
+    public int deepSeaEntanglementSwimTime = 10; // 可以游泳的时间（秒）/ Swimming time limit in seconds
     public int deepSeaEntanglementRecoverTime = 10; // 离开水后恢复所需时间（秒）/ Recovery time after leaving water in seconds
 
     /**
@@ -551,12 +574,22 @@ public class ModConfig implements ConfigData {
      * Bleeding Wound: Taking damage has a chance to cause continuous health loss
      */
     public boolean enableBleedingWound = true;
+    public double bleedingWoundChance = 0.2; // 受伤后触发持续掉血的概率 / Chance to trigger bleeding after taking damage
+    public int bleedingWoundDuration = 100; // 持续时间（tick）/ Bleeding duration in ticks
+    public int bleedingWoundInterval = 20; // 掉血间隔（tick）/ Damage interval in ticks
+    public float bleedingWoundDamage = 1.0f; // 每次掉血伤害 / Damage per bleeding tick
 
     /**
      * 饥荒盛世：饱食度低于或高于一定值都会获得debuff
      * Feast or Famine: Having too low or too high saturation applies debuffs
      */
     public boolean enableFeastOrFamine = true;
+    public int feastOrFamineLowFoodLevel = 6; // 低饥饿阈值 / Low food threshold
+    public int feastOrFamineHighFoodLevel = 18; // 高饥饿阈值 / High food threshold
+    public float feastOrFamineLowSaturation = 1.0f; // 低饱和度阈值 / Low saturation threshold
+    public float feastOrFamineHighSaturation = 10.0f; // 高饱和度阈值 / High saturation threshold
+    public int feastOrFamineDebuffDuration = 40; // 负面效果持续时间（tick）/ Debuff duration in ticks
+    public int feastOrFamineDebuffAmplifier = 0; // 负面效果等级 / Debuff amplifier
 
     /**
      * 肺纤维化：氧气值减少
@@ -570,6 +603,8 @@ public class ModConfig implements ConfigData {
      * Bargaining Power: The higher the health of a trading entity, the more expensive its trades
      */
     public boolean enableBargainingPower = true;
+    public float bargainingPowerPriceMultiplier = 1.0f;
+    public int bargainingPowerMaxExtraCost = 64;
 
     /**
      * 饥肠辘辘：减少饱食度上限
@@ -583,6 +618,8 @@ public class ModConfig implements ConfigData {
      * Distant Deflection: Introduces universal damage cap and ranged damage resistance
      */
     public boolean enableDistantDeflection = true;
+    public float distantDeflectionMaxDamage = 10.0f;
+    public float distantDeflectionRangedDamageMultiplier = 0.5f;
 
     /**
      * 创伤应激：如果被一种生物打死了复活之后再遇见这种生物会有debuff
@@ -598,6 +635,7 @@ public class ModConfig implements ConfigData {
      * Curse of Misfortune: The player's dropped items are calculated multiple times, taking the worst result
      */
     public boolean enableCurseOfMisfortune = true;
+    public int curseOfMisfortuneRolls = 3;
 
     /**
      * 乳糖不耐：你无法通过牛奶解除负面效果
@@ -678,6 +716,9 @@ public class ModConfig implements ConfigData {
      * Overburdened: When your inventory holds too many items, your movement speed is reduced and fall damage is increased
      */
     public boolean enableOverburdened = true;
+    public int overburdenedItemThreshold = 72; // 触发负重的物品数量 / Item count threshold
+    public double overburdenedMovementReduction = 0.25; // 负重时移速降低比例 / Movement speed reduction while overburdened
+    public float overburdenedFallDamageMultiplier = 1.5f; // 负重时摔落伤害倍率 / Fall damage multiplier while overburdened
 
     /**
      * 破裂之门：传送门是一次性的，使用了之后会炸裂
@@ -690,6 +731,8 @@ public class ModConfig implements ConfigData {
      * Unbalanced Weapon: Each time you attack, there's a chance your weapon's attack power will decrease
      */
     public boolean enableUnbalancedWeapon = true;
+    public double unbalancedWeaponChance = 0.15; // 攻击伤害降低的概率 / Chance to reduce attack damage
+    public float unbalancedWeaponDamageMultiplier = 0.5f; // 触发时的伤害倍率 / Damage multiplier when triggered
 
     /**
      * 海关过境：村民的高级交易需要等待几个 Minecraft 日后才给你交易的物品
@@ -750,12 +793,17 @@ public class ModConfig implements ConfigData {
      * Overhealing: Using a healing item may cause you to be unable to heal again for a short time
      */
     public boolean enableOverhealing = true;
+    public double overhealingChance = 0.3;
+    public int overhealingCooldown = 100;
+    public float overhealingMinimumAmount = 2.0f;
 
     /**
      * 花样出招：玩家要轮流使用不同攻击手段才可对特定生物造成伤害
      * Patterned Assault: You must alternate different attack methods to damage certain creatures
      */
     public boolean enablePatternedAssault = true;
+    public String[] patternedAssaultTargets = {"#forge:bosses", "minecraft:warden"};
+    public int patternedAssaultResetAfterTicks = 600;
 
     /**
      * 不亮之物：放置的火把，营火需要手动点燃
@@ -775,17 +823,35 @@ public class ModConfig implements ConfigData {
      * Terrible Cook: Cooked meals have a chance to turn into mysterious stew that inflicts a debuff
      */
     public boolean enableTerribleCook = true;
+    public double terribleCookChance = 0.2;
+    /**
+     * Randomly selected debuff IDs for the suspicious stew.
+     */
+    public String[] terribleCookDebuffIds = {};
+    public int terribleCookDebuffDuration = 200;
+    public double terribleCookPlayerRange = 16.0;
 
     /**
      * 震耳欲聋：不一定需要幽匿尖啸体才能召唤监守者
      * Deafening: You don't always need a Sculk Shrieker to summon the Warden
      */
     public boolean enableDeafening = true;
+    public boolean deafeningOnlyInDeepDark = true;
+    public double deafeningSpawnChance = 0.01;
+    public int deafeningCheckInterval = 200;
+    public double deafeningSearchRange = 32.0;
 
     /**
-     * 话痨戒指：偶尔会听到戒指的话语
-     * Chatterbox Ring: Occasionally you'll hear the ring itself speaking to you
+     * 结束时刻：末影龙出现会播放越来越好remix并添加后处理效果
+     * Ending Moment: The appearance of the ender dragon will play better and better remixes and add post-processing effects
      */
-    public boolean enableChatterboxRing = true;
+    public boolean enableEndingMoment = true;
+    public float endingMomentVolume = 1.0f;
+    public float endingMomentBasePitch = 1.0f;
+    public float endingMomentPitchIncrease = 0.1f;
+    public float endingMomentMaxPitch = 2.0f;
+    public double endingMomentRange = 128.0;
+    public int endingMomentLoopInterval = 1200;
+    public int endingMomentDarknessDuration = 80;
 
 }

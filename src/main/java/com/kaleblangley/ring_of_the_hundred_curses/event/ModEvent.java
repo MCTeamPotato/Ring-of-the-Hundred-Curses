@@ -2,6 +2,7 @@ package com.kaleblangley.ring_of_the_hundred_curses.event;
 
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
 import com.kaleblangley.ring_of_the_hundred_curses.capability.CurseMaxSizeProvider;
+import com.kaleblangley.ring_of_the_hundred_curses.capability.ICustomsClearance;
 import com.kaleblangley.ring_of_the_hundred_curses.capability.ICurseMaxSize;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import net.minecraft.resources.ResourceLocation;
@@ -24,6 +25,12 @@ import static net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE;
 
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ModEvent {
+    @SubscribeEvent
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.register(ICurseMaxSize.class);
+        event.register(ICustomsClearance.class);
+    }
+
     @SubscribeEvent
     public static void addAttribute(EntityAttributeModificationEvent event) {
         event.getTypes().forEach(entityType -> {

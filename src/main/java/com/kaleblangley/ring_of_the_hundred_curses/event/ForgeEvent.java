@@ -2,11 +2,14 @@ package com.kaleblangley.ring_of_the_hundred_curses.event;
 
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
 import com.kaleblangley.ring_of_the_hundred_curses.capability.CurseMaxSizeProvider;
+import com.kaleblangley.ring_of_the_hundred_curses.capability.CustomsClearanceProvider;
 import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
@@ -22,6 +25,16 @@ public class ForgeEvent {
     @SubscribeEvent
     public static void attachCapability(AttachCapabilitiesEvent<ItemStack> event) {
         event.addCapability(new ResourceLocation(RingOfTheHundredCurses.MODID, "curse_max_size"), new CurseMaxSizeProvider());
+    }
+
+    @SubscribeEvent
+    public static void attachPlayerCapability(AttachCapabilitiesEvent<Entity> event) {
+        if (event.getObject() instanceof Player) {
+            event.addCapability(
+                    new ResourceLocation(RingOfTheHundredCurses.MODID, "customs_clearance"),
+                    new CustomsClearanceProvider()
+            );
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
