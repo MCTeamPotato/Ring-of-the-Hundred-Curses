@@ -763,6 +763,23 @@ public class ModConfig implements ConfigData {
      * Mirage: You may occasionally see distant structures that aren't actually there
      */
     public boolean enableMirage = true;
+    public int mirageRefreshInterval = 600; // 新幻象的刷新间隔（tick）/ Refresh interval for additional mirages
+    public int mirageMaxActiveInstances = 3; // 同时存在的幻象数量上限 / Maximum active mirages
+    public double mirageMinimumSeparation = 32.0; // 幻象之间的最小分离距离 / Minimum distance between mirages
+    public double mirageSpawnChance = 0.2; // 每次检查生成幻象的概率 / Chance to create a mirage on each check
+    public int mirageCheckInterval = 100; // 检查间隔（tick）/ Search interval in ticks
+    public double mirageSearchRadius = 192.0; // 只搜索已加载区块中的结构 / Search radius for loaded structures only
+    public double miragePlacementMinDistance = 48.0; // 幻象最小距离 / Minimum mirage distance
+    public double miragePlacementMaxDistance = 128.0; // 幻象最大距离 / Maximum mirage distance
+    public double mirageAngleMinDegrees = 25.0; // 与真实结构方向的最小偏转角 / Minimum direction offset
+    public double mirageAngleMaxDegrees = 50.0; // 与真实结构方向的最大偏转角 / Maximum direction offset
+    public double mirageRetreatDistance = 32.0; // 每次后退的距离 / Distance added on each retreat
+    public double mirageApproachDistance = 18.0; // 玩家接近幻象的触发距离 / Distance that triggers dissolving
+    public int mirageMaxDuration = 1200; // 单个幻象最大持续时间（tick）/ Maximum lifetime in ticks
+    public int mirageDissolveDuration = 30; // 溶解时间（tick）/ Dissolve duration in ticks
+    public int mirageMaxRetreats = 3; // 最大后退次数 / Maximum retreat count
+    public int mirageMaxRenderBlocks = 4096; // 单个模板最大渲染方块数 / Maximum blocks per template
+    public double mirageRenderDistance = 256.0; // 客户端最大渲染距离 / Client render distance
 
     /**
      * 专事专办：工具只能干对应的事情

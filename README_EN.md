@@ -103,7 +103,7 @@ Format: (Curse Name + Curse Effect + Designer)
 87. [x] Customs Clearance: Advanced villager trades require waiting several Minecraft days before the items become available. kl
 88. [x] Overzealous Growth: When fertilizing crops, there’s a chance their growth stage will regress—and the more fertilizer you apply, the higher the chance. kl
 89. [x] Clumsy Farmer: There’s a chance to trample and break farmland when walking over tilled soil. 咒神灰
-90. [ ] Mirage: You may occasionally see distant structures that aren’t actually there. kl
+90. [x] Mirage: You may occasionally see distant structures that aren’t actually there. kl
 91. [x] Single-Purpose Tools: Tools can only perform their designated function. kl
 92. [x] Muscle Weakness: When blocking damage with a shield, there’s a chance your shield will break. 咒神灰
 93. [x] Rotting Hunger: Food stored in your inventory for too long will spoil into rotten flesh. kl

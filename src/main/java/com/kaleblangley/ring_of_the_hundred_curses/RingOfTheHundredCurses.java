@@ -7,6 +7,7 @@ import com.kaleblangley.ring_of_the_hundred_curses.init.ModEffect;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModItem;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModSound;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTab;
+import com.kaleblangley.ring_of_the_hundred_curses.network.ModNetwork;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.serializer.Toml4jConfigSerializer;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -26,6 +27,7 @@ public class RingOfTheHundredCurses {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         AutoConfig.register(ModConfig.class, Toml4jConfigSerializer::new);
         ModLoadingContext.get().registerExtensionPoint(ModConfigManager.getConfigFactory().getClass(), ModConfigManager::getConfigFactory);
+        ModNetwork.register();
         ModBlock.BLOCKS.register(modEventBus);
         ModEffect.MOB_EFFECTS.register(modEventBus);
         ModItem.ITEMS.register(modEventBus);

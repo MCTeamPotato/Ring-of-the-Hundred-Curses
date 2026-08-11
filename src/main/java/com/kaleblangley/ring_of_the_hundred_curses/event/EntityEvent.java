@@ -5,6 +5,7 @@ import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModSound;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 import com.kaleblangley.ring_of_the_hundred_curses.goal.WorldAgainstMeleeAttackGoal;
+import com.kaleblangley.ring_of_the_hundred_curses.mirage.MirageServerManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -45,6 +46,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShieldItem;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.monster.warden.Warden;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -61,6 +63,9 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingSwapItemsEvent;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.common.Tags;
@@ -75,6 +80,33 @@ import static com.kaleblangley.ring_of_the_hundred_curses.init.ModPlayerEventKey
 
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class EntityEvent {
+
+    @SubscribeEvent
+    public static void onMiragePlayerTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || !(event.player instanceof ServerPlayer serverPlayer)) return;
+        MirageServerManager.tick(serverPlayer);
+    }
+
+    @SubscribeEvent
+    public static void onMiragePlayerRespawn(PlayerRespawnEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            MirageServerManager.clear(serverPlayer);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onMiragePlayerChangedDimension(PlayerChangedDimensionEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            MirageServerManager.clear(serverPlayer);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onMiragePlayerLoggedOut(PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            MirageServerManager.forget(serverPlayer);
+        }
+    }
 
     @SubscribeEvent
     public static void entitySpawn(EntityJoinLevelEvent event) {
