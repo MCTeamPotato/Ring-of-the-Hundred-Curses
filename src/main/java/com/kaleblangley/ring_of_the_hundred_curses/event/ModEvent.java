@@ -17,9 +17,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.Arrays;
-import java.util.Objects;
-
 import static net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE;
 import static net.minecraft.world.entity.ai.attributes.Attributes.FOLLOW_RANGE;
 
@@ -38,12 +35,33 @@ public class ModEvent {
                 event.add(entityType, ATTACK_DAMAGE, 1d);
             }
 
-            String entityKey = ForgeRegistries.ENTITY_TYPES.getKey(entityType).toString();
-            Arrays.stream(ModConfigManager.getConfig().entityFollowRange)
-                    .filter(pair -> entityKey.equals(pair.getFirst()))
-                    .findFirst()
-                    .ifPresent(pair -> event.add(entityType, FOLLOW_RANGE, pair.getSecond()));
+            ResourceLocation entityId = ForgeRegistries.ENTITY_TYPES.getKey(entityType);
+            if (entityId == null) return;
+
+            Double followRange = findConfiguredFollowRange(entityId.toString());
+            if (followRange != null) {
+                event.add(entityType, FOLLOW_RANGE, followRange);
+            }
         });
+    }
+
+    private static Double findConfiguredFollowRange(String entityId) {
+        for (String entry : ModConfigManager.getConfig().entityFollowRange) {
+            if (entry == null) continue;
+
+            String[] parts = entry.split("=", 2);
+            if (parts.length != 2 || !entityId.equals(parts[0].trim())) continue;
+
+            try {
+                double range = Double.parseDouble(parts[1].trim());
+                if (Double.isFinite(range) && range >= 0.0d) {
+                    return range;
+                }
+            } catch (NumberFormatException ignored) {
+                // Ignore malformed entries so one bad value does not prevent the game from loading.
+            }
+        }
+        return null;
     }
 
 }

@@ -1,7 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.config;
 
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
-import com.mojang.datafixers.util.Pair;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.annotation.Config;
@@ -28,8 +27,13 @@ public class ModConfig implements ConfigData {
     public double entityAttackSpeed = 1.2d;
     @ConfigEntry.Gui.Tooltip
     public int entityAttackChange = 50;
+    /**
+     * Additional follow ranges in the format {@code entity_id=range}, for example
+     * {@code minecraft:zombie=32}. Keeping this as strings makes it editable in
+     * Cloth Config; Minecraft's Pair type has no no-argument constructor.
+     */
     @ConfigEntry.Gui.Tooltip
-    public Pair<String, Double>[] entityFollowRange = new Pair[]{};
+    public String[] entityFollowRange = {};
 
     /**
      * 贪婪吃食：减少食物获得的饥饿值
