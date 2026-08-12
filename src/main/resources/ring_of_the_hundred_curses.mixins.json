@@ -2,8 +2,8 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.kaleblangley.ring_of_the_hundred_curses.mixin",
-  "compatibilityLevel": "JAVA_8",
-  "refmap": "RingOfTheHundredCurses.refmap.json",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "ring_of_the_hundred_curses.refmap.json",
   "mixins": [
     "AbstractArrowMixin",
     "block.BlockMixin",
@@ -18,7 +18,6 @@
     "entity.LivingEntityMixin",
     "entity.MeleeAttackGoalMixin",
     "FoodDataMixin",
-    "ForgeGuiMixin",
     "items.ItemStackMixin",
     "items.MapItemMixin",
     "LootTableMixin",
@@ -44,6 +43,7 @@
     "block.IceBlockMixin"
   ],
   "client": [
+    "ForgeGuiMixin",
     "MinecraftMixin",
     "entity.LocalPlayerMixin",
     "inventory.CreativeModeInventoryScreenMixin",

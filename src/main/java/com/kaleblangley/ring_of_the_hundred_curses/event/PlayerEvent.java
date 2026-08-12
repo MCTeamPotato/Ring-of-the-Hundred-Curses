@@ -1613,6 +1613,9 @@ public class PlayerEvent {
         if (oldData.contains(PHANTOM_GIFT_LAST_NIGHT_KEY, Tag.TAG_LONG)) {
             newData.putLong(PHANTOM_GIFT_LAST_NIGHT_KEY, oldData.getLong(PHANTOM_GIFT_LAST_NIGHT_KEY));
         }
+        if (oldData.getBoolean(FIRST_RING_GIVEN_KEY)) {
+            newData.putBoolean(FIRST_RING_GIVEN_KEY, true);
+        }
         event.getOriginal().getCapability(CustomsClearanceProvider.CUSTOMS_CLEARANCE).ifPresent(oldCustoms ->
                 event.getEntity().getCapability(CustomsClearanceProvider.CUSTOMS_CLEARANCE)
                         .ifPresent(newCustoms -> newCustoms.copyFrom(oldCustoms))

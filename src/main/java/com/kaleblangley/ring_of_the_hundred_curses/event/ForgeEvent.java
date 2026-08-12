@@ -4,23 +4,41 @@ import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
 import com.kaleblangley.ring_of_the_hundred_curses.capability.CurseMaxSizeProvider;
 import com.kaleblangley.ring_of_the_hundred_curses.capability.CustomsClearanceProvider;
 import com.kaleblangley.ring_of_the_hundred_curses.item.CursedRing;
+import com.kaleblangley.ring_of_the_hundred_curses.init.ModItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
 
+import static com.kaleblangley.ring_of_the_hundred_curses.init.ModPlayerEventKeys.FIRST_RING_GIVEN_KEY;
+
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ForgeEvent {
+
+    @SubscribeEvent
+    public static void giveFirstRing(PlayerLoggedInEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+
+        if (player.getPersistentData().getBoolean(FIRST_RING_GIVEN_KEY)) return;
+
+        ItemStack ring = new ItemStack(ModItem.RING.get());
+        if (!player.addItem(ring) && !ring.isEmpty()) {
+            player.drop(ring, false);
+        }
+        player.getPersistentData().putBoolean(FIRST_RING_GIVEN_KEY, true);
+    }
 
     @SubscribeEvent
     public static void attachCapability(AttachCapabilitiesEvent<ItemStack> event) {

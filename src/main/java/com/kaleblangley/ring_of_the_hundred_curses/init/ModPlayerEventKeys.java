@@ -22,6 +22,7 @@ public final class ModPlayerEventKeys {
     public static final String PATTERNED_ASSAULT_METHODS_KEY = "PatternedAssaultMethods";
     public static final String ENDING_MOMENT_COUNT_KEY = "EndingMomentCount";
     public static final String ENDING_MOMENT_LAST_PLAY_KEY = "EndingMomentLastPlay";
+    public static final String FIRST_RING_GIVEN_KEY = "FirstRingGiven";
 
     private ModPlayerEventKeys() {
     }
