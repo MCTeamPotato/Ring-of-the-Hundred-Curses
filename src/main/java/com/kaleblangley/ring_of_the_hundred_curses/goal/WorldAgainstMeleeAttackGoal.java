@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.goal;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
@@ -17,6 +18,7 @@ import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManage
  */
 public class WorldAgainstMeleeAttackGoal extends MeleeAttackGoal {
     private static final double CONTACT_BUFFER = 0.15D;
+    private boolean noShelterReachApplied;
 
     public WorldAgainstMeleeAttackGoal(
             PathfinderMob mob, double speedModifier, boolean followingTargetEvenIfNotSeen
@@ -27,6 +29,7 @@ public class WorldAgainstMeleeAttackGoal extends MeleeAttackGoal {
     @Override
     protected double getAttackReachSqr(LivingEntity target) {
         double contactReach = (this.mob.getBbWidth() + target.getBbWidth()) * 0.5D + CONTACT_BUFFER;
+        noShelterReachApplied = false;
 
         if (target instanceof Player player
                 && RingUtil.configAndRing(player, getConfig().enableNoShelter)) {
@@ -39,9 +42,22 @@ public class WorldAgainstMeleeAttackGoal extends MeleeAttackGoal {
             ));
             if (hitResult.getType() == HitResult.Type.BLOCK) {
                 contactReach += Math.max(0.0D, getConfig().noShelterExtraReach);
+                noShelterReachApplied = getConfig().noShelterExtraReach > 0.0D;
             }
         }
 
         return contactReach * contactReach;
+    }
+
+    @Override
+    protected void checkAndPerformAttack(LivingEntity target, double distanceToTargetSqr) {
+        int previousHurtTime = target.hurtTime;
+        super.checkAndPerformAttack(target, distanceToTargetSqr);
+        if (target instanceof Player player && target.hurtTime > previousHurtTime) {
+            CurseAdvancementManager.trigger(player, "world_against");
+            if (noShelterReachApplied) {
+                CurseAdvancementManager.trigger(player, "no_shelter");
+            }
+        }
     }
 }

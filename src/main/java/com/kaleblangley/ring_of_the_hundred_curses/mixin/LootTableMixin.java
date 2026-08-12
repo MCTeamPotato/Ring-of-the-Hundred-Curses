@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -35,6 +36,7 @@ public class LootTableMixin {
         }
         ObjectArrayList<ItemStack> originalLoot = cir.getReturnValue();
         ObjectArrayList<ItemStack> modifiedLoot = new ObjectArrayList<>();
+        boolean changed = false;
         List<String> highValueItems = Arrays.asList(ModConfigManager.getConfig().greedyLockHighValueItems);
         for (ItemStack stack : originalLoot) {
             if (ring_of_the_hundred_curses$isHighValueItem(stack, highValueItems)) {
@@ -42,6 +44,7 @@ public class LootTableMixin {
                 if (junkItem != null) {
                     junkItem.setCount(Math.max(1, stack.getCount()));
                     modifiedLoot.add(junkItem);
+                    changed = true;
                 } else {
                     modifiedLoot.add(stack);
                 }
@@ -50,7 +53,10 @@ public class LootTableMixin {
             }
         }
 
-        cir.setReturnValue(modifiedLoot);
+        if (changed) {
+            cir.setReturnValue(modifiedLoot);
+            CurseAdvancementManager.trigger(player, "greedy_lock");
+        }
     }
 
     private Player ring_of_the_hundred_curses$getPlayerFromContext(LootContext context) {

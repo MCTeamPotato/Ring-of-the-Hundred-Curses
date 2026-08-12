@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.inventory;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
@@ -24,7 +25,11 @@ public class CreativeModeInventoryScreenMixin {
     @Redirect(method = "slotClicked", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getMaxStackSize()I", ordinal = 2))
     public int ring_of_the_hundred_curses$modifyCreateMax(ItemStack instance){
         if (RingUtil.configAndRing(this.ringOfTheHundredCurses$player, ModConfigManager.getConfig().enableBackpackLimit)){
-            return Math.min(ModConfigManager.getConfig().maxStackSize, instance.getMaxStackSize());
+            int modified = Math.min(ModConfigManager.getConfig().maxStackSize, instance.getMaxStackSize());
+            if (modified != instance.getMaxStackSize()) {
+                CurseAdvancementManager.trigger(this.ringOfTheHundredCurses$player, "backpack_limit");
+            }
+            return modified;
         }
         return instance.getMaxStackSize();
     }

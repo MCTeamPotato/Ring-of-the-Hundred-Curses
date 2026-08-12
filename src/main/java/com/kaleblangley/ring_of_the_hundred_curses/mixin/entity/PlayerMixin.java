@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.entity;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -32,6 +33,7 @@ public class PlayerMixin {
         if (RingUtil.configAndRing(player, getConfig().enableLavishTaste)
                 && !ring_of_the_hundred_curses$hasTrim(stack)) {
             ci.cancel();
+            CurseAdvancementManager.trigger(player, "lavish_taste");
         }
     }
 
@@ -43,7 +45,11 @@ public class PlayerMixin {
             return levels;
         }
         double multiplier = Math.max(0.0D, getConfig().greedyTomeCostMultiplier);
-        return (int) Math.min(Integer.MAX_VALUE, Math.ceil(levels * multiplier));
+        int modifiedLevels = (int) Math.min(Integer.MAX_VALUE, Math.ceil(levels * multiplier));
+        if (modifiedLevels != levels) {
+            CurseAdvancementManager.trigger(player, "greedy_tome");
+        }
+        return modifiedLevels;
     }
 
     @Inject(method = "travel", at = @At("HEAD"))
@@ -59,6 +65,7 @@ public class PlayerMixin {
         double sinkingSpeed = Math.max(0.01, getConfig().deepSeaEntanglementSinkingSpeed);
         if (motion.y > -sinkingSpeed) {
             player.setDeltaMovement(motion.x, -sinkingSpeed, motion.z);
+            CurseAdvancementManager.trigger(player, "deep_sea_entanglement");
         }
     }
 
@@ -67,7 +74,11 @@ public class PlayerMixin {
         Player player = (Player) (Object) this;
         if (!ring_of_the_hundred_curses$isExhaustedInWater(player)) return travelVector;
         double sinkingSpeed = Math.max(0.01D, getConfig().deepSeaEntanglementSinkingSpeed);
-        return new Vec3(travelVector.x, Math.min(travelVector.y, -sinkingSpeed), travelVector.z);
+        Vec3 modifiedVector = new Vec3(travelVector.x, Math.min(travelVector.y, -sinkingSpeed), travelVector.z);
+        if (!modifiedVector.equals(travelVector)) {
+            CurseAdvancementManager.trigger(player, "deep_sea_entanglement");
+        }
+        return modifiedVector;
     }
 
     @Inject(method = "travel", at = @At("RETURN"))
@@ -81,6 +92,7 @@ public class PlayerMixin {
         double sinkingSpeed = Math.max(0.01, getConfig().deepSeaEntanglementSinkingSpeed);
         if (motion.y > -sinkingSpeed) {
             player.setDeltaMovement(motion.x, -sinkingSpeed, motion.z);
+            CurseAdvancementManager.trigger(player, "deep_sea_entanglement");
         }
     }
 

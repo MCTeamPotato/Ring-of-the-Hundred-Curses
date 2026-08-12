@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.entity;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +33,9 @@ public abstract class ThrownTridentMixin {
         if (player.getRandom().nextDouble() < chance) {
             float damage = ModConfigManager.getConfig().friendOrFoeDamage;
             ThrownTrident trident = (ThrownTrident) (Object) this;
-            player.hurt(player.damageSources().trident(trident, null), damage);
+            if (player.hurt(player.damageSources().trident(trident, null), damage)) {
+                CurseAdvancementManager.trigger(player, "friend_or_foe");
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.entity;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -31,6 +32,7 @@ public class PiglinAiMixin {
         if (pPiglin.level().random.nextDouble() < getConfig().unfairTraderChance) {
             pPiglin.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
             ci.cancel();
+            CurseAdvancementManager.trigger(player, "unfair_trader");
         }
     }
 }

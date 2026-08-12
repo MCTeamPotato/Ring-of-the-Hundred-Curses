@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
@@ -56,6 +57,7 @@ public class RandomizableContainerMixin {
             ServerLevel serverLevel = (ServerLevel) level;
             DifficultyInstance difficulty = serverLevel.getCurrentDifficultyAt(pos);
 
+            boolean spawned = false;
             for (int i = 0; i < count; i++) {
                 Mob mob = mobType.create(level);
                 if (mob != null) {
@@ -63,8 +65,11 @@ public class RandomizableContainerMixin {
                     double offsetZ = (level.random.nextDouble() - 0.5) * 4.0;
                     mob.setPos(pos.getX() + 0.5 + offsetX, pos.getY(), pos.getZ() + 0.5 + offsetZ);
                     ForgeEventFactory.onFinalizeSpawn(mob, serverLevel, difficulty, MobSpawnType.EVENT, null, null);
-                    level.addFreshEntity(mob);
+                    spawned |= level.addFreshEntity(mob);
                 }
+            }
+            if (spawned) {
+                CurseAdvancementManager.trigger(pPlayer, "incompetent_thief");
             }
         }
     }

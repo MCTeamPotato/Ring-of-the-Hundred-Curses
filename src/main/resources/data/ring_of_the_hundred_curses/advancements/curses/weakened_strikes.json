@@ -1,0 +1,23 @@
+{
+  "parent": "ring_of_the_hundred_curses:root",
+  "display": {
+    "icon": {
+      "item": "ring_of_the_hundred_curses:ring_of_the_hundred_curses"
+    },
+    "title": {
+      "translate": "advancements.ring_of_the_hundred_curses.curses.weakened_strikes.title"
+    },
+    "description": {
+      "translate": "advancements.ring_of_the_hundred_curses.curses.weakened_strikes.description"
+    },
+        "frame": "task",
+        "show_toast": false,
+        "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "curse_triggered": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

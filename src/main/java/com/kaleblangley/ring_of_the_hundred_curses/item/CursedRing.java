@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.item;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
@@ -43,6 +44,9 @@ public class CursedRing extends Item implements ICurioItem {
     @Override
     public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
         ICurioItem.super.onEquip(slotContext, prevStack, stack);
+        if (ModConfigManager.getConfig().enableFragileLife) {
+            CurseAdvancementManager.trigger(slotContext.entity(), "fragile_life");
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.block;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -55,5 +56,6 @@ public class BadLuckMixin {
                 .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
 
         cir.setReturnValue(state.getDrops(builder));
+        CurseAdvancementManager.trigger(player, "bad_luck");
     }
 }

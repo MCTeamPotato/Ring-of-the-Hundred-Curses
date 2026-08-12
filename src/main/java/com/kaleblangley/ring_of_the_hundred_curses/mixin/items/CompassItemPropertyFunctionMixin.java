@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.items;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -22,6 +23,7 @@ public class CompassItemPropertyFunctionMixin {
             long time = pLevel != null ? pLevel.getGameTime() : 0;
             double rotation = Math.sin(time * 0.1) * 0.5 + Math.random() * 0.1;
             cir.setReturnValue((float) rotation);
+            CurseAdvancementManager.trigger(livingEntity, "lost_direction");
         }
     }
 }

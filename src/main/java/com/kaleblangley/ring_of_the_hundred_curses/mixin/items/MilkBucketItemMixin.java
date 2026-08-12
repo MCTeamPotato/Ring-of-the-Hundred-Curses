@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.items;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -30,6 +31,7 @@ public class MilkBucketItemMixin {
                     stack.shrink(1);
                 }
                 cir.setReturnValue(stack.isEmpty() ? new ItemStack(Items.BUCKET) : stack);
+                CurseAdvancementManager.trigger(player, "lactose_intolerance");
             }
         }
     }

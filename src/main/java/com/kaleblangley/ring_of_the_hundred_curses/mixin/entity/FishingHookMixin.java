@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.entity;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.world.entity.player.Player;
@@ -27,7 +28,11 @@ public abstract class FishingHookMixin {
         Player player = this.getPlayerOwner();
         if (player != null && RingUtil.configAndRing(player, ModConfigManager.getConfig().enableAbandonedByPoseidon)) {
             float penalty = ModConfigManager.getConfig().abandonedByPoseidonLuckPenalty;
-            return builder.withLuck(originalLuck - penalty);
+            float modifiedLuck = originalLuck - penalty;
+            if (modifiedLuck != originalLuck) {
+                CurseAdvancementManager.trigger(player, "abandoned_by_poseidon");
+            }
+            return builder.withLuck(modifiedLuck);
         }
         return builder.withLuck(originalLuck);
     }

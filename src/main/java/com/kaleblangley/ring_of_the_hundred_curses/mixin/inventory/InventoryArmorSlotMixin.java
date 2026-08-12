@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.inventory;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
@@ -32,6 +33,7 @@ public abstract class InventoryArmorSlotMixin {
                 && stack.getItem() instanceof ArmorItem
                 && RingUtil.configAndRing(player, getConfig().enableLavishTaste)
                 && !ring_of_the_hundred_curses$hasTrim(stack)) {
+            CurseAdvancementManager.trigger(player, "lavish_taste");
             return false;
         }
         return stack.canEquip(equipmentSlot, entity);

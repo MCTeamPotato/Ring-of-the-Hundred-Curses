@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.entity;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.DamageTypeTags;
@@ -61,6 +62,7 @@ public class LivingEntityMixin {
             return;
         }
         cir.setReturnValue((int) Math.max(0, Math.round(adjustedArmorValue)));
+        CurseAdvancementManager.trigger(player, "dilapidated_warrior");
     }
 
     @Inject(method = "calculateFallDamage", at = @At("HEAD"), cancellable = true)
@@ -74,11 +76,16 @@ public class LivingEntityMixin {
         }
         if (livingEntity.getType().is(EntityTypeTags.FALL_DAMAGE_IMMUNE)) {
             cir.setReturnValue(0);
+            CurseAdvancementManager.trigger(player, "fragile_body");
             return;
         }
 
         float effectiveMultiplier = Math.max(1.0F, damageMultiplier);
-        cir.setReturnValue(Mth.ceil((fallDistance - 3.0F) * effectiveMultiplier));
+        int modifiedDamage = Mth.ceil((fallDistance - 3.0F) * effectiveMultiplier);
+        cir.setReturnValue(modifiedDamage);
+        if (modifiedDamage != Mth.ceil((fallDistance - 3.0F) * damageMultiplier)) {
+            CurseAdvancementManager.trigger(player, "fragile_body");
+        }
     }
 
     @Inject(method = "getDamageAfterArmorAbsorb", at = @At("HEAD"), cancellable = true)
@@ -86,6 +93,9 @@ public class LivingEntityMixin {
         LivingEntity livingEntity = (LivingEntity) (Object) this;
         if (ring_of_the_hundred_curses$isFragileBodyFall(livingEntity, damageSource)) {
             cir.setReturnValue(damageAmount);
+            if (livingEntity instanceof Player player) {
+                CurseAdvancementManager.trigger(player, "fragile_body");
+            }
         }
     }
 
@@ -94,6 +104,9 @@ public class LivingEntityMixin {
         LivingEntity livingEntity = (LivingEntity) (Object) this;
         if (ring_of_the_hundred_curses$isFragileBodyFall(livingEntity, damageSource)) {
             cir.setReturnValue(damageAmount);
+            if (livingEntity instanceof Player player) {
+                CurseAdvancementManager.trigger(player, "fragile_body");
+            }
         }
     }
 
@@ -106,14 +119,21 @@ public class LivingEntityMixin {
         if (!(entity instanceof Player player) || !(levelReader instanceof Level level)) {
             return friction;
         }
+        float originalFriction = friction;
 
         if (RingUtil.configAndRing(player, getConfig().enableIceRink) && level.isRaining()) {
             friction = Math.max(friction, getConfig().iceRinkFriction);
+            if (friction != originalFriction) {
+                CurseAdvancementManager.trigger(player, "ice_rink");
+            }
         }
 
         if (RingUtil.configAndRing(player, getConfig().enableSlipperyAdventure)
                 && level.getBiome(player.blockPosition()).value().coldEnoughToSnow(player.blockPosition())) {
             friction = Math.max(friction, getConfig().slipperyAdventureFriction);
+            if (friction != originalFriction) {
+                CurseAdvancementManager.trigger(player, "slippery_adventure");
+            }
         }
 
         return friction;

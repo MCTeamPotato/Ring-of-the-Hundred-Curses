@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.event;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.ChunkThunderEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
@@ -137,8 +138,15 @@ public class PlayerEvent {
                     int extra = eatCount - threshold;
                     float reduction = Math.min(extra * getConfig().balancedDietReductionPerExtra, getConfig().balancedDietMaxReduction);
                     float ratio = 1.0f - reduction;
-                    event.setNutrition(Math.max((int) (event.getNutrition() * ratio), 0));
-                    event.setSaturationModifier(event.getSaturationModifier() * ratio);
+                    int originalNutrition = event.getNutrition();
+                    float originalSaturation = event.getSaturationModifier();
+                    int reducedNutrition = Math.max((int) (originalNutrition * ratio), 0);
+                    float reducedSaturation = originalSaturation * ratio;
+                    if (reducedNutrition != originalNutrition || reducedSaturation != originalSaturation) {
+                        event.setNutrition(reducedNutrition);
+                        event.setSaturationModifier(reducedSaturation);
+                        CurseAdvancementManager.trigger(player, "balanced_diet");
+                    }
                 }
                 dietCounts.putInt(foodId, eatCount + 1);
                 data.put(BALANCED_DIET_KEY, dietCounts);
@@ -149,9 +157,16 @@ public class PlayerEvent {
                 int currentHunger = foodData.getFoodLevel();
                 int nutritionToAdd = event.getNutrition();
                 if (currentHunger >= maxHunger) {
-                    event.setNutrition(0);
+                    if (nutritionToAdd != 0) {
+                        event.setNutrition(0);
+                        CurseAdvancementManager.trigger(player, "hollow_stomach");
+                    }
                 } else if (currentHunger + nutritionToAdd > maxHunger) {
-                    event.setNutrition(maxHunger - currentHunger);
+                    int limitedNutrition = maxHunger - currentHunger;
+                    if (limitedNutrition != nutritionToAdd) {
+                        event.setNutrition(limitedNutrition);
+                        CurseAdvancementManager.trigger(player, "hollow_stomach");
+                    }
                 }
             }
         }
@@ -172,6 +187,7 @@ public class PlayerEvent {
     public static void sleepEvent(SleepingTimeCheckEvent event) {
         if (RingUtil.configAndRing(event.getEntity(), getConfig().enableSleeplessNights)) {
             event.setResult(Event.Result.DENY);
+            CurseAdvancementManager.trigger(event.getEntity(), "sleepless_nights");
         }
     }
 
@@ -182,6 +198,7 @@ public class PlayerEvent {
         RingUtil.backpackLimitSizeModify(event.getPlayer(), carryItem);
         if (stackedOnItem.is(Items.SHIELD) && event.getSlot().getContainerSlot() == 40 && RingUtil.configAndRing(event.getPlayer(), getConfig().enableShieldOnTheRight)) {
             event.setCanceled(true);
+            CurseAdvancementManager.trigger(event.getPlayer(), "shield_on_the_right");
         }
     }
 
@@ -206,7 +223,9 @@ public class PlayerEvent {
             return;
         }
         if (RingUtil.configAndRing(player, getConfig().enableNeurologicalDegeneration)) {
-            applyRandomHarmfulEffect(player);
+            if (applyRandomHarmfulEffect(player)) {
+                CurseAdvancementManager.trigger(player, "neurological_degeneration");
+            }
         }
         if (RingUtil.configAndRing(player, getConfig().enableFleshCollapse)) {
             scheduleFleshCollapseApply(player);
@@ -229,7 +248,9 @@ public class PlayerEvent {
             Level level = player.level();
             if (!level.isClientSide && isWormHoardTarget(state.getBlock())) {
                 if (level.random.nextDouble() < getConfig().wormHoardSpawnChance) {
-                    spawnSilverfishAtPosition(event.getPos(), level, player);
+                    if (spawnSilverfishAtPosition(event.getPos(), level, player)) {
+                        CurseAdvancementManager.trigger(player, "worm_hoard");
+                    }
                 }
             }
         }
@@ -243,6 +264,7 @@ public class PlayerEvent {
                         level.setBlock(event.getPos(), Blocks.AIR.defaultBlockState(), 3);
                         ItemStack deadBush = new ItemStack(Items.DEAD_BUSH, 1);
                         Containers.dropItemStack(level, event.getPos().getX(), event.getPos().getY(), event.getPos().getZ(), deadBush);
+                        CurseAdvancementManager.trigger(player, "barren_harvest");
                     }
                 }
             }
@@ -262,11 +284,15 @@ public class PlayerEvent {
         FishingHook hook = event.getHookEntity();
         Vec3 hookPos = hook.position();
         if (level.random.nextDouble() < getConfig().depthChargeTntChance) {
-            spawnTntAtPosition(hookPos, level, player);
+            if (spawnTntAtPosition(hookPos, level, player)) {
+                CurseAdvancementManager.trigger(player, "depth_charge");
+            }
             return;
         }
         if (level.random.nextDouble() < getConfig().depthChargeMobChance) {
-            spawnHostileMobAtPosition(hookPos, level, player);
+            if (spawnHostileMobAtPosition(hookPos, level, player)) {
+                CurseAdvancementManager.trigger(player, "depth_charge");
+            }
         }
     }
 
@@ -284,6 +310,9 @@ public class PlayerEvent {
         ItemStack randomItem = getDodgyMerchantRandomItem(player);
         if (randomItem.isEmpty()) return originalResult;
         randomItem.setCount(Math.min(originalResult.getCount(), randomItem.getMaxStackSize()));
+        if (!ItemStack.isSameItemSameTags(originalResult, randomItem) || originalResult.getCount() != randomItem.getCount()) {
+            CurseAdvancementManager.trigger(player, "dodgy_merchant");
+        }
         return randomItem;
     }
 
@@ -300,10 +329,13 @@ public class PlayerEvent {
             }
 
             int extraCost = 0;
+            int socialCost = 0;
+            int bargainingCost = 0;
             ItemStack baseCost = offer.getBaseCostA();
             if (!baseCost.isEmpty() && RingUtil.configAndRing(player, getConfig().enableSocialParadox)) {
                 float ratio = Math.max(0.0f, getConfig().socialParadoxPriceIncreaseRatio);
-                extraCost += Math.max(0, (int) Math.ceil(baseCost.getCount() * ratio));
+                socialCost = Math.max(0, (int) Math.ceil(baseCost.getCount() * ratio));
+                extraCost += socialCost;
             }
             if (!baseCost.isEmpty() && RingUtil.configAndRing(player, getConfig().enableBargainingPower)) {
                 double healthRatio = merchant.getMaxHealth() <= 0.0f
@@ -311,10 +343,17 @@ public class PlayerEvent {
                 double multiplier = Math.max(0.0d, getConfig().bargainingPowerPriceMultiplier);
                 int maxExtraCost = Math.max(0, getConfig().bargainingPowerMaxExtraCost);
                 int healthCost = (int) Math.ceil(baseCost.getCount() * healthRatio * multiplier);
-                extraCost += Math.min(healthCost, maxExtraCost);
+                bargainingCost = Math.min(healthCost, maxExtraCost);
+                extraCost += bargainingCost;
             }
             if (extraCost > 0) {
                 offer.addToSpecialPriceDiff(extraCost);
+                if (socialCost > 0) {
+                    CurseAdvancementManager.trigger(player, "social_paradox");
+                }
+                if (bargainingCost > 0) {
+                    CurseAdvancementManager.trigger(player, "bargaining_power");
+                }
             }
             appliedPrices.putInt(offerKey, extraCost);
         }
@@ -353,27 +392,56 @@ public class PlayerEvent {
                         .withStyle(ChatFormatting.YELLOW),
                 true
         );
+        CurseAdvancementManager.trigger(player, "customs_clearance");
     }
 
     private static float breakSpeedGet(Player player, float originalSpeed, BlockState state, ItemStack handItem) {
         if (!RingUtil.isEquipRing(player)) return originalSpeed;
+
+        float modifiedSpeed = originalSpeed;
         if (getConfig().enableSluggishHands) {
-            originalSpeed *= getConfig().multiplyRawSpeed;
+            modifiedSpeed = originalSpeed * getConfig().multiplyRawSpeed;
+            if (modifiedSpeed != originalSpeed) {
+                CurseAdvancementManager.trigger(player, "sluggish_hands");
+            }
         }
-        if (getConfig().enableWeaponless && state.is(ModTag.ALWAYS_DIG)) {
-            return originalSpeed;
+
+        boolean alwaysDig = state.is(ModTag.ALWAYS_DIG);
+        boolean axeDig = state.is(ModTag.AXE_DIG);
+        boolean hoeDig = state.is(ModTag.HOE_DIG);
+        boolean pickaxeDig = state.is(ModTag.PICKAXE_DIG);
+        boolean shovelDig = state.is(ModTag.SHOVEL_DIG);
+        boolean requiresTool = axeDig || hoeDig || pickaxeDig || shovelDig;
+
+        // ALWAYS_DIG contains soft blocks such as dirt, sand and logs. They must remain
+        // breakable by hand, even when the tool-specific tags also contain the block.
+        if (alwaysDig && handItem.isEmpty()) {
+            return modifiedSpeed;
         }
-        if (!getConfig().enableSinglePurposeTools) return originalSpeed;
-        if (state.is(ModTag.AXE_DIG) && handItem.is(ItemTags.AXES)) return originalSpeed;
-        if (state.is(ModTag.HOE_DIG) && handItem.is(ItemTags.HOES)) return originalSpeed;
-        if (state.is(ModTag.PICKAXE_DIG) && handItem.is(ItemTags.PICKAXES)) return originalSpeed;
-        if (state.is(ModTag.SHOVEL_DIG) && handItem.is(ItemTags.SHOVELS)) return originalSpeed;
-        return 0;
+
+        if (getConfig().enableWeaponless && requiresTool && handItem.isEmpty()) {
+            if (modifiedSpeed != 0.0F) {
+                CurseAdvancementManager.trigger(player, "weaponless");
+            }
+            return 0.0F;
+        }
+        if (!getConfig().enableSinglePurposeTools || !requiresTool) return modifiedSpeed;
+
+        boolean matchingTool = (axeDig && handItem.is(ItemTags.AXES))
+                || (hoeDig && handItem.is(ItemTags.HOES))
+                || (pickaxeDig && handItem.is(ItemTags.PICKAXES))
+                || (shovelDig && handItem.is(ItemTags.SHOVELS));
+        if (matchingTool) return modifiedSpeed;
+
+        if (modifiedSpeed != 0.0F) {
+            CurseAdvancementManager.trigger(player, "single_purpose_tools");
+        }
+        return 0.0F;
     }
 
-    private static void applyRandomHarmfulEffect(Player player) {
+    private static boolean applyRandomHarmfulEffect(Player player) {
         if (HARMFUL_EFFECTS.isEmpty()) {
-            return;
+            return false;
         }
         MobEffect randomEffect = HARMFUL_EFFECTS.get(player.level().random.nextInt(HARMFUL_EFFECTS.size()));
         int minAmplifier = getConfig().neurologicalDegenerationMinAmplifier;
@@ -389,13 +457,14 @@ public class PlayerEvent {
         int amplifier = minAmplifier + player.level().random.nextInt(Math.max(1, maxAmplifier - minAmplifier + 1));
         int duration = minDuration + player.level().random.nextInt(Math.max(1, maxDuration - minDuration + 1));
         MobEffectInstance effectInstance = new MobEffectInstance(randomEffect, duration, amplifier);
-        player.addEffect(effectInstance);
+        return player.addEffect(effectInstance);
     }
 
-    private static void applyFleshCollapse(Player player) {
+    private static boolean applyFleshCollapse(Player player) {
         float maxHealth = getFleshCollapseReferenceMaxHealth(player);
         float healthPercent = Mth.clamp(getConfig().fleshCollapseHealthPercent, 0.0f, 1.0f);
         float targetHealth = Mth.clamp(maxHealth * healthPercent, 1.0f, maxHealth);
+        boolean changed = player.getHealth() != targetHealth;
         player.setHealth(targetHealth);
         int maxHunger = RingUtil.configAndRing(player, getConfig().enableHollowStomach)
                 ? Mth.clamp(getConfig().hollowStomachMaxHunger, 1, 20)
@@ -403,8 +472,12 @@ public class PlayerEvent {
         float hungerPercent = Mth.clamp(getConfig().fleshCollapseHungerPercent, 0.0f, 1.0f);
         int targetHunger = Mth.clamp(Math.round(maxHunger * hungerPercent), 0, maxHunger);
         FoodData foodData = player.getFoodData();
+        changed |= foodData.getFoodLevel() != targetHunger;
         foodData.setFoodLevel(targetHunger);
-        foodData.setSaturation(Math.min(foodData.getSaturationLevel(), targetHunger));
+        float targetSaturation = Math.min(foodData.getSaturationLevel(), targetHunger);
+        changed |= foodData.getSaturationLevel() != targetSaturation;
+        foodData.setSaturation(targetSaturation);
+        return changed;
     }
 
     private static float getFleshCollapseReferenceMaxHealth(Player player) {
@@ -429,7 +502,9 @@ public class PlayerEvent {
             if (!RingUtil.configAndRing(player, getConfig().enableFleshCollapse)) {
                 return;
             }
-            applyFleshCollapse(player);
+            if (applyFleshCollapse(player)) {
+                CurseAdvancementManager.trigger(player, "flesh_collapse");
+            }
         }));
     }
 
@@ -454,9 +529,11 @@ public class PlayerEvent {
         return false;
     }
 
-    private static void spawnSilverfishAtPosition(BlockPos blockPos, Level level, Player player) {
+    private static boolean spawnSilverfishAtPosition(BlockPos blockPos, Level level, Player player) {
         int maxSilverfish = getConfig().wormHoardMaxSilverfish;
+        if (maxSilverfish <= 0) return false;
         int numToSpawn = 1 + level.random.nextInt(maxSilverfish);
+        boolean spawned = false;
         for (int i = 0; i < numToSpawn; i++) {
             double offsetX = (level.random.nextDouble() - 0.5) * 2.0;
             double offsetZ = (level.random.nextDouble() - 0.5) * 2.0;
@@ -474,8 +551,9 @@ public class PlayerEvent {
             Silverfish silverfish = new Silverfish(EntityType.SILVERFISH, level);
             silverfish.setPos(spawnX, spawnY, spawnZ);
             silverfish.setTarget(player);
-            level.addFreshEntity(silverfish);
+            spawned |= level.addFreshEntity(silverfish);
         }
+        return spawned;
     }
 
     private static boolean canBeSwappedItem(ItemStack stack) {
@@ -503,19 +581,20 @@ public class PlayerEvent {
         return new ItemStack(randomItem, count);
     }
 
-    private static void spawnTntAtPosition(Vec3 position, Level level, Player player) {
+    private static boolean spawnTntAtPosition(Vec3 position, Level level, Player player) {
         PrimedTnt tnt = new PrimedTnt(level, position.x, position.y, position.z, player);
         tnt.setFuse(40);
-        level.addFreshEntity(tnt);
+        boolean spawned = level.addFreshEntity(tnt);
         Vec3 playerPos = player.position().add(0, 1, 0);
         Vec3 direction = playerPos.subtract(position).normalize();
         double speed = 0.8;
         tnt.setDeltaMovement(direction.x * speed, Math.max(0.3, direction.y * speed + 0.2), direction.z * speed);
+        return spawned;
     }
 
-    private static void spawnHostileMobAtPosition(Vec3 position, Level level, Player player) {
+    private static boolean spawnHostileMobAtPosition(Vec3 position, Level level, Player player) {
         String[] mobStrings = getConfig().depthChargeHostileMobs;
-        if (mobStrings.length == 0) return;
+        if (mobStrings.length == 0) return false;
         String randomMobId = mobStrings[level.random.nextInt(mobStrings.length)];
         try {
             ResourceLocation mobLocation = new ResourceLocation(randomMobId);
@@ -525,17 +604,19 @@ public class PlayerEvent {
                 if (mob instanceof Monster monster) {
                     monster.setPos(position.x, position.y, position.z);
                     monster.setTarget(player);
-                    level.addFreshEntity(monster);
+                    boolean spawned = level.addFreshEntity(monster);
                     Vec3 playerPos = player.position().add(0, 1, 0);
                     Vec3 direction = playerPos.subtract(position).normalize();
                     double speed = 0.6;
                     monster.setDeltaMovement(direction.x * speed, Math.max(0.2, direction.y * speed + 0.15), direction.z * speed);
                     monster.invulnerableTime = 20;
+                    return spawned;
                 }
             }
         } catch (Exception e) {
             RingOfTheHundredCurses.LOGGER.warn("Invalid mob in depth charge config: {}", randomMobId);
         }
+        return false;
     }
 
     public static ItemStack maybeConvertTerribleCook(Player player, ItemStack cookedMeal) {
@@ -554,6 +635,7 @@ public class PlayerEvent {
         int duration = Math.max(1, getConfig().terribleCookDebuffDuration);
         ItemStack stew = new ItemStack(Items.SUSPICIOUS_STEW);
         SuspiciousStewItem.saveMobEffect(stew, debuff, duration);
+        CurseAdvancementManager.trigger(player, "terrible_cook");
         return stew;
     }
 
@@ -616,6 +698,7 @@ public class PlayerEvent {
         long due = Math.max(data.getLong(REGENERATION_BAN_DUE_KEY), player.level().getGameTime() + delay);
         data.putLong(REGENERATION_BAN_DUE_KEY, due);
         event.setCanceled(true);
+        CurseAdvancementManager.trigger(player, "regeneration_ban");
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -638,6 +721,7 @@ public class PlayerEvent {
         double chance = Mth.clamp(getConfig().overhealingChance, 0.0D, 1.0D);
         if (chance > 0.0D && player.getRandom().nextDouble() < chance) {
             data.putLong(OVERHEALING_END_KEY, gameTime + Math.max(0L, getConfig().overhealingCooldown));
+            CurseAdvancementManager.trigger(player, "overhealing");
         }
     }
 
@@ -681,6 +765,7 @@ public class PlayerEvent {
                 player.removeEffect(replacement.getEffect());
                 player.addEffect(replacement);
             }
+            CurseAdvancementManager.trigger(player, "potion_conflicts");
         } finally {
             POTION_CONFLICT_GUARD.remove(player.getUUID());
         }
@@ -700,7 +785,11 @@ public class PlayerEvent {
             amount *= rangedMultiplier;
         }
         float maximumDamage = Math.max(0.0F, getConfig().distantDeflectionMaxDamage);
-        event.setAmount(Math.min(amount, maximumDamage));
+        float modifiedAmount = Math.min(amount, maximumDamage);
+        if (modifiedAmount != event.getAmount()) {
+            event.setAmount(modifiedAmount);
+            CurseAdvancementManager.trigger(player, "distant_deflection");
+        }
     }
 
     @SubscribeEvent
@@ -717,6 +806,7 @@ public class PlayerEvent {
         CompoundTag data = player.getPersistentData();
         long end = Math.max(data.getLong(FOOD_COMA_END_KEY), player.level().getGameTime() + duration);
         data.putLong(FOOD_COMA_END_KEY, end);
+        CurseAdvancementManager.trigger(player, "food_coma");
     }
 
     @SubscribeEvent
@@ -724,7 +814,11 @@ public class PlayerEvent {
         Player player = event.getEntity();
         if (RingUtil.configAndRing(player, getConfig().enableSoulSuppression)) {
             int reduced = (int) (event.getAmount() * (1.0f - getConfig().xpReductionPercent));
-            event.setAmount(Math.max(reduced, 0));
+            int modifiedAmount = Math.max(reduced, 0);
+            if (modifiedAmount != event.getAmount()) {
+                event.setAmount(modifiedAmount);
+                CurseAdvancementManager.trigger(player, "soul_suppression");
+            }
         }
     }
 
@@ -744,6 +838,7 @@ public class PlayerEvent {
             int max = getConfig().fragileBodyMaxInvulnerableTime;
             if (player.invulnerableTime > max) {
                 player.invulnerableTime = max;
+                CurseAdvancementManager.trigger(player, "hypocrisy_body");
             }
         }
         if (RingUtil.configAndRing(player, getConfig().enableRottingHunger)) {
@@ -760,6 +855,7 @@ public class PlayerEvent {
                 if (gameTime - startTime >= expireTime) {
                     int count = stack.getCount();
                     player.getInventory().setItem(i, new ItemStack(Items.ROTTEN_FLESH, count));
+                    CurseAdvancementManager.trigger(player, "rotting_hunger");
                 }
             }
         }
@@ -843,6 +939,7 @@ public class PlayerEvent {
 
             if (changed) {
                 EnchantmentHelper.setEnchantments(adjustedEnchantments, stack);
+                CurseAdvancementManager.trigger(player, "weak_magic_constitution");
             }
         }
     }
@@ -867,54 +964,63 @@ public class PlayerEvent {
         boolean heavyShackles = hasEquipment
                 && RingUtil.configAndRing(player, getConfig().enableHeavyShackles);
         double movementReduction = Math.min(0.95D, Math.max(0.0D, getConfig().heavyShacklesMovementReduction));
-        updateTransientModifier(
+        if (updateTransientModifier(
                 player.getAttribute(Attributes.MOVEMENT_SPEED),
                 HEAVY_SHACKLES_SPEED_UUID,
                 "Heavy Shackles Speed",
                 heavyShackles,
                 -movementReduction
-        );
+        )) {
+            CurseAdvancementManager.trigger(player, "heavy_shackles");
+        }
 
         boolean fragileArmor = hasEquipment
                 && RingUtil.configAndRing(player, getConfig().enableFragileArmor);
         double armorMultiplier = Math.min(1.0D, Math.max(0.0D, getConfig().fragileArmorMultiplier));
         double armorModifier = armorMultiplier - 1.0D;
-        updateTransientModifier(
+        boolean fragileArmorChanged = updateTransientModifier(
                 player.getAttribute(Attributes.ARMOR),
                 FRAGILE_ARMOR_UUID,
                 "Fragile Armor",
                 fragileArmor,
                 armorModifier
         );
-        updateTransientModifier(
+        fragileArmorChanged |= updateTransientModifier(
                 player.getAttribute(Attributes.ARMOR_TOUGHNESS),
                 FRAGILE_ARMOR_TOUGHNESS_UUID,
                 "Fragile Armor Toughness",
                 fragileArmor,
                 armorModifier
         );
+        if (fragileArmorChanged) {
+            CurseAdvancementManager.trigger(player, "fragile_armor");
+        }
 
         boolean weakSwimmer = player.isInWater()
                 && RingUtil.configAndRing(player, getConfig().enableWeakSwimmer);
         double swimSpeedMultiplier = Mth.clamp(getConfig().weakSwimmerSwimSpeedMultiplier, 0.0D, 1.0D);
-        updateTransientModifier(
+        if (updateTransientModifier(
                 player.getAttribute(ForgeMod.SWIM_SPEED.get()),
                 WEAK_SWIMMER_SPEED_UUID,
                 "Weak Swimmer Speed",
                 weakSwimmer,
                 swimSpeedMultiplier - 1.0D
-        );
+        )) {
+            CurseAdvancementManager.trigger(player, "weak_swimmer");
+        }
 
         boolean overburdened = RingUtil.configAndRing(player, getConfig().enableOverburdened)
                 && countInventoryItems(player) > Math.max(0, getConfig().overburdenedItemThreshold);
         double overburdenedMovementReduction = Mth.clamp(getConfig().overburdenedMovementReduction, 0.0D, 0.95D);
-        updateTransientModifier(
+        if (updateTransientModifier(
                 player.getAttribute(Attributes.MOVEMENT_SPEED),
                 OVERBURDENED_SPEED_UUID,
                 "Overburdened Speed",
                 overburdened,
                 -overburdenedMovementReduction
-        );
+        )) {
+            CurseAdvancementManager.trigger(player, "overburdened");
+        }
     }
 
     private static int countInventoryItems(Player player) {
@@ -930,23 +1036,26 @@ public class PlayerEvent {
                 && countInventoryItems(player) > Math.max(0, getConfig().overburdenedItemThreshold);
     }
 
-    private static void updateTransientModifier(
+    private static boolean updateTransientModifier(
             AttributeInstance attribute, UUID uuid, String name, boolean shouldApply, double amount
     ) {
-        if (attribute == null) return;
+        if (attribute == null) return false;
         AttributeModifier existing = attribute.getModifier(uuid);
         if (!shouldApply) {
             if (existing != null) {
                 attribute.removeModifier(uuid);
             }
-            return;
+            return false;
         }
         if (existing == null) {
             attribute.addTransientModifier(new AttributeModifier(uuid, name, amount, AttributeModifier.Operation.MULTIPLY_TOTAL));
+            return true;
         } else if (Double.compare(existing.getAmount(), amount) != 0) {
             attribute.removeModifier(uuid);
             attribute.addTransientModifier(new AttributeModifier(uuid, name, amount, AttributeModifier.Operation.MULTIPLY_TOTAL));
+            return true;
         }
+        return false;
     }
 
     @SubscribeEvent
@@ -962,7 +1071,12 @@ public class PlayerEvent {
         double perBlock = Math.max(0.0D, getConfig().weakSwimmerDrowningDamagePerBlock);
         double maximumMultiplier = Math.max(1.0D, getConfig().weakSwimmerMaxDrowningMultiplier);
         float multiplier = (float) Math.min(maximumMultiplier, 1.0D + depth * perBlock);
-        event.setAmount(event.getAmount() * multiplier);
+        float originalAmount = event.getAmount();
+        float modifiedAmount = originalAmount * multiplier;
+        if (modifiedAmount != originalAmount) {
+            event.setAmount(modifiedAmount);
+            CurseAdvancementManager.trigger(player, "weak_swimmer");
+        }
     }
 
     @SubscribeEvent
@@ -975,7 +1089,12 @@ public class PlayerEvent {
         }
 
         float multiplier = Math.max(1.0F, getConfig().overburdenedFallDamageMultiplier);
-        event.setAmount(event.getAmount() * multiplier);
+        float originalAmount = event.getAmount();
+        float modifiedAmount = originalAmount * multiplier;
+        if (modifiedAmount != originalAmount) {
+            event.setAmount(modifiedAmount);
+            CurseAdvancementManager.trigger(player, "overburdened");
+        }
     }
 
     @SubscribeEvent
@@ -997,7 +1116,9 @@ public class PlayerEvent {
         if (existing != null) {
             duration = Math.max(duration, existing.getDuration());
         }
-        player.addEffect(new MobEffectInstance(ModEffect.BLEEDING.get(), duration, 0, false, true, true));
+        if (player.addEffect(new MobEffectInstance(ModEffect.BLEEDING.get(), duration, 0, false, true, true))) {
+            CurseAdvancementManager.trigger(player, "bleeding_wound");
+        }
     }
 
     private static void updateFeastOrFamine(Player player) {
@@ -1014,9 +1135,13 @@ public class PlayerEvent {
         int amplifier = Math.max(0, getConfig().feastOrFamineDebuffAmplifier);
 
         if (famine && !feast) {
-            player.addEffect(new MobEffectInstance(MobEffects.HUNGER, duration, amplifier, false, true));
+            if (player.addEffect(new MobEffectInstance(MobEffects.HUNGER, duration, amplifier, false, true))) {
+                CurseAdvancementManager.trigger(player, "feast_or_famine");
+            }
         } else if (feast && !famine) {
-            player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, duration, amplifier, false, true));
+            if (player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, duration, amplifier, false, true))) {
+                CurseAdvancementManager.trigger(player, "feast_or_famine");
+            }
         }
     }
 
@@ -1032,6 +1157,7 @@ public class PlayerEvent {
         if (shouldApply && existing == null) {
             double slowdown = -getConfig().waterShacklesSlowdown;
             speedAttr.addTransientModifier(new AttributeModifier(WATER_SHACKLES_UUID, "Water Shackles", slowdown, AttributeModifier.Operation.MULTIPLY_TOTAL));
+            CurseAdvancementManager.trigger(player, "water_shackles");
         } else if (!shouldApply && existing != null) {
             speedAttr.removeModifier(WATER_SHACKLES_UUID);
         }
@@ -1066,8 +1192,12 @@ public class PlayerEvent {
             AttributeModifier existingSpeed = speedAttr.getModifier(PRESSURE_DISORDER_SPEED_UUID);
             if (intensity > 0) {
                 double slowdown = -getConfig().pressureDisorderMaxSpeedReduction * intensity;
-                if (existingSpeed != null) speedAttr.removeModifier(PRESSURE_DISORDER_SPEED_UUID);
-                speedAttr.addTransientModifier(new AttributeModifier(PRESSURE_DISORDER_SPEED_UUID, "Pressure Disorder Speed", slowdown, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                boolean changed = existingSpeed == null || Double.compare(existingSpeed.getAmount(), slowdown) != 0;
+                if (changed) {
+                    if (existingSpeed != null) speedAttr.removeModifier(PRESSURE_DISORDER_SPEED_UUID);
+                    speedAttr.addTransientModifier(new AttributeModifier(PRESSURE_DISORDER_SPEED_UUID, "Pressure Disorder Speed", slowdown, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                    CurseAdvancementManager.trigger(player, "pressure_disorder");
+                }
             } else if (existingSpeed != null) {
                 speedAttr.removeModifier(PRESSURE_DISORDER_SPEED_UUID);
             }
@@ -1079,8 +1209,12 @@ public class PlayerEvent {
             AttributeModifier existingGravity = gravityAttr.getModifier(PRESSURE_DISORDER_GRAVITY_UUID);
             if (intensity > 0) {
                 double gravityIncrease = getConfig().pressureDisorderMaxGravityIncrease * intensity;
-                if (existingGravity != null) gravityAttr.removeModifier(PRESSURE_DISORDER_GRAVITY_UUID);
-                gravityAttr.addTransientModifier(new AttributeModifier(PRESSURE_DISORDER_GRAVITY_UUID, "Pressure Disorder Gravity", gravityIncrease, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                boolean changed = existingGravity == null || Double.compare(existingGravity.getAmount(), gravityIncrease) != 0;
+                if (changed) {
+                    if (existingGravity != null) gravityAttr.removeModifier(PRESSURE_DISORDER_GRAVITY_UUID);
+                    gravityAttr.addTransientModifier(new AttributeModifier(PRESSURE_DISORDER_GRAVITY_UUID, "Pressure Disorder Gravity", gravityIncrease, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                    CurseAdvancementManager.trigger(player, "pressure_disorder");
+                }
             } else if (existingGravity != null) {
                 gravityAttr.removeModifier(PRESSURE_DISORDER_GRAVITY_UUID);
             }
@@ -1100,7 +1234,12 @@ public class PlayerEvent {
             return;
         }
         float healthRatio = Mth.clamp(player.getHealth() / maxHealth, 0.0f, 1.0f);
-        event.setAmount(event.getAmount() * healthRatio);
+        float originalAmount = event.getAmount();
+        float modifiedAmount = originalAmount * healthRatio;
+        if (modifiedAmount != originalAmount) {
+            event.setAmount(modifiedAmount);
+            CurseAdvancementManager.trigger(player, "loss_of_synchronicity");
+        }
     }
 
     @SubscribeEvent
@@ -1123,7 +1262,12 @@ public class PlayerEvent {
         float perMobBonus = Math.max(0.0f, getConfig().unitedAdversariesPerMobBonus);
         float maxBonus = Math.max(0.0f, getConfig().unitedAdversariesMaxBonus);
         float bonus = Math.min(hostileCount * perMobBonus, maxBonus);
-        event.setAmount(event.getAmount() * (1.0f + bonus));
+        float originalAmount = event.getAmount();
+        float modifiedAmount = originalAmount * (1.0f + bonus);
+        if (modifiedAmount != originalAmount) {
+            event.setAmount(modifiedAmount);
+            CurseAdvancementManager.trigger(player, "united_adversaries");
+        }
     }
 
     @SubscribeEvent
@@ -1134,6 +1278,7 @@ public class PlayerEvent {
         if (!RingUtil.configAndRing(player, getConfig().enableClumsyFarmer)) return;
         if (event.getLevel().random.nextDouble() < getConfig().clumsyFarmerChance) {
             FarmBlock.turnToDirt(player, event.getState(), event.getLevel(), event.getPos());
+            CurseAdvancementManager.trigger(player, "clumsy_farmer");
         }
     }
 
@@ -1150,6 +1295,7 @@ public class PlayerEvent {
         }
         if (newLevel != originalLevel) {
             event.setEnchantLevel(newLevel);
+            CurseAdvancementManager.trigger(nearestPlayer, "weak_magic_constitution");
         }
     }
 
@@ -1179,6 +1325,7 @@ public class PlayerEvent {
             int newAge = Math.max(0, currentAge - 1);
             event.getLevel().setBlock(pos, cropBlock.getStateForAge(newAge), 2);
             event.setResult(Event.Result.ALLOW);
+            CurseAdvancementManager.trigger(player, "overzealous_growth");
         }
     }
 
@@ -1192,6 +1339,7 @@ public class PlayerEvent {
         }
         if (focusDisturbanceFails(player)) {
             event.setCanceled(true);
+            CurseAdvancementManager.trigger(player, "focus_disturbance");
             return;
         }
         if (!RingUtil.configAndRing(player, getConfig().enableUnlitObjects)) return;
@@ -1199,17 +1347,24 @@ public class PlayerEvent {
         Block placedBlock = placedState.getBlock();
         BlockPos pos = event.getPos();
         Level level = (Level) event.getLevel();
+        boolean extinguished = false;
         if (placedBlock == Blocks.TORCH) {
             level.setBlock(pos, ModBlock.EXTINGUISHED_TORCH.get().defaultBlockState(), 3);
+            extinguished = true;
         } else if (placedBlock == Blocks.WALL_TORCH) {
             BlockState extinguishedState = ModBlock.EXTINGUISHED_WALL_TORCH.get().defaultBlockState().setValue(WallTorchBlock.FACING, placedState.getValue(WallTorchBlock.FACING));
             level.setBlock(pos, extinguishedState, 3);
+            extinguished = true;
         } else if (placedBlock instanceof CampfireBlock) {
             BlockState replacedState = event.getBlockSnapshot().getReplacedBlock();
             boolean isNewPlacement = !(replacedState.getBlock() instanceof CampfireBlock);
             if (isNewPlacement && placedState.getValue(CampfireBlock.LIT)) {
                 level.setBlock(pos, placedState.setValue(CampfireBlock.LIT, false), 3);
+                extinguished = true;
             }
+        }
+        if (extinguished) {
+            CurseAdvancementManager.trigger(player, "unlit_objects");
         }
     }
 
@@ -1234,6 +1389,9 @@ public class PlayerEvent {
                 player.setDeltaMovement(motion.x * 0.7, ySpeed, motion.z * 0.7);
                 player.setSwimming(false);
                 player.setJumping(false);
+                if (motion.y != ySpeed || motion.x != motion.x * 0.7 || motion.z != motion.z * 0.7) {
+                    CurseAdvancementManager.trigger(player, "deep_sea_entanglement");
+                }
                 if (!level.isClientSide && swimTicks % 20 == 0) {
                     player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.deep_sea_entanglement.sinking").withStyle(ChatFormatting.RED), true);
                 }
@@ -1261,7 +1419,9 @@ public class PlayerEvent {
         if (!RingUtil.configAndRing(player, getConfig().enableShatteredPortal)) return;
         if (event.getDimension() == player.level().dimension()) return;
         if (!(player.level() instanceof ServerLevel serverLevel)) return;
-        destroyPortalAt(serverLevel, player.blockPosition());
+        if (destroyPortalAt(serverLevel, player.blockPosition())) {
+            CurseAdvancementManager.trigger(player, "shattered_portal");
+        }
     }
 
     @SubscribeEvent
@@ -1270,11 +1430,13 @@ public class PlayerEvent {
         if (player.level().isClientSide) return;
         if (!RingUtil.configAndRing(player, getConfig().enableShatteredPortal)) return;
         if (!(player.level() instanceof ServerLevel serverLevel)) return;
-        destroyPortalAt(serverLevel, player.blockPosition());
+        if (destroyPortalAt(serverLevel, player.blockPosition())) {
+            CurseAdvancementManager.trigger(player, "shattered_portal");
+        }
         player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.shattered_portal").withStyle(ChatFormatting.RED), true);
     }
 
-    private static void destroyPortalAt(ServerLevel level, BlockPos center) {
+    private static boolean destroyPortalAt(ServerLevel level, BlockPos center) {
         int searchRadius = 5;
         List<BlockPos> portalBlocks = new ArrayList<>();
         List<BlockPos> frameBlocks = new ArrayList<>();
@@ -1293,7 +1455,7 @@ public class PlayerEvent {
                 }
             }
         }
-        if (portalBlocks.isEmpty()) return;
+        if (portalBlocks.isEmpty()) return false;
         for (BlockPos portalPos : portalBlocks) {
             for (BlockPos neighbor : BlockPos.betweenClosed(portalPos.offset(-1, -1, -1), portalPos.offset(1, 1, 1))) {
                 BlockState neighborState = level.getBlockState(neighbor);
@@ -1325,6 +1487,7 @@ public class PlayerEvent {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
         }
         level.explode(null, centerX, centerY, centerZ, 2.0f, Level.ExplosionInteraction.NONE);
+        return true;
     }
 
     // 海关过境：高级村民交易需要等待几天才能拿到物品
@@ -1334,6 +1497,7 @@ public class PlayerEvent {
         Player player = event.getEntity();
         if (player.level().isClientSide || !focusDisturbanceFails(player)) return;
         event.getCrafting().setCount(0);
+        CurseAdvancementManager.trigger(player, "focus_disturbance");
     }
 
     private static boolean focusDisturbanceFails(Player player) {
@@ -1387,6 +1551,7 @@ public class PlayerEvent {
 
             if (player.randomTeleport(x, y, z, true)) {
                 player.displayClientMessage(Component.translatable("message.ring_of_the_hundred_curses.time_distortion").withStyle(ChatFormatting.DARK_PURPLE), true);
+                CurseAdvancementManager.trigger(player, "time_distortion");
                 break;
             }
         }
@@ -1403,7 +1568,9 @@ public class PlayerEvent {
         LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level);
         if (bolt != null) {
             bolt.moveTo(player.position());
-            level.addFreshEntity(bolt);
+            if (level.addFreshEntity(bolt)) {
+                CurseAdvancementManager.trigger(player, "thunderbound_oath");
+            }
         }
     }
 
@@ -1464,17 +1631,21 @@ public class PlayerEvent {
         String entityType = EntityType.getKey(event.getEntity().getType()).toString();
         for (int i = 0; i < traumaList.size(); i++) {
             if (traumaList.getString(i).equals(entityType)) {
-                applyPTSDDebuff(player);
+                if (applyPTSDDebuff(player)) {
+                    CurseAdvancementManager.trigger(player, "ptsd");
+                }
                 return;
             }
         }
     }
 
-    private static void applyPTSDDebuff(Player player) {
+    private static boolean applyPTSDDebuff(Player player) {
         int duration = getConfig().ptsdDebuffDuration;
         int amplifier = getConfig().ptsdDebuffAmplifier;
-        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, amplifier, false, true));
-        player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, duration, amplifier, false, true));
-        player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, duration, amplifier, false, true));
+        boolean applied = false;
+        applied |= player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, amplifier, false, true));
+        applied |= player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, duration, amplifier, false, true));
+        applied |= player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN, duration, amplifier, false, true));
+        return applied;
     }
 }

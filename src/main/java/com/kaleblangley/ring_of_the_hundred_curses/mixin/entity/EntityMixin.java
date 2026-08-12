@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.entity;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.world.entity.Entity;
@@ -17,7 +18,11 @@ public class EntityMixin {
         if (entity instanceof Player player) {
             if (RingUtil.configAndRing(player, ModConfigManager.getConfig().enablePulmonaryFibrosis)) {
                 int reduction = ModConfigManager.getConfig().pulmonaryFibrosisAirReduction;
-                return Math.max(20, originalValue - reduction);
+                int modified = Math.max(20, originalValue - reduction);
+                if (modified != originalValue) {
+                    CurseAdvancementManager.trigger(player, "pulmonary_fibrosis");
+                }
+                return modified;
             }
         }
         return originalValue;

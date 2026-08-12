@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.entity;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
@@ -18,6 +19,7 @@ public class PlayerMisstepPerilMixin {
         Player player = (Player) (Object) this;
         if (RingUtil.configAndRing(player, getConfig().enableMisstepPeril)) {
             cir.setReturnValue(vec);
+            CurseAdvancementManager.trigger(player, "misstep_peril");
         }
     }
-} 
+}

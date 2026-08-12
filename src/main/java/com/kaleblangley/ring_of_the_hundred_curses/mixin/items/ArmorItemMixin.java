@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.items;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
@@ -28,6 +29,7 @@ public abstract class ArmorItemMixin {
         ItemStack stack = player.getItemInHand(hand);
         if (!ring_of_the_hundred_curses$hasTrim(stack)) {
             cir.setReturnValue(InteractionResultHolder.fail(stack));
+            CurseAdvancementManager.trigger(player, "lavish_taste");
         }
     }
 

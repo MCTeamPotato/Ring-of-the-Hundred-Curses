@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.items;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -39,11 +40,14 @@ public class BucketItemMixin {
         if (!fluid.is(FluidTags.WATER)) return;
 
         boolean shouldEvaporate;
+        Player cursedPlayer = pPlayer;
         if (pPlayer != null) {
             shouldEvaporate = RingUtil.configAndRing(pPlayer, getConfig().enableEndWaterBan);
         } else {
-            shouldEvaporate = pLevel.players().stream()
-                    .anyMatch(p -> RingUtil.configAndRing(p, getConfig().enableEndWaterBan));
+            cursedPlayer = pLevel.players().stream()
+                    .filter(p -> RingUtil.configAndRing(p, getConfig().enableEndWaterBan))
+                    .findFirst().orElse(null);
+            shouldEvaporate = cursedPlayer != null;
         }
 
         if (shouldEvaporate) {
@@ -55,6 +59,9 @@ public class BucketItemMixin {
                 pLevel.addParticle(ParticleTypes.LARGE_SMOKE, (double) i + Math.random(), (double) j + Math.random(), (double) k + Math.random(), 0.0D, 0.0D, 0.0D);
             }
             cir.setReturnValue(true);
+            if (cursedPlayer != null) {
+                CurseAdvancementManager.trigger(cursedPlayer, "end_water_ban");
+            }
         }
     }
 }

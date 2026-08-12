@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.event;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModSound;
@@ -137,6 +138,7 @@ public class EntityEvent {
         }
         if (spawnPhantomGiftPhantom(player)) {
             data.putLong(PHANTOM_GIFT_LAST_NIGHT_KEY, night);
+            CurseAdvancementManager.trigger(player, "phantom_gift");
         }
     }
 
@@ -198,6 +200,7 @@ public class EntityEvent {
             warden.setTarget(player);
             warden.setPersistenceRequired();
             level.addFreshEntity(warden);
+            CurseAdvancementManager.trigger(player, "deafening");
             return;
         }
     }
@@ -206,6 +209,9 @@ public class EntityEvent {
     public static void itemSwap(LivingSwapItemsEvent.Hands event) {
         if (RingUtil.configAndRing(event.getEntity(), getConfig().enableShieldOnTheRight) && event.getItemSwappedToOffHand().is(Items.SHIELD)) {
             event.setCanceled(true);
+            if (event.isCanceled() && event.getEntity() instanceof Player player) {
+                CurseAdvancementManager.trigger(player, "shield_on_the_right");
+            }
         }
     }
 
@@ -216,10 +222,13 @@ public class EntityEvent {
                 if (player.level().dimension() == Level.END && !getConfig().endCanBreath) {
                     event.setCanBreathe(false);
                     event.setConsumeAirAmount(2);
+                    CurseAdvancementManager.trigger(player, "lack_of_oxygen");
                 } else if (player.level().dimension() == Level.NETHER && !getConfig().netherCanBreath) {
                     event.setCanBreathe(false);
+                    CurseAdvancementManager.trigger(player, "lack_of_oxygen");
                 } else if ((player.yo < getConfig().minimumBreathY || player.yo > getConfig().maximumBreathY) && !player.hasEffect(MobEffects.WATER_BREATHING)) {
                     event.setCanRefillAir(false);
+                    CurseAdvancementManager.trigger(player, "lack_of_oxygen");
                     if (player.tickCount % 2 == 0) event.setCanBreathe(false);
                 }
             }
@@ -228,6 +237,7 @@ public class EntityEvent {
                 if (player.isSprinting()) {
                     event.setCanBreathe(false);
                     event.setConsumeAirAmount(getConfig().sprintingAirConsumption);
+                    CurseAdvancementManager.trigger(player, "oxygen_deprivation");
                 }
             }
         }
@@ -240,12 +250,21 @@ public class EntityEvent {
         ItemStack itemStack = event.getItemStack();
         if (RingUtil.configAndRing(entity, getConfig().enableGreedyEating)) {
             int newNutrition = (int) (foodProperties.getNutrition() * (getConfig().hungerReductionPercent));
-            event.setNutrition(newNutrition);
+            if (newNutrition != foodProperties.getNutrition()) {
+                event.setNutrition(newNutrition);
+                if (entity instanceof Player player) {
+                    CurseAdvancementManager.trigger(player, "greedy_eating");
+                }
+            }
         }
         if (itemStack.is(ModTag.RAW_FOOD) && RingUtil.configAndRing(entity, getConfig().enableWeakStomach)) {
             MobEffect effect = ForgeRegistries.MOB_EFFECTS.getValue(new ResourceLocation(getConfig().rawMeatDebuffId));
-            MobEffectInstance effectInstance = new MobEffectInstance(effect, getConfig().rawMeatDebuffDuration, getConfig().rawMeatDebuffAmplifier);
-            entity.addEffect(effectInstance);
+            if (effect != null) {
+                MobEffectInstance effectInstance = new MobEffectInstance(effect, getConfig().rawMeatDebuffDuration, getConfig().rawMeatDebuffAmplifier);
+                if (entity.addEffect(effectInstance) && entity instanceof Player player) {
+                    CurseAdvancementManager.trigger(player, "weak_stomach");
+                }
+            }
         }
     }
 
@@ -256,6 +275,7 @@ public class EntityEvent {
             if (itemStack.getItem() instanceof ShieldItem && !itemStack.isEmpty()) {
                 if (player.tickCount % getConfig().shieldDurabilityDrainInterval == 0) {
                     itemStack.hurtAndBreak(getConfig().shieldDurabilityDrainAmount, player, (playerEntity) -> playerEntity.broadcastBreakEvent(player.getUsedItemHand()));
+                    CurseAdvancementManager.trigger(player, "weak_wall");
                 }
             }
         }
@@ -267,13 +287,16 @@ public class EntityEvent {
             LivingEntity deadEntity = event.getEntity();
             if (deadEntity instanceof Monster && deadEntity.level().random.nextDouble() < getConfig().hordeMindSpawnChance) {
                 LivingEntity newEntity = (LivingEntity) deadEntity.getType().create(deadEntity.level());
+                if (newEntity == null) return;
                 CompoundTag nbtData = new CompoundTag();
                 deadEntity.saveWithoutId(nbtData);
                 nbtData.remove("UUID");
                 nbtData.putFloat("Health", newEntity.getMaxHealth());
                 newEntity.load(nbtData);
                 newEntity.setPos(deadEntity.getX(), deadEntity.getY(), deadEntity.getZ());
-                deadEntity.level().addFreshEntity(newEntity);
+                if (deadEntity.level().addFreshEntity(newEntity)) {
+                    CurseAdvancementManager.trigger(player, "horde_mind");
+                }
             }
         }
     }
@@ -293,7 +316,9 @@ public class EntityEvent {
         if (killer == null) {
             return;
         }
-        empowerRebornWrathBoss(killer);
+        if (empowerRebornWrathBoss(killer)) {
+            CurseAdvancementManager.trigger(player, "reborn_wrath");
+        }
     }
 
     private static LivingEntity resolveRebornWrathBoss(Player player, LivingDeathEvent event) {
@@ -339,7 +364,7 @@ public class EntityEvent {
         return false;
     }
 
-    private static void empowerRebornWrathBoss(LivingEntity boss) {
+    private static boolean empowerRebornWrathBoss(LivingEntity boss) {
         CompoundTag data = boss.getPersistentData();
         int maxStacks = Math.max(1, getConfig().rebornWrathMaxStacks);
         int stacks = Math.min(data.getInt(REBORN_WRATH_STACKS_KEY) + 1, maxStacks);
@@ -364,6 +389,7 @@ public class EntityEvent {
         }
 
         boss.setHealth(boss.getMaxHealth());
+        return stacks > 0 && (totalHealthBonus > 0.0d || totalAttackBonus > 0.0d);
     }
 
     @SubscribeEvent
@@ -374,7 +400,9 @@ public class EntityEvent {
                     Level level = enderpearl.level();
                     if (!level.isClientSide) {
                         Vec3 impactPos = enderpearl.position();
-                        spawnEndermitesAtPosition(impactPos, level, player);
+                        if (spawnEndermitesAtPosition(impactPos, level, player)) {
+                            CurseAdvancementManager.trigger(player, "time_rift");
+                        }
                     }
                 }
             }
@@ -387,6 +415,7 @@ public class EntityEvent {
             Player player = event.getTamer();
             if (RingUtil.configAndRing(player, getConfig().enableLonelyMaster)) {
                 event.setCanceled(true);
+                CurseAdvancementManager.trigger(player, "lonely_master");
             }
         }
     }
@@ -399,6 +428,7 @@ public class EntityEvent {
                     player.getCooldowns().addCooldown(player.getUseItem().getItem(), 100);
                     player.stopUsingItem();
                     player.level().broadcastEntityEvent(player, (byte) 30);
+                    CurseAdvancementManager.trigger(player, "muscle_weakness");
                 }
             }
         }
@@ -411,14 +441,23 @@ public class EntityEvent {
                 if (player.level().dimension() == Level.NETHER) {
                     int fireDuration = getConfig().lavaSacrificeFireDuration;
                     int remainingFireTicks = Math.max(0, fireDuration);
-                    player.setRemainingFireTicks(Math.max(player.getRemainingFireTicks(), remainingFireTicks));
+                    int newFireTicks = Math.max(player.getRemainingFireTicks(), remainingFireTicks);
+                    if (newFireTicks > player.getRemainingFireTicks()) {
+                        player.setRemainingFireTicks(newFireTicks);
+                        CurseAdvancementManager.trigger(player, "lava_sacrifice");
+                    }
                 }
             }
 
             // 被刺高手：玩家潜行时，受到的伤害翻倍
             if (RingUtil.configAndRing(player, getConfig().enableExposedWeakness)) {
                 if (player.isCrouching()) {
-                    event.setAmount(event.getAmount() * getConfig().exposedWeaknessDamageMultiplier);
+                    float originalAmount = event.getAmount();
+                    float modifiedAmount = originalAmount * getConfig().exposedWeaknessDamageMultiplier;
+                    if (modifiedAmount != originalAmount) {
+                        event.setAmount(modifiedAmount);
+                        CurseAdvancementManager.trigger(player, "exposed_weakness");
+                    }
                 }
             }
         }
@@ -432,12 +471,17 @@ public class EntityEvent {
                 int maxDamage = weapon.getMaxDamage();
                 int currentDamage = weapon.getDamageValue();
                 float durabilityRatio = (float) (maxDamage - currentDamage) / maxDamage;
-                event.setAmount(event.getAmount() * Mth.clamp(durabilityRatio, 0.0F, 1.0F));
+                float originalAmount = event.getAmount();
+                float modifiedAmount = originalAmount * Mth.clamp(durabilityRatio, 0.0F, 1.0F);
+                if (modifiedAmount != originalAmount) {
+                    event.setAmount(modifiedAmount);
+                    CurseAdvancementManager.trigger(player, "fresh_weapon");
+                }
             }
         }
     }
 
-    private static void spawnEndermitesAtPosition(Vec3 position, Level level, Player player) {
+    private static boolean spawnEndermitesAtPosition(Vec3 position, Level level, Player player) {
         double spawnX = position.x;
         double spawnY = position.y;
         double spawnZ = position.z;
@@ -453,7 +497,7 @@ public class EntityEvent {
         Endermite endermite = new Endermite(EntityType.ENDERMITE, level);
         endermite.setPos(spawnX, spawnY, spawnZ);
         endermite.setTarget(player);
-        level.addFreshEntity(endermite);
+        return level.addFreshEntity(endermite);
     }
 
     @SubscribeEvent
@@ -470,7 +514,12 @@ public class EntityEvent {
         if (attacker == null || !RingUtil.configAndRing(attacker, getConfig().enableWeakenedStrikes)) return;
 
         float multiplier = Math.max(0.0f, Math.min(1.0f, getConfig().weakenedStrikesDamageMultiplier));
-        event.setAmount(event.getAmount() * multiplier);
+        float originalAmount = event.getAmount();
+        float modifiedAmount = originalAmount * multiplier;
+        if (modifiedAmount != originalAmount) {
+            event.setAmount(modifiedAmount);
+            CurseAdvancementManager.trigger(attacker, "weakened_strikes");
+        }
     }
 
     @SubscribeEvent
@@ -497,6 +546,7 @@ public class EntityEvent {
                 && (resetAfter <= 0 || gameTime - previous.getLong("GameTime") <= resetAfter);
         if (sameRecentMethod) {
             event.setCanceled(true);
+            CurseAdvancementManager.trigger(player, "patterned_assault");
             return;
         }
 
@@ -557,7 +607,12 @@ public class EntityEvent {
         double chance = Math.max(0.0D, Math.min(1.0D, getConfig().unbalancedWeaponChance));
         if (attacker.getRandom().nextDouble() >= chance) return;
         float multiplier = Math.max(0.0F, Math.min(1.0F, getConfig().unbalancedWeaponDamageMultiplier));
-        event.setAmount(event.getAmount() * multiplier);
+        float originalAmount = event.getAmount();
+        float modifiedAmount = originalAmount * multiplier;
+        if (modifiedAmount != originalAmount) {
+            event.setAmount(modifiedAmount);
+            CurseAdvancementManager.trigger(attacker, "unbalanced_weapon");
+        }
     }
 
     @SubscribeEvent
@@ -566,7 +621,12 @@ public class EntityEvent {
         if (!RingUtil.configAndRing(player, getConfig().enableBloodAndFlesh)) return;
 
         float extraDamagePercent = Math.max(0.0f, getConfig().bloodAndFleshExtraDamagePercent);
-        event.setAmount(event.getAmount() + player.getMaxHealth() * extraDamagePercent);
+        float originalAmount = event.getAmount();
+        float modifiedAmount = originalAmount + player.getMaxHealth() * extraDamagePercent;
+        if (modifiedAmount != originalAmount) {
+            event.setAmount(modifiedAmount);
+            CurseAdvancementManager.trigger(player, "blood_and_flesh");
+        }
     }
 
     @SubscribeEvent
@@ -600,12 +660,14 @@ public class EntityEvent {
 
         int rolls = Math.max(1, getConfig().curseOfMisfortuneRolls);
         Iterator<ItemEntity> iterator = event.getDrops().iterator();
+        boolean dropsChanged = false;
         while (iterator.hasNext()) {
             ItemEntity drop = iterator.next();
             ItemStack stack = drop.getItem();
             int originalCount = stack.getCount();
             if (originalCount <= 0) {
                 iterator.remove();
+                dropsChanged = true;
                 continue;
             }
 
@@ -615,9 +677,16 @@ public class EntityEvent {
             }
             if (worstCount <= 0) {
                 iterator.remove();
+                dropsChanged = true;
             } else {
-                stack.setCount(worstCount);
+                if (worstCount != originalCount) {
+                    stack.setCount(worstCount);
+                    dropsChanged = true;
+                }
             }
+        }
+        if (dropsChanged) {
+            CurseAdvancementManager.trigger(player, "curse_of_misfortune");
         }
     }
 
@@ -708,6 +777,7 @@ public class EntityEvent {
             double chance = Math.max(0.0D, Math.min(1.0D, getConfig().focusDisturbanceChance));
             if (chance > 0.0D && player.getRandom().nextDouble() < chance) {
                 event.setCanceled(true);
+                CurseAdvancementManager.trigger(player, "focus_disturbance");
                 return;
             }
         }
@@ -715,6 +785,7 @@ public class EntityEvent {
         if (event.getTarget() instanceof LivingEntity target) {
             if (!hasJustifiedAttacker(player, target)) {
                 event.setCanceled(true);
+                CurseAdvancementManager.trigger(player, "justified_combat");
             }
         }
     }
@@ -766,6 +837,7 @@ public class EntityEvent {
         }
         data.putLong(ENDING_MOMENT_LAST_PLAY_KEY, gameTime);
         data.putInt(ENDING_MOMENT_COUNT_KEY, count + 1);
+        CurseAdvancementManager.trigger(player, "ending_moment");
     }
 
     @SubscribeEvent
@@ -783,7 +855,9 @@ public class EntityEvent {
             playerCloud.setDuration(100);
             playerCloud.setParticle(ParticleTypes.DRAGON_BREATH);
             playerCloud.addEffect(new MobEffectInstance(MobEffects.HARM));
-            event.getLevel().addFreshEntity(playerCloud);
+            if (event.getLevel().addFreshEntity(playerCloud)) {
+                CurseAdvancementManager.trigger(player, "draconic_favor");
+            }
         }
     }
 }

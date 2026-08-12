@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.inventory;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -32,6 +33,10 @@ public class GrindstoneMenuMixin {
         double lossPercent = getConfig().grindingWearDurabilityLossPercent;
         int durabilityLoss = (int) Math.ceil(result.getMaxDamage() * lossPercent);
         int newDamage = result.getDamageValue() + durabilityLoss;
-        result.setDamageValue(Math.min(newDamage, result.getMaxDamage() - 1));
+        int modifiedDamage = Math.min(newDamage, result.getMaxDamage() - 1);
+        if (modifiedDamage != result.getDamageValue()) {
+            result.setDamageValue(modifiedDamage);
+            CurseAdvancementManager.trigger(player, "grinding_wear");
+        }
     }
 }

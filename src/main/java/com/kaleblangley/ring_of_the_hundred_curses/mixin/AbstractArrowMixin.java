@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.world.entity.LivingEntity;
@@ -17,9 +18,13 @@ public class AbstractArrowMixin {
         AbstractArrow arrow = (AbstractArrow) (Object) this;
         if (arrow.getOwner() instanceof Player player) {
             if (RingUtil.configAndRing(player, ModConfigManager.getConfig().enableOutlineMaster)) {
-                return inaccuracy + ModConfigManager.getConfig().outlineMasterInaccuracyIncrease;
+                float modifiedInaccuracy = inaccuracy + ModConfigManager.getConfig().outlineMasterInaccuracyIncrease;
+                if (modifiedInaccuracy != inaccuracy) {
+                    CurseAdvancementManager.trigger(player, "outline_master");
+                }
+                return modifiedInaccuracy;
             }
         }
         return inaccuracy;
     }
-} 
+}

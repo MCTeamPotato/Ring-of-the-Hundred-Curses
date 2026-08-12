@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.inventory;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.world.entity.player.Player;
@@ -23,11 +24,19 @@ public class ResultSlotMixin {
             int maximumAdditionalDamage = Math.max(1,
                     (int) (maxDamage * ModConfigManager.getConfig().befuddledArtisanDurabilityLossPercent));
             int damageAmount = 1 + player.level().random.nextInt(maximumAdditionalDamage);
-            pStack.setDamageValue(Math.min(maxDamage - 1, pStack.getDamageValue() + damageAmount));
+            int modifiedDamage = Math.min(maxDamage - 1, pStack.getDamageValue() + damageAmount);
+            if (modifiedDamage != pStack.getDamageValue()) {
+                pStack.setDamageValue(modifiedDamage);
+                CurseAdvancementManager.trigger(player, "befuddled_artisan");
+            }
         } else if (pStack.getCount() > 1) {
             int count = pStack.getCount();
             int reduction = 1 + player.level().random.nextInt(Math.max(1, (int) (count * ModConfigManager.getConfig().befuddledArtisanCountLossPercent)));
-            pStack.setCount(Math.max(1, count - reduction));
+            int modifiedCount = Math.max(1, count - reduction);
+            if (modifiedCount != count) {
+                pStack.setCount(modifiedCount);
+                CurseAdvancementManager.trigger(player, "befuddled_artisan");
+            }
         }
     }
 }

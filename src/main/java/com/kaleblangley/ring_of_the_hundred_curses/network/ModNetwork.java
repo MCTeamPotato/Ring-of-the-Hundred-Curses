@@ -40,5 +40,13 @@ public final class ModNetwork {
                 MirageInstancePacket::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT)
         );
+        CHANNEL.registerMessage(
+                nextMessageId++,
+                CurseAdvancementPacket.class,
+                CurseAdvancementPacket::encode,
+                CurseAdvancementPacket::decode,
+                CurseAdvancementPacket::handle,
+                Optional.of(NetworkDirection.PLAY_TO_SERVER)
+        );
     }
 }

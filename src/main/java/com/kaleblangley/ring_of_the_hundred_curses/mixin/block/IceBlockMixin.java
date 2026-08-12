@@ -1,7 +1,9 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.block;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.IceBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -20,10 +22,15 @@ public class IceBlockMixin {
     )
     private boolean ring_of_the_hundred_curses$endNoWaterOnBreak(Level instance, BlockPos pos, BlockState state) {
         if (instance.dimension() == Level.END) {
-            boolean shouldEvaporate = instance.players().stream()
-                    .anyMatch(p -> RingUtil.configAndRing(p, getConfig().enableEndWaterBan));
-            if (shouldEvaporate) {
-                return instance.removeBlock(pos, false);
+            Player player = instance.players().stream()
+                    .filter(p -> RingUtil.configAndRing(p, getConfig().enableEndWaterBan))
+                    .findFirst().orElse(null);
+            if (player != null) {
+                boolean removed = instance.removeBlock(pos, false);
+                if (removed) {
+                    CurseAdvancementManager.trigger(player, "end_water_ban");
+                }
+                return removed;
             }
         }
         return instance.setBlockAndUpdate(pos, state);
@@ -35,10 +42,15 @@ public class IceBlockMixin {
     )
     private boolean ring_of_the_hundred_curses$endNoWaterOnMelt(Level instance, BlockPos pos, BlockState state) {
         if (instance.dimension() == Level.END) {
-            boolean shouldEvaporate = instance.players().stream()
-                    .anyMatch(p -> RingUtil.configAndRing(p, getConfig().enableEndWaterBan));
-            if (shouldEvaporate) {
-                return instance.removeBlock(pos, false);
+            Player player = instance.players().stream()
+                    .filter(p -> RingUtil.configAndRing(p, getConfig().enableEndWaterBan))
+                    .findFirst().orElse(null);
+            if (player != null) {
+                boolean removed = instance.removeBlock(pos, false);
+                if (removed) {
+                    CurseAdvancementManager.trigger(player, "end_water_ban");
+                }
+                return removed;
             }
         }
         return instance.setBlockAndUpdate(pos, state);

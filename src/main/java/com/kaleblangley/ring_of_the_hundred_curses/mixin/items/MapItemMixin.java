@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.items;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.world.entity.Entity;
@@ -19,6 +20,7 @@ public class MapItemMixin {
     private void ring_of_the_hundred_curses$disableMapUpdate(ItemStack pStack, Level pLevel, Entity pEntity, int pItemSlot, boolean pIsSelected, CallbackInfo ci) {
         if (pEntity instanceof Player player && RingUtil.configAndRing(player, ModConfigManager.getConfig().enableLostDirection)) {
             ci.cancel();
+            CurseAdvancementManager.trigger(player, "lost_direction");
         }
     }
 }

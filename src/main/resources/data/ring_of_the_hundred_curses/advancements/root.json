@@ -1,0 +1,23 @@
+{
+  "display": {
+    "icon": {
+      "item": "ring_of_the_hundred_curses:ring_of_the_hundred_curses"
+    },
+    "title": {
+      "translate": "advancements.ring_of_the_hundred_curses.root.title"
+    },
+    "description": {
+      "translate": "advancements.ring_of_the_hundred_curses.root.description"
+    },
+    "background": "minecraft:textures/gui/advancements/backgrounds/adventure.png",
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": true
+  },
+  "criteria": {
+    "tick": {
+      "trigger": "minecraft:tick"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.inventory;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -16,7 +17,11 @@ public class InventoryMenuMixin {
     @ModifyVariable(method = "quickMoveStack", at = @At("STORE"), ordinal = 1)
     public ItemStack ring_of_the_hundred_curses$modifyItemSize(ItemStack itemStack){
         ItemStack newItemStack = itemStack.copy();
+        int originalMaxStackSize = itemStack.getMaxStackSize();
         RingUtil.backpackLimitSizeModify(this.owner, newItemStack);
+        if (newItemStack.getMaxStackSize() < originalMaxStackSize) {
+            CurseAdvancementManager.trigger(this.owner, "backpack_limit");
+        }
         return newItemStack;
     }
 }

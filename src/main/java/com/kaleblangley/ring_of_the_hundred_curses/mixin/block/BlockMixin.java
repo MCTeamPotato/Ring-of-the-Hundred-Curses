@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.block;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.init.ModTag;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
@@ -36,8 +37,9 @@ public class BlockMixin {
                 if (wasHurt) {
                     level.playSound(null, pos, SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH,
                         SoundSource.BLOCKS, 1.0F, 0.8F + level.random.nextFloat() * 0.4F);
+                    CurseAdvancementManager.trigger(player, "hostile_flora");
                 }
             }
         }
     }
-} 
+}

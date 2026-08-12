@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.client.Minecraft;
@@ -22,6 +23,7 @@ public class MinecraftMixin {
     private void ring_of_the_hundred_curses$cancelAttack(CallbackInfoReturnable<Boolean> cir) {
         if (player != null && player.getAttackStrengthScale(0.0F) < 1.0F && RingUtil.configAndRing(player, ModConfigManager.getConfig().enableFullPower)) {
             cir.cancel();
+            CurseAdvancementManager.trigger(player, "full_power");
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.items;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
@@ -23,7 +24,10 @@ public class EyeOfEnderMixin {
         Player nearestPlayer = eyeOfEnder.level().getNearestPlayer(
             eyeOfEnder.getX(), eyeOfEnder.getY(), eyeOfEnder.getZ(), 10.0, false);
         if (nearestPlayer != null && RingUtil.configAndRing(nearestPlayer, ModConfigManager.getConfig().enableShatteredEye)) {
-            this.surviveAfterDeath = false;
+            if (this.surviveAfterDeath) {
+                this.surviveAfterDeath = false;
+                CurseAdvancementManager.trigger(nearestPlayer, "shattered_eye");
+            }
         }
     }
-} 
+}

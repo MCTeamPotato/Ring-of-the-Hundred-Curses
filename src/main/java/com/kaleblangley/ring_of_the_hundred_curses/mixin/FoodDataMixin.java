@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.api.event.EatEvent;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
@@ -35,6 +36,9 @@ public abstract class FoodDataMixin {
     @Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;isHurt()Z"))
     private boolean ring_of_the_hundred_curses$preventNaturalRegen(Player player) {
         if (RingUtil.configAndRing(player, ModConfigManager.getConfig().enableSlowRecovery)) {
+            if (player.isHurt()) {
+                CurseAdvancementManager.trigger(player, "slow_recovery");
+            }
             return false;
         }
         return player.isHurt();

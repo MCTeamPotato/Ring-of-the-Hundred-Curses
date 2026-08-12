@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.client.Minecraft;
@@ -24,7 +25,11 @@ public class ForgeGuiMixin {
         Player player = Minecraft.getInstance().player;
         if (player != null && RingUtil.configAndRing(player, ModConfigManager.getConfig().enableHollowStomach)) {
             int maxHunger = ModConfigManager.getConfig().hollowStomachMaxHunger;
-            return Math.max(1, (maxHunger + 1) / 2);
+            int modified = Math.max(1, (maxHunger + 1) / 2);
+            if (modified != original) {
+                CurseAdvancementManager.trigger(player, "hollow_stomach");
+            }
+            return modified;
         }
         return original;
     }

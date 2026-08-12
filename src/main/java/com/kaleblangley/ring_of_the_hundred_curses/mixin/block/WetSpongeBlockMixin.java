@@ -1,9 +1,11 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.block;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WetSpongeBlock;
@@ -21,13 +23,15 @@ public class WetSpongeBlockMixin {
     @Inject(method = "onPlace", at = @At("HEAD"), cancellable = true)
     private void ring_of_the_hundred_curses$endWetSpongeDry(BlockState pState, Level pLevel, BlockPos pPos, BlockState pOldState, boolean pIsMoving, CallbackInfo ci) {
         if (pLevel.dimension() == Level.END) {
-            boolean shouldDry = pLevel.players().stream()
-                    .anyMatch(p -> RingUtil.configAndRing(p, getConfig().enableEndWaterBan));
-            if (shouldDry) {
+            Player player = pLevel.players().stream()
+                    .filter(p -> RingUtil.configAndRing(p, getConfig().enableEndWaterBan))
+                    .findFirst().orElse(null);
+            if (player != null) {
                 pLevel.setBlock(pPos, Blocks.SPONGE.defaultBlockState(), 3);
                 pLevel.levelEvent(2009, pPos, 0);
                 pLevel.playSound(null, pPos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, (1.0F + pLevel.getRandom().nextFloat() * 0.2F) * 0.7F);
                 ci.cancel();
+                CurseAdvancementManager.trigger(player, "end_water_ban");
             }
         }
     }

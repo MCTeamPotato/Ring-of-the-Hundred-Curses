@@ -1,6 +1,7 @@
 package com.kaleblangley.ring_of_the_hundred_curses.client.event;
 
 import com.kaleblangley.ring_of_the_hundred_curses.RingOfTheHundredCurses;
+import com.kaleblangley.ring_of_the_hundred_curses.client.advancement.CurseAdvancementClient;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -10,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -19,6 +21,16 @@ import static com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManage
 
 @Mod.EventBusSubscriber(modid = RingOfTheHundredCurses.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ForgeEvent {
+
+    @SubscribeEvent
+    public static void resetCurseAdvancementRequests(ClientPlayerNetworkEvent.LoggingIn event) {
+        CurseAdvancementClient.reset();
+    }
+
+    @SubscribeEvent
+    public static void clearCurseAdvancementRequests(ClientPlayerNetworkEvent.LoggingOut event) {
+        CurseAdvancementClient.reset();
+    }
 
     @SubscribeEvent
     public static void rottingHungerTooltip(ItemTooltipEvent event) {

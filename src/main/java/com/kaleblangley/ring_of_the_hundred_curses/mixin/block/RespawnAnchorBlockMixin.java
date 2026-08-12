@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.block;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.core.BlockPos;
@@ -26,6 +27,9 @@ public class RespawnAnchorBlockMixin {
             if (min > max) min = max;
             int cost = min + pLevel.random.nextInt(Math.max(1, max - min + 1));
             stack.shrink(cost);
+            if (cost != original) {
+                CurseAdvancementManager.trigger(pPlayer, "cafeteria_lady");
+            }
         } else {
             stack.shrink(original);
         }

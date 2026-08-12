@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.inventory;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
@@ -61,11 +62,17 @@ public class EnchantmentMenuMixin {
             if (player == null || !RingUtil.configAndRing(player, getConfig().enableGreedyTome)) return;
 
             double multiplier = Math.max(0.0D, getConfig().greedyTomeCostMultiplier);
+            boolean changed = false;
             for (int i = 0; i < this.costs.length && i < this.ring_of_the_hundred_curses$baseCosts.length; i++) {
                 int baseCost = this.ring_of_the_hundred_curses$baseCosts[i];
-                this.costs[i] = baseCost <= 0
+                int modifiedCost = baseCost <= 0
                         ? baseCost
                         : (int) Math.min(Integer.MAX_VALUE, Math.ceil(baseCost * multiplier));
+                changed |= modifiedCost != this.costs[i];
+                this.costs[i] = modifiedCost;
+            }
+            if (changed) {
+                CurseAdvancementManager.trigger(player, "greedy_tome");
             }
         });
         ((EnchantmentMenu) (Object) this).broadcastChanges();
@@ -131,6 +138,7 @@ public class EnchantmentMenuMixin {
         EnchantmentHelper.setEnchantments(reduced, item);
         enchantSlots.setItem(0, item);
         enchantSlots.setChanged();
+        CurseAdvancementManager.trigger(player, "endless_quiz");
     }
 
     private static boolean ring_of_the_hundred_curses$isWeaponOrTool(ItemStack stack) {

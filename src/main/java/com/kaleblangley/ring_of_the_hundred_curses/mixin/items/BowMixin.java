@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mixin.items;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.config.ModConfigManager;
 import com.kaleblangley.ring_of_the_hundred_curses.util.RingUtil;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,6 +20,7 @@ public abstract class BowMixin {
     public void ring_of_the_hundred_curses$cancelBow(ItemStack pStack, Level pLevel, LivingEntity pEntityLiving, int pTimeLeft, CallbackInfo ci, Player player, boolean flag, ItemStack itemstack, int i, float f) {
         if (f < 1.0D && RingUtil.configAndRing(player, ModConfigManager.getConfig().enableFullPower)) {
             ci.cancel();
+            CurseAdvancementManager.trigger(player, "full_power");
         }
     }
 }

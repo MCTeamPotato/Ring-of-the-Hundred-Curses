@@ -1,5 +1,6 @@
 package com.kaleblangley.ring_of_the_hundred_curses.mirage;
 
+import com.kaleblangley.ring_of_the_hundred_curses.advancement.CurseAdvancementManager;
 import com.kaleblangley.ring_of_the_hundred_curses.network.MirageInstancePacket;
 import com.kaleblangley.ring_of_the_hundred_curses.network.MirageTemplatePacket;
 import net.minecraft.core.BlockPos;
@@ -126,6 +127,7 @@ public final class MirageServerManager {
             state.usedSources.add(source.sourceKey);
             sendTemplateIfNeeded(player, state, source.template);
             sendInstance(player, instance);
+            CurseAdvancementManager.trigger(player, "mirage");
             return;
         }
     }
